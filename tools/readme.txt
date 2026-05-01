@@ -1,1 +1,0 @@
-pwsh -NoProfile -ExecutionPolicy Bypass -File C:\xampp\htdocs\WebApp\Radio\tools\radiobrowser-fetch-icons.ps1 -MaxStations 500 -DelayMs 120
