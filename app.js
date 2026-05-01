@@ -175,7 +175,7 @@ function saveUiStateNow() {
 function setPlayerCollapsed(collapsed, { persist = true } = {}) {
   els.playerPanel?.classList.toggle("is-collapsed", collapsed);
   if (els.playerToggleBtn) {
-    els.playerToggleBtn.textContent = collapsed ? "Ausklappen ▼" : "Einklappen ▲";
+    els.playerToggleBtn.textContent = collapsed ? "Aç ▼" : "Daralt ▲";
     els.playerToggleBtn.setAttribute("aria-expanded", String(!collapsed));
   }
   scheduleListHeightUpdate();
@@ -239,17 +239,17 @@ function autoSkipToNext(reason, tokenAtStart) {
   if (tokenAtStart !== selectionToken) return;
   if (skipIssuedForToken === tokenAtStart) return;
   skipIssuedForToken = tokenAtStart;
-  setPlayerError(`Auto-Skip: ${reason}`);
+  setPlayerError(`Otomatik geçiş: ${reason}`);
   nextStation({ initiatedByUser: false });
 }
 
 function buildLstFromStations(list) {
   const stamp = new Date().toISOString();
   const lines = [
-    `# WebRadioStation export`,
-    `# Generated: ${stamp}`,
-    `# View: ${viewMode}`,
-    `# Search: ${els.searchInput.value.trim()}`,
+    `# WebRadyo dışa aktarım`,
+    `# Oluşturuldu: ${stamp}`,
+    `# Görünüm: ${viewMode}`,
+    `# Arama: ${els.searchInput.value.trim()}`,
     ``,
   ];
 
@@ -301,7 +301,7 @@ async function adminSaveCurrentList() {
   const list = getFilteredStations();
   const content = buildLstFromStations(list);
 
-  setAdminResult("Speichere…");
+  setAdminResult("Kaydediliyor...");
   try {
     const res = await fetch(ADMIN_SAVE_URL, {
       method: "POST",
@@ -310,12 +310,12 @@ async function adminSaveCurrentList() {
     });
     const data = await res.json().catch(() => null);
     if (!res.ok || !data?.ok) {
-      setAdminResult(`Fehler: ${data?.error || "HTTP " + res.status}`, "bad");
+      setAdminResult(`Hata: ${data?.error || "HTTP " + res.status}`, "bad");
       return;
     }
     setAdminResult(`OK (${data.bytes} bytes)`, "ok");
   } catch (err) {
-    setAdminResult(`Fehler: ${String(err?.message || err)}`, "bad");
+    setAdminResult(`Hata: ${String(err?.message || err)}`, "bad");
   }
 }
 
@@ -331,7 +331,7 @@ function adminDownloadCurrentList() {
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 5000);
-  setAdminResult("Download gestartet.", "ok");
+  setAdminResult("İndirme başlatıldı.", "ok");
 }
 
 function getStreamPrefMap() {
@@ -407,7 +407,7 @@ function parseLst(text) {
   for (const [key, value] of map.entries()) {
     out.push({ key, name: value.name, streams: value.streams, icon: value.icon });
   }
-  out.sort((a, b) => a.name.localeCompare(b.name, "de"));
+  out.sort((a, b) => a.name.localeCompare(b.name, "tr"));
   return out;
 }
 
@@ -423,14 +423,14 @@ function setStatus(text, isError = false) {
 function setCount(text) {
   els.countText.textContent = text;
   if (els.footerCount) {
-    els.footerCount.textContent = text || "0 Sender";
+    els.footerCount.textContent = text || "0 Kanal";
   }
 }
 
 function updateTabLabels() {
   const favs = getFavoritesSet();
-  els.tabAll.textContent = `Alle (${stations.length})`;
-  els.tabFav.textContent = `Favoriten (${favs.size})`;
+  els.tabAll.textContent = `Tümü (${stations.length})`;
+  els.tabFav.textContent = `Favoriler (${favs.size})`;
 }
 
 function setPlayerState(text) {
@@ -631,10 +631,10 @@ async function checkCurrentStream({ fastOnly } = { fastOnly: false }) {
 
   // Quick hint for HLS playlists: often not supported in Chrome/Firefox on Windows.
   if (/\.m3u8(\?|#|$)/i.test(url)) {
-    setStreamCheck("HLS (Browser abhängig)", "neutral");
+    setStreamCheck("HLS (tarayıcıya bağlı)", "neutral");
     if (fastOnly) return;
   } else {
-    setStreamCheck("Prüfe…", "neutral");
+    setStreamCheck("Kontrol ediliyor...", "neutral");
   }
 
   const token = ++checkToken;
@@ -655,12 +655,12 @@ async function checkCurrentStream({ fastOnly } = { fastOnly: false }) {
       setPlayOkToggle(false);
     }
   } else if (res.status === "error") {
-    setStreamCheck("Fehler: keine unterstützte Quelle", "bad");
+    setStreamCheck("Hata: desteklenen kaynak yok", "bad");
     if (streamDiagnosticsEnabled && stationKeyForUrl) stationIssue.set(stationKeyForUrl, "unsupported");
     if (streamDiagnosticsEnabled) rememberBlockedUrl(url);
     setPlayOkToggle(false);
   } else {
-    setStreamCheck("Unklar (Timeout)", "neutral");
+    setStreamCheck("Belirsiz (zaman aşımı)", "neutral");
     if (streamDiagnosticsEnabled && stationKeyForUrl) stationIssue.set(stationKeyForUrl, "timeout");
     if (streamDiagnosticsEnabled) rememberBlockedUrl(url);
     setPlayOkToggle(false);
@@ -700,7 +700,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   els.nowTitle.textContent = st.name;
   if (els.footerNow) els.footerNow.textContent = st.name;
   els.favToggleBtn.disabled = false;
-  els.favToggleBtn.textContent = favs.has(st.key) ? "★ Favorit" : "☆ Favorit";
+  els.favToggleBtn.textContent = favs.has(st.key) ? "★ Favori" : "☆ Favori";
 
   els.streamSelect.disabled = st.streams.length <= 1;
   const blocked = getBlockedUrlsSet();
@@ -709,7 +709,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   els.streamSelect.innerHTML = st.streams
     .map((url, idx) => {
       const isBlocked = hasAnyUnblocked && blocked.has(url);
-      const label = `Stream ${idx + 1}${/m3u8/i.test(url) ? " (HLS)" : ""}${isBlocked ? " (gesperrt)" : ""}`;
+      const label = `Yayın ${idx + 1}${/m3u8/i.test(url) ? " (HLS)" : ""}${isBlocked ? " (engelli)" : ""}`;
       return `<option value="${idx}" ${isBlocked ? "disabled" : ""}>${label}</option>`;
     })
     .join("");
@@ -745,10 +745,10 @@ function renderList() {
   const list = getFilteredStations();
 
   updateTabLabels();
-  setCount(`${list.length} Sender${viewMode === "fav" ? " (Favoriten)" : ""}`);
+  setCount(`${list.length} Kanal${viewMode === "fav" ? " (Favoriler)" : ""}`);
 
   if (list.length === 0) {
-    els.stationList.innerHTML = `<div class="muted" style="padding: 10px 6px;">Keine Sender gefunden.</div>`;
+    els.stationList.innerHTML = `<div class="muted" style="padding: 10px 6px;">Kanal bulunamadı.</div>`;
     return;
   }
 
@@ -758,8 +758,8 @@ function renderList() {
       const isFav = favs.has(s.key);
       const issue = streamDiagnosticsEnabled ? stationIssue.get(s.key) : null;
       const isTimeout = issue === "timeout" || issue === "unsupported";
-      const badge = `<span class="badge">${s.streams.length} Stream${s.streams.length === 1 ? "" : "s"}</span>`;
-      const sub = s.streams.length > 1 ? `${s.streams.length} Streams verfügbar` : abbreviateUrl(s.streams[0]);
+      const badge = `<span class="badge">${s.streams.length} Yayın</span>`;
+      const sub = s.streams.length > 1 ? `${s.streams.length} yayın mevcut` : abbreviateUrl(s.streams[0]);
       return `
         <div class="item ${isActive ? "is-active" : ""} ${isTimeout ? "is-timeout" : ""}" role="listitem" data-key="${s.key}">
           <div class="item__main">
@@ -844,13 +844,13 @@ function loadTextAsset(url) {
         reject(new Error(`HTTP ${xhr.status}`));
       }
     };
-    xhr.onerror = () => reject(new Error("Senderliste konnte nicht gelesen werden."));
+    xhr.onerror = () => reject(new Error("Kanal listesi okunamadı."));
     xhr.send();
   });
 }
 
 async function loadStations({ bustCache } = { bustCache: false }) {
-  setStatus("Lade Senderliste…");
+  setStatus("Kanal listesi yükleniyor...");
   setPlayerError("—");
 
   const url = bustCache ? `${LIST_URL}?t=${Date.now()}` : LIST_URL;
@@ -866,7 +866,7 @@ async function loadStations({ bustCache } = { bustCache: false }) {
       text = await res.text();
     }
   } catch (err) {
-    setStatus(`Fehler beim Laden: ${String(err?.message || err)}`, true);
+    setStatus(`Yükleme hatası: ${String(err?.message || err)}`, true);
     setCount("");
     stations = [];
     renderList();
@@ -874,8 +874,8 @@ async function loadStations({ bustCache } = { bustCache: false }) {
   }
 
   stations = parseLst(text);
-  setStatus(`Senderliste geladen.`);
-  setCount(`${stations.length} Sender`);
+  setStatus(`Kanal listesi yüklendi.`);
+  setCount(`${stations.length} Kanal`);
   updateTabLabels();
 
   if (stations.length > 0 && !activeStationKey) {
@@ -929,17 +929,17 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
   setAudioSourceForActiveStation();
   const urlForThisPlay = getActiveStreamUrl();
 
-  setPlayerState("Verbinden…");
+  setPlayerState("Bağlanıyor...");
   setPlayerError("—");
   try {
     await els.audio.play();
-    setPlayerState("Spielt");
+    setPlayerState("Çalıyor");
     setPlayOkToggle(false);
     notifyNativePlayback(true);
     startNowPlayingPoll();
     void checkCurrentStream();
   } catch (err) {
-    setPlayerState("Angehalten");
+    setPlayerState("Durduruldu");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
     const msg = String(err?.message || err);
@@ -960,7 +960,7 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
 
 function pause() {
   els.audio.pause();
-  setPlayerState("Pause");
+  setPlayerState("Duraklatıldı");
   setPlayOkToggle(false);
   notifyNativePlayback(false);
   stopNowPlayingPoll();
@@ -970,7 +970,7 @@ function stop() {
   els.audio.pause();
   els.audio.removeAttribute("src");
   els.audio.load();
-  setPlayerState("Stop");
+  setPlayerState("Durduruldu");
   setPlayOkToggle(false);
   notifyNativePlayback(false);
   setStreamCheck("—", "neutral");
@@ -1034,7 +1034,7 @@ function setVolume(v) {
   // Some platforms (notably iOS Safari / some WebViews) don't allow programmatic volume changes.
   if (Math.abs(els.audio.volume - vol) > 0.001 && Math.abs(before - els.audio.volume) < 0.001) {
     els.volumeRange.disabled = true;
-    els.volumeText.textContent = `Gerät`;
+    els.volumeText.textContent = `Cihaz`;
     return;
   }
   els.volumeRange.value = String(vol);
@@ -1105,29 +1105,29 @@ function wireEvents() {
   els.volumeRange.addEventListener("input", () => setVolume(els.volumeRange.value));
 
   els.audio.addEventListener("playing", () => {
-    setPlayerState("Spielt");
+    setPlayerState("Çalıyor");
     notifyNativePlayback(true);
   });
   els.audio.addEventListener("pause", () => {
-    setPlayerState("Pause");
+    setPlayerState("Duraklatıldı");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
     stopNowPlayingPoll();
   });
-  els.audio.addEventListener("waiting", () => setPlayerState("Puffert…"));
-  els.audio.addEventListener("stalled", () => setPlayerState("Wartet auf Daten…"));
+  els.audio.addEventListener("waiting", () => setPlayerState("Tamponlanıyor..."));
+  els.audio.addEventListener("stalled", () => setPlayerState("Veri bekleniyor..."));
   els.audio.addEventListener("ended", () => {
-    setPlayerState("Beendet");
+    setPlayerState("Bitti");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
   });
   els.audio.addEventListener("error", () => {
     const tokenAtError = selectionToken;
     const mediaError = els.audio.error;
-    setPlayerState("Fehler");
+    setPlayerState("Hata");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
-    setPlayerError(mediaError ? `MediaError ${mediaError.code}` : "Unbekannter Fehler");
+    setPlayerError(mediaError ? `MediaError ${mediaError.code}` : "Bilinmeyen hata");
     stopNowPlayingPoll();
 
     const failingUrl = els.audio.currentSrc || els.audio.src || getActiveStreamUrl();
@@ -1148,12 +1148,12 @@ function wireEvents() {
   els.adminMarkingToggle?.addEventListener("change", () => {
     setDiagnosticsEnabled(Boolean(els.adminMarkingToggle.checked));
     void loadStations({ bustCache: true });
-    setAdminResult(streamDiagnosticsEnabled ? "Markierung aktiv." : "Markierung aus.", "ok");
+    setAdminResult(streamDiagnosticsEnabled ? "İşaretleme aktif." : "İşaretleme kapalı.", "ok");
   });
   els.adminClearBlockedBtn?.addEventListener("click", () => {
     clearBlockedUrls();
     void loadStations({ bustCache: true });
-    setAdminResult("Blockliste geleert.", "ok");
+    setAdminResult("Engel listesi temizlendi.", "ok");
   });
 
   document.addEventListener("keydown", (e) => {

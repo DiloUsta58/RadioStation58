@@ -305,9 +305,7 @@ code {
 }
 
 .item__sub {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--muted);
+  display: none;
 }
 
 .badge {
