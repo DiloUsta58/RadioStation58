@@ -6,9 +6,11 @@ const LS_STREAM_PREF_KEY = "webRadioStation:streamIndexByStation:v1";
 const LS_VOLUME_KEY = "webRadioStation:volume:v1";
 const LS_BLOCKED_URLS_KEY = "webRadioStation:blockedUrls:v1";
 const LS_UI_STATE_KEY = "webRadioStation:uiState:v1";
+const LS_DIAGNOSTICS_KEY = "webRadioStation:diagnosticsEnabled:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
-const STREAM_DIAGNOSTICS_ENABLED = false;
+const STREAM_CHECK_ENABLED = true;
+let streamDiagnosticsEnabled = false;
 
 const els = {
   reloadBtn: document.getElementById("reloadBtn"),
@@ -28,10 +30,12 @@ const els = {
   playBtn: document.getElementById("playBtn"),
   pauseBtn: document.getElementById("pauseBtn"),
   stopBtn: document.getElementById("stopBtn"),
+  prevBtn: document.getElementById("prevBtn"),
   nextBtn: document.getElementById("nextBtn"),
   randomBtn: document.getElementById("randomBtn"),
   compactPlayBtn: document.getElementById("compactPlayBtn"),
   compactPauseBtn: document.getElementById("compactPauseBtn"),
+  compactPrevBtn: document.getElementById("compactPrevBtn"),
   compactNextBtn: document.getElementById("compactNextBtn"),
   compactRandomBtn: document.getElementById("compactRandomBtn"),
   streamSelect: document.getElementById("streamSelect"),
@@ -50,6 +54,8 @@ const els = {
   adminCloseBtn: document.getElementById("adminCloseBtn"),
   adminSaveBtn: document.getElementById("adminSaveBtn"),
   adminDownloadBtn: document.getElementById("adminDownloadBtn"),
+  adminMarkingToggle: document.getElementById("adminMarkingToggle"),
+  adminClearBlockedBtn: document.getElementById("adminClearBlockedBtn"),
   adminResult: document.getElementById("adminResult"),
 };
 
@@ -123,19 +129,19 @@ function setFavoritesSet(set) {
 }
 
 function getBlockedUrlsSet() {
-  if (!STREAM_DIAGNOSTICS_ENABLED) return new Set();
+  if (!streamDiagnosticsEnabled) return new Set();
   const raw = localStorage.getItem(LS_BLOCKED_URLS_KEY);
   const arr = Array.isArray(safeJsonParse(raw, [])) ? safeJsonParse(raw, []) : [];
   return new Set(arr.filter((x) => typeof x === "string"));
 }
 
 function setBlockedUrlsSet(set) {
-  if (!STREAM_DIAGNOSTICS_ENABLED) return;
+  if (!streamDiagnosticsEnabled) return;
   localStorage.setItem(LS_BLOCKED_URLS_KEY, JSON.stringify([...set]));
 }
 
 function rememberBlockedUrl(url) {
-  if (!STREAM_DIAGNOSTICS_ENABLED) return;
+  if (!streamDiagnosticsEnabled) return;
   const set = getBlockedUrlsSet();
   if (!set.has(url)) {
     set.add(url);
@@ -222,7 +228,7 @@ function shouldAutoSkipNow() {
 }
 
 function markStreamBad(url, kind) {
-  if (!STREAM_DIAGNOSTICS_ENABLED) return;
+  if (!streamDiagnosticsEnabled) return;
   if (!url) return;
   if (kind === "timeout") rememberBlockedUrl(url);
   if (kind === "unsupported") rememberBlockedUrl(url);
@@ -263,6 +269,9 @@ function setAdminVisible(isVisible) {
 
 function setAdminOpen(isOpen) {
   els.adminPanel.classList.toggle("is-hidden", !isOpen);
+  if (isOpen && els.adminMarkingToggle) {
+    els.adminMarkingToggle.checked = Boolean(streamDiagnosticsEnabled);
+  }
 }
 
 function setAdminResult(text, kind = "neutral") {
@@ -270,6 +279,22 @@ function setAdminResult(text, kind = "neutral") {
   if (kind === "ok") els.adminResult.style.color = "rgba(87, 227, 163, 0.95)";
   else if (kind === "bad") els.adminResult.style.color = "rgba(255, 107, 107, 0.95)";
   else els.adminResult.style.color = "";
+}
+
+function setDiagnosticsEnabled(enabled) {
+  streamDiagnosticsEnabled = Boolean(enabled);
+  localStorage.setItem(LS_DIAGNOSTICS_KEY, streamDiagnosticsEnabled ? "1" : "0");
+  if (!streamDiagnosticsEnabled) {
+    stationIssue.clear();
+    renderList();
+  } else {
+    renderList();
+  }
+}
+
+function clearBlockedUrls() {
+  localStorage.removeItem(LS_BLOCKED_URLS_KEY);
+  stationIssue.clear();
 }
 
 async function adminSaveCurrentList() {
@@ -416,6 +441,14 @@ function setPlayerError(text) {
   els.playerError.textContent = text;
 }
 
+let playOkFlip = false;
+function setPlayOkToggle(isOn) {
+  const on = Boolean(isOn);
+  if (!on) playOkFlip = false;
+  els.playBtn?.classList.toggle("is-okalt", on && playOkFlip);
+  els.compactPlayBtn?.classList.toggle("is-okalt", on && playOkFlip);
+}
+
 function notifyNativePlayback(playing) {
   try {
     window.AndroidAudio?.setPlaying(Boolean(playing));
@@ -527,7 +560,7 @@ function getActiveStreamUrl() {
 }
 
 function findNextUnblockedIndex(station, startIdx) {
-  if (!STREAM_DIAGNOSTICS_ENABLED) return startIdx;
+  if (!streamDiagnosticsEnabled) return startIdx;
   const blocked = getBlockedUrlsSet();
   if (station.streams.length === 0) return 0;
 
@@ -584,8 +617,8 @@ async function probeStreamUrl(url, timeoutMs = 5000) {
 
 let checkToken = 0;
 async function checkCurrentStream({ fastOnly } = { fastOnly: false }) {
-  if (!STREAM_DIAGNOSTICS_ENABLED) {
-    setStreamCheck("Deaktiviert", "neutral");
+  if (!STREAM_CHECK_ENABLED) {
+    setStreamCheck("—", "neutral");
     return;
   }
   const tokenAtStart = selectionToken;
@@ -613,26 +646,27 @@ async function checkCurrentStream({ fastOnly } = { fastOnly: false }) {
 
   if (res.status === "ok") {
     setStreamCheck("OK", "ok");
-    if (stationKeyForUrl) stationIssue.delete(stationKeyForUrl);
+    if (streamDiagnosticsEnabled && stationKeyForUrl) stationIssue.delete(stationKeyForUrl);
+    // Visual feedback without animation: alternate blue/yellow on each OK check while playing
+    if (!els.audio.paused) {
+      playOkFlip = !playOkFlip;
+      setPlayOkToggle(true);
+    } else {
+      setPlayOkToggle(false);
+    }
   } else if (res.status === "error") {
     setStreamCheck("Fehler: keine unterstützte Quelle", "bad");
-    if (stationKeyForUrl) stationIssue.set(stationKeyForUrl, "unsupported");
-    rememberBlockedUrl(url);
-    if (isStillCurrentSelection) {
-      applyActiveToPlayer({ skipCheck: true });
-      autoSkipToNext("keine unterstützte Quelle", tokenAtStart);
-    }
+    if (streamDiagnosticsEnabled && stationKeyForUrl) stationIssue.set(stationKeyForUrl, "unsupported");
+    if (streamDiagnosticsEnabled) rememberBlockedUrl(url);
+    setPlayOkToggle(false);
   } else {
     setStreamCheck("Unklar (Timeout)", "neutral");
-    if (stationKeyForUrl) stationIssue.set(stationKeyForUrl, "timeout");
-    rememberBlockedUrl(url);
-    if (isStillCurrentSelection) {
-      applyActiveToPlayer({ skipCheck: true });
-      autoSkipToNext("Timeout", tokenAtStart);
-    }
+    if (streamDiagnosticsEnabled && stationKeyForUrl) stationIssue.set(stationKeyForUrl, "timeout");
+    if (streamDiagnosticsEnabled) rememberBlockedUrl(url);
+    setPlayOkToggle(false);
   }
 
-  renderList();
+  if (streamDiagnosticsEnabled) renderList();
 }
 
 function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
@@ -651,8 +685,14 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
     els.playBtn.disabled = true;
     els.pauseBtn.disabled = true;
     els.stopBtn.disabled = true;
+    els.prevBtn.disabled = getFilteredStations().length === 0;
     els.nextBtn.disabled = getFilteredStations().length === 0;
     els.randomBtn.disabled = getFilteredStations().length === 0;
+    if (els.compactPlayBtn) els.compactPlayBtn.disabled = true;
+    if (els.compactPauseBtn) els.compactPauseBtn.disabled = true;
+    if (els.compactPrevBtn) els.compactPrevBtn.disabled = getFilteredStations().length === 0;
+    if (els.compactNextBtn) els.compactNextBtn.disabled = getFilteredStations().length === 0;
+    if (els.compactRandomBtn) els.compactRandomBtn.disabled = getFilteredStations().length === 0;
     setStreamCheck("—", "neutral");
     return;
   }
@@ -687,8 +727,14 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   els.playBtn.disabled = false;
   els.pauseBtn.disabled = false;
   els.stopBtn.disabled = false;
+  els.prevBtn.disabled = getFilteredStations().length === 0;
   els.nextBtn.disabled = getFilteredStations().length === 0;
   els.randomBtn.disabled = getFilteredStations().length === 0;
+  if (els.compactPlayBtn) els.compactPlayBtn.disabled = false;
+  if (els.compactPauseBtn) els.compactPauseBtn.disabled = false;
+  if (els.compactPrevBtn) els.compactPrevBtn.disabled = getFilteredStations().length === 0;
+  if (els.compactNextBtn) els.compactNextBtn.disabled = getFilteredStations().length === 0;
+  if (els.compactRandomBtn) els.compactRandomBtn.disabled = getFilteredStations().length === 0;
 
   // Background check of the currently selected stream (does not autoplay).
   if (!skipCheck) void checkCurrentStream({ fastOnly: true });
@@ -710,7 +756,7 @@ function renderList() {
     .map((s, idx) => {
       const isActive = s.key === activeStationKey;
       const isFav = favs.has(s.key);
-      const issue = stationIssue.get(s.key);
+      const issue = streamDiagnosticsEnabled ? stationIssue.get(s.key) : null;
       const isTimeout = issue === "timeout" || issue === "unsupported";
       const badge = `<span class="badge">${s.streams.length} Stream${s.streams.length === 1 ? "" : "s"}</span>`;
       const sub = s.streams.length > 1 ? `${s.streams.length} Streams verfügbar` : abbreviateUrl(s.streams[0]);
@@ -888,10 +934,13 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
   try {
     await els.audio.play();
     setPlayerState("Spielt");
+    setPlayOkToggle(false);
     notifyNativePlayback(true);
     startNowPlayingPoll();
+    void checkCurrentStream();
   } catch (err) {
     setPlayerState("Angehalten");
+    setPlayOkToggle(false);
     notifyNativePlayback(false);
     const msg = String(err?.message || err);
     setPlayerError(msg);
@@ -899,12 +948,11 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
     const url = urlForThisPlay ?? getActiveStreamUrl();
     if (/no supported source/i.test(msg) || /notsupportederror/i.test(msg)) {
       const keyForUrl = findStationKeyForUrl(url) ?? activeStationKey;
-      if (STREAM_DIAGNOSTICS_ENABLED && keyForUrl) stationIssue.set(keyForUrl, "unsupported");
+      if (streamDiagnosticsEnabled && keyForUrl) stationIssue.set(keyForUrl, "unsupported");
       markStreamBad(url, "unsupported");
-      if (STREAM_DIAGNOSTICS_ENABLED) {
+      if (streamDiagnosticsEnabled) {
         if (activeStationKey === keyForUrl && getActiveStreamUrl() === url) applyActiveToPlayer({ skipCheck: true });
         renderList();
-        autoSkipToNext("Play fehlgeschlagen (unsupported)", tokenAtStart);
       }
     }
   }
@@ -913,6 +961,7 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
 function pause() {
   els.audio.pause();
   setPlayerState("Pause");
+  setPlayOkToggle(false);
   notifyNativePlayback(false);
   stopNowPlayingPoll();
 }
@@ -922,6 +971,7 @@ function stop() {
   els.audio.removeAttribute("src");
   els.audio.load();
   setPlayerState("Stop");
+  setPlayOkToggle(false);
   notifyNativePlayback(false);
   setStreamCheck("—", "neutral");
   stopNowPlayingPoll();
@@ -956,6 +1006,18 @@ function nextStation({ initiatedByUser } = { initiatedByUser: true }) {
   void play({ initiatedByUser });
 }
 
+function prevStation({ initiatedByUser } = { initiatedByUser: true }) {
+  const list = getFilteredStations();
+  if (list.length === 0) return;
+
+  let idx = list.findIndex((s) => s.key === activeStationKey);
+  if (idx < 0) idx = 0;
+  else idx = (idx - 1 + list.length) % list.length;
+
+  selectStation(list[idx].key);
+  void play({ initiatedByUser });
+}
+
 function randomStation({ initiatedByUser } = { initiatedByUser: true }) {
   const list = getFilteredStations();
   if (list.length === 0) return;
@@ -965,8 +1027,16 @@ function randomStation({ initiatedByUser } = { initiatedByUser: true }) {
 }
 
 function setVolume(v) {
+  if (els.volumeRange?.disabled) return;
   const vol = Math.max(0, Math.min(1, Number(v)));
+  const before = els.audio.volume;
   els.audio.volume = vol;
+  // Some platforms (notably iOS Safari / some WebViews) don't allow programmatic volume changes.
+  if (Math.abs(els.audio.volume - vol) > 0.001 && Math.abs(before - els.audio.volume) < 0.001) {
+    els.volumeRange.disabled = true;
+    els.volumeText.textContent = `Gerät`;
+    return;
+  }
   els.volumeRange.value = String(vol);
   els.volumeText.textContent = `${Math.round(vol * 100)}%`;
   localStorage.setItem(LS_VOLUME_KEY, String(vol));
@@ -975,6 +1045,7 @@ function setVolume(v) {
 function loadVolume() {
   const raw = localStorage.getItem(LS_VOLUME_KEY);
   const v = raw == null ? 0.8 : Number(raw);
+  els.volumeRange.disabled = false;
   setVolume(Number.isFinite(v) ? v : 0.8);
 }
 
@@ -991,6 +1062,7 @@ function wireEvents() {
     renderList();
     els.nextBtn.disabled = getFilteredStations().length === 0;
     els.randomBtn.disabled = getFilteredStations().length === 0;
+    els.prevBtn.disabled = getFilteredStations().length === 0;
     scheduleUiSave();
   });
 
@@ -1017,10 +1089,12 @@ function wireEvents() {
   els.playBtn.addEventListener("click", () => play({ initiatedByUser: true }));
   els.pauseBtn.addEventListener("click", () => pause());
   els.stopBtn.addEventListener("click", () => stop());
+  els.prevBtn.addEventListener("click", () => prevStation({ initiatedByUser: true }));
   els.nextBtn.addEventListener("click", () => nextStation({ initiatedByUser: true }));
   els.randomBtn.addEventListener("click", () => randomStation({ initiatedByUser: true }));
   els.compactPlayBtn?.addEventListener("click", () => play({ initiatedByUser: true }));
   els.compactPauseBtn?.addEventListener("click", () => pause());
+  els.compactPrevBtn?.addEventListener("click", () => prevStation({ initiatedByUser: true }));
   els.compactNextBtn?.addEventListener("click", () => nextStation({ initiatedByUser: true }));
   els.compactRandomBtn?.addEventListener("click", () => randomStation({ initiatedByUser: true }));
   els.streamSelect.addEventListener("change", () => {
@@ -1036,6 +1110,7 @@ function wireEvents() {
   });
   els.audio.addEventListener("pause", () => {
     setPlayerState("Pause");
+    setPlayOkToggle(false);
     notifyNativePlayback(false);
     stopNowPlayingPoll();
   });
@@ -1043,24 +1118,25 @@ function wireEvents() {
   els.audio.addEventListener("stalled", () => setPlayerState("Wartet auf Daten…"));
   els.audio.addEventListener("ended", () => {
     setPlayerState("Beendet");
+    setPlayOkToggle(false);
     notifyNativePlayback(false);
   });
   els.audio.addEventListener("error", () => {
     const tokenAtError = selectionToken;
     const mediaError = els.audio.error;
     setPlayerState("Fehler");
+    setPlayOkToggle(false);
     notifyNativePlayback(false);
     setPlayerError(mediaError ? `MediaError ${mediaError.code}` : "Unbekannter Fehler");
     stopNowPlayingPoll();
 
     const failingUrl = els.audio.currentSrc || els.audio.src || getActiveStreamUrl();
     const keyForUrl = findStationKeyForUrl(failingUrl) ?? activeStationKey;
-    if (STREAM_DIAGNOSTICS_ENABLED && keyForUrl) stationIssue.set(keyForUrl, "unsupported");
+    if (streamDiagnosticsEnabled && keyForUrl) stationIssue.set(keyForUrl, "unsupported");
     markStreamBad(failingUrl, "unsupported");
-    if (STREAM_DIAGNOSTICS_ENABLED) {
+    if (streamDiagnosticsEnabled) {
       if (activeStationKey === keyForUrl && getActiveStreamUrl() === failingUrl) applyActiveToPlayer({ skipCheck: true });
       renderList();
-      if (activeStationKey === keyForUrl) autoSkipToNext("Audio-Error", tokenAtError);
     }
   });
 
@@ -1069,6 +1145,16 @@ function wireEvents() {
   els.adminCloseBtn.addEventListener("click", () => setAdminOpen(false));
   els.adminSaveBtn.addEventListener("click", () => adminSaveCurrentList());
   els.adminDownloadBtn.addEventListener("click", () => adminDownloadCurrentList());
+  els.adminMarkingToggle?.addEventListener("change", () => {
+    setDiagnosticsEnabled(Boolean(els.adminMarkingToggle.checked));
+    void loadStations({ bustCache: true });
+    setAdminResult(streamDiagnosticsEnabled ? "Markierung aktiv." : "Markierung aus.", "ok");
+  });
+  els.adminClearBlockedBtn?.addEventListener("click", () => {
+    clearBlockedUrls();
+    void loadStations({ bustCache: true });
+    setAdminResult("Blockliste geleert.", "ok");
+  });
 
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "F9") {
@@ -1089,6 +1175,7 @@ function wireEvents() {
 async function init() {
   wireEvents();
   loadVolume();
+  streamDiagnosticsEnabled = localStorage.getItem(LS_DIAGNOSTICS_KEY) === "1";
   const ui = getUiState();
   setPlayerCollapsed(Boolean(ui.playerCollapsed), { persist: false });
   if (typeof ui.search === "string") els.searchInput.value = ui.search;

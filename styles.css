@@ -56,6 +56,7 @@ code {
   margin-top: 4px;
   font-size: 13px;
   color: var(--muted);
+  display: none;
 }
 
 .layout {
@@ -93,12 +94,36 @@ code {
   background: var(--panel);
 }
 
+@media (max-width: 520px) {
+  .panel__collapseHead {
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .compact-controls {
+    gap: 8px;
+  }
+  .compact-controls .iconbtn {
+    width: 48px;
+    height: 48px;
+    background-size: 28px 28px;
+  }
+}
+
 .compact-controls {
-  flex: 1;
+  flex: 0 0 auto;
   min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.compact-controls .iconbtn {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background-size: 30px 30px;
 }
 
 .compact-control {
@@ -396,6 +421,10 @@ code {
   text-overflow: ellipsis;
 }
 
+#nowStreamChip {
+  display: none;
+}
+
 .controls {
   display: flex;
   gap: 10px;
@@ -426,6 +455,123 @@ code {
 .btn--ghost {
   background: #313131;
 }
+
+.iconbtn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background-color: #2f2f2f;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 32px 32px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  cursor: pointer;
+  color: transparent;
+  font-size: 0;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22);
+}
+
+.iconbtn:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.iconbtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Play */
+.iconbtn--play { background-image: url("controls/play_blue.png") !important; }
+.iconbtn--play:hover:not(:disabled) { background-image: url("controls/play_yellow.png") !important; }
+.iconbtn--play:disabled { background-image: url("controls/play_red.png") !important; }
+
+.iconbtn--play.is-okalt {
+  background-image: url("controls/play_yellow.png") !important;
+}
+
+/* Pause */
+.iconbtn--pause { background-image: url("controls/pause_blue.png") !important; }
+.iconbtn--pause:hover:not(:disabled) { background-image: url("controls/pause_yellow.png") !important; }
+.iconbtn--pause:disabled { background-image: url("controls/pause_red.png") !important; }
+
+/* Next */
+.iconbtn--next { background-image: url("controls/next_blue.png") !important; }
+.iconbtn--next:hover:not(:disabled) { background-image: url("controls/next_yellow.png") !important; }
+.iconbtn--next:disabled { background-image: url("controls/next_red.png") !important; }
+
+/* Prev */
+.iconbtn--prev { background-image: url("controls/prev_blue.png") !important; }
+.iconbtn--prev:hover:not(:disabled) { background-image: url("controls/prev_yellow.png") !important; }
+.iconbtn--prev:disabled { background-image: url("controls/prev_red.png") !important; }
+
+/* Random */
+.iconbtn--random { background-image: url("controls/random_blue.png") !important; }
+.iconbtn--random:hover:not(:disabled) { background-image: url("controls/random_yellow.png") !important; }
+.iconbtn--random:disabled { background-image: url("controls/random_red.png") !important; }
+
+/* Refresh */
+.iconbtn--refresh { background-image: url("controls/refresh_blue.png") !important; }
+.iconbtn--refresh:hover:not(:disabled) { background-image: url("controls/refresh_yellow.png") !important; }
+.iconbtn--refresh:disabled { background-image: url("controls/refresh_red.png") !important; }
+
+/* Safety net: apply icons by id even if old HTML/CSS is cached */
+#playBtn,
+#pauseBtn,
+#nextBtn,
+#prevBtn,
+#randomBtn,
+#reloadBtn,
+#compactPlayBtn,
+#compactPauseBtn,
+#compactPrevBtn,
+#compactNextBtn,
+#compactRandomBtn {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 28px 28px;
+  width: 52px;
+  height: 52px;
+  padding: 0 !important;
+  color: transparent !important;
+  font-size: 0 !important;
+}
+
+#playBtn { background-image: url("controls/play_blue.png"); }
+#pauseBtn { background-image: url("controls/pause_blue.png"); }
+#nextBtn { background-image: url("controls/next_blue.png"); }
+#prevBtn { background-image: url("controls/prev_blue.png"); }
+#randomBtn { background-image: url("controls/random_blue.png"); }
+#reloadBtn { background-image: url("controls/refresh_blue.png"); }
+#compactPlayBtn { background-image: url("controls/play_blue.png"); }
+#compactPauseBtn { background-image: url("controls/pause_blue.png"); }
+#compactPrevBtn { background-image: url("controls/prev_blue.png"); }
+#compactNextBtn { background-image: url("controls/next_blue.png"); }
+#compactRandomBtn { background-image: url("controls/random_blue.png"); }
+
+#playBtn:disabled { background-image: url("controls/play_red.png"); }
+#pauseBtn:disabled { background-image: url("controls/pause_red.png"); }
+#nextBtn:disabled { background-image: url("controls/next_red.png"); }
+#prevBtn:disabled { background-image: url("controls/prev_red.png"); }
+#randomBtn:disabled { background-image: url("controls/random_red.png"); }
+#reloadBtn:disabled { background-image: url("controls/refresh_red.png"); }
+#compactPlayBtn:disabled { background-image: url("controls/play_red.png"); }
+#compactPauseBtn:disabled { background-image: url("controls/pause_red.png"); }
+#compactPrevBtn:disabled { background-image: url("controls/prev_red.png"); }
+#compactNextBtn:disabled { background-image: url("controls/next_red.png"); }
+#compactRandomBtn:disabled { background-image: url("controls/random_red.png"); }
+
+#playBtn:hover:not(:disabled) { background-image: url("controls/play_yellow.png"); }
+#pauseBtn:hover:not(:disabled) { background-image: url("controls/pause_yellow.png"); }
+#nextBtn:hover:not(:disabled) { background-image: url("controls/next_yellow.png"); }
+#prevBtn:hover:not(:disabled) { background-image: url("controls/prev_yellow.png"); }
+#randomBtn:hover:not(:disabled) { background-image: url("controls/random_yellow.png"); }
+#reloadBtn:hover:not(:disabled) { background-image: url("controls/refresh_yellow.png"); }
+#compactPlayBtn:hover:not(:disabled) { background-image: url("controls/play_yellow.png"); }
+#compactPauseBtn:hover:not(:disabled) { background-image: url("controls/pause_yellow.png"); }
+#compactPrevBtn:hover:not(:disabled) { background-image: url("controls/prev_yellow.png"); }
+#compactNextBtn:hover:not(:disabled) { background-image: url("controls/next_yellow.png"); }
+#compactRandomBtn:hover:not(:disabled) { background-image: url("controls/random_yellow.png"); }
 
 .row {
   display: grid;

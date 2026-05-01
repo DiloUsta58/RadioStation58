@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="appIcon/Radio.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="appIcon/FavIcon-Radio.32.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="appIcon/Radio.512.png" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260501_2208" />
   </head>
   <body>
     <header class="topbar">
@@ -17,7 +17,7 @@
         <div class="brand__subtitle">Webradio • Favoriten • Senderliste aus <code>rlist/radio.lst</code></div>
       </div>
       <div class="topbar__right">
-        <button id="reloadBtn" class="btn btn--ghost" type="button" title="Senderliste neu laden">Neu laden</button>
+        <button id="reloadBtn" class="iconbtn iconbtn--refresh" type="button" title="Senderliste neu laden" aria-label="Neu laden"></button>
       </div>
     </header>
 
@@ -42,10 +42,11 @@
       <section id="playerPanel" class="panel panel--player" aria-label="Player">
         <div class="panel__collapseHead">
           <div class="compact-controls" aria-label="Schnellsteuerung">
-            <button id="compactPlayBtn" class="compact-control compact-control--primary" type="button">Play</button>
-            <button id="compactPauseBtn" class="compact-control" type="button">Pause</button>
-            <button id="compactNextBtn" class="compact-control" type="button">Next</button>
-            <button id="compactRandomBtn" class="compact-control" type="button">Random</button>
+            <button id="compactPlayBtn" class="iconbtn iconbtn--play" type="button" aria-label="Play" title="Play"></button>
+            <button id="compactPrevBtn" class="iconbtn iconbtn--prev" type="button" aria-label="Vorheriger Sender" title="Vorheriger Sender"></button>
+            <button id="compactPauseBtn" class="iconbtn iconbtn--pause" type="button" aria-label="Pause" title="Pause"></button>
+            <button id="compactNextBtn" class="iconbtn iconbtn--next" type="button" aria-label="Nächster Sender" title="Nächster Sender"></button>
+            <button id="compactRandomBtn" class="iconbtn iconbtn--random" type="button" aria-label="Zufällig" title="Zufällig"></button>
           </div>
           <button id="playerToggleBtn" class="collapse-btn" type="button" aria-expanded="true" aria-controls="playerBody">
             Einklappen ▲
@@ -70,11 +71,12 @@
           </div>
 
           <div class="controls" aria-label="Wiedergabesteuerung">
-            <button id="playBtn" class="btn btn--primary" type="button" disabled>Play</button>
-            <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
+            <button id="playBtn" class="iconbtn iconbtn--play" type="button" disabled aria-label="Play" title="Play"></button>
+            <button id="prevBtn" class="iconbtn iconbtn--prev" type="button" disabled aria-label="Vorheriger Sender" title="Vorheriger Sender"></button>
+            <button id="pauseBtn" class="iconbtn iconbtn--pause" type="button" disabled aria-label="Pause" title="Pause"></button>
             <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
-            <button id="nextBtn" class="btn" type="button" disabled>Next</button>
-            <button id="randomBtn" class="btn" type="button" disabled>Random</button>
+            <button id="nextBtn" class="iconbtn iconbtn--next" type="button" disabled aria-label="Nächster Sender" title="Nächster Sender"></button>
+            <button id="randomBtn" class="iconbtn iconbtn--random" type="button" disabled aria-label="Zufällig" title="Zufällig"></button>
           </div>
 
           <div class="row">
@@ -114,6 +116,13 @@
           <button id="adminDownloadBtn" class="btn" type="button">Als Datei herunterladen</button>
         </div>
         <div class="adminpanel__row">
+          <label class="muted" style="display:flex;align-items:center;gap:10px;">
+            <input id="adminMarkingToggle" type="checkbox" />
+            Markierung/Blockliste aktiv (Fehler/Timeout merken)
+          </label>
+          <button id="adminClearBlockedBtn" class="btn" type="button">Blockliste leeren</button>
+        </div>
+        <div class="adminpanel__row">
           <div class="muted">Speichert serverseitig über PHP (XAMPP). Funktioniert nur über <code>http://localhost/…</code>.</div>
         </div>
         <div class="adminpanel__row">
@@ -137,6 +146,6 @@
       </div>
     </footer>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=20260501_2208"></script>
   </body>
 </html>
