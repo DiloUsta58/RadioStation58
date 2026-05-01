@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#252525" />
+    <title>WebRadioStation</title>
+    <link rel="icon" type="image/x-icon" href="appIcon/Radio.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="appIcon/FavIcon-Radio.32.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="appIcon/Radio.512.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand__title">WebRadioStation</div>
+        <div class="brand__subtitle">Webradio • Favoriten • Senderliste aus <code>rlist/radio.lst</code></div>
+      </div>
+      <div class="topbar__right">
+        <button id="reloadBtn" class="btn btn--ghost" type="button" title="Senderliste neu laden">Neu laden</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel panel--list" aria-label="Senderliste">
+        <div class="panel__toolbar">
+          <div class="segmented" role="tablist" aria-label="Ansicht">
+            <button id="tabAll" class="segmented__btn is-active" type="button" role="tab" aria-selected="true">Alle</button>
+            <button id="tabFav" class="segmented__btn" type="button" role="tab" aria-selected="false">Favoriten</button>
+          </div>
+          <input id="searchInput" class="input" type="search" placeholder="Suchen…" autocomplete="off" />
+        </div>
+
+        <div class="meta">
+          <div id="statusText" class="meta__status">Lade Senderliste…</div>
+          <div id="countText" class="meta__count"></div>
+        </div>
+
+        <div id="stationList" class="list" role="list"></div>
+      </section>
+
+      <section id="playerPanel" class="panel panel--player" aria-label="Player">
+        <div class="panel__collapseHead">
+          <div class="compact-controls" aria-label="Schnellsteuerung">
+            <button id="compactPlayBtn" class="compact-control compact-control--primary" type="button">Play</button>
+            <button id="compactPauseBtn" class="compact-control" type="button">Pause</button>
+            <button id="compactNextBtn" class="compact-control" type="button">Next</button>
+            <button id="compactRandomBtn" class="compact-control" type="button">Random</button>
+          </div>
+          <button id="playerToggleBtn" class="collapse-btn" type="button" aria-expanded="true" aria-controls="playerBody">
+            Einklappen ▲
+          </button>
+        </div>
+        <div id="playerBody" class="player">
+          <div class="now">
+            <div class="now__label">Jetzt läuft</div>
+            <div class="now__titleRow">
+              <img id="nowLogo" class="logo logo--now" alt="" />
+              <div class="now__titles">
+                <div id="nowTitle" class="now__title">—</div>
+                <div id="nowMeta" class="now__meta">—</div>
+              </div>
+            </div>
+            <div class="now__row">
+              <div class="chip" id="nowStreamChip" title="Stream-URL (gekürzt)">—</div>
+              <button id="favToggleBtn" class="btn btn--ghost" type="button" disabled title="Zu Favoriten hinzufügen/entfernen">
+                ☆ Favorit
+              </button>
+            </div>
+          </div>
+
+          <div class="controls" aria-label="Wiedergabesteuerung">
+            <button id="playBtn" class="btn btn--primary" type="button" disabled>Play</button>
+            <button id="pauseBtn" class="btn" type="button" disabled>Pause</button>
+            <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
+            <button id="nextBtn" class="btn" type="button" disabled>Next</button>
+            <button id="randomBtn" class="btn" type="button" disabled>Random</button>
+          </div>
+
+          <div class="row">
+            <label class="label" for="streamSelect">Stream</label>
+            <select id="streamSelect" class="select" disabled></select>
+          </div>
+
+          <div class="row">
+            <label class="label" for="volumeRange">Lautstärke</label>
+            <input id="volumeRange" class="range" type="range" min="0" max="1" step="0.01" value="0.8" />
+            <div id="volumeText" class="muted">80%</div>
+          </div>
+
+          <div class="log" aria-label="Player-Status">
+            <div class="log__row"><span class="muted">Status:</span> <span id="playerState">—</span></div>
+            <div class="log__row"><span class="muted">Check:</span> <span id="streamCheck">—</span></div>
+            <div class="log__row"><span class="muted">Fehler:</span> <span id="playerError">—</span></div>
+          </div>
+
+        </div>
+        <audio id="audio" crossorigin="anonymous"></audio>
+      </section>
+    </main>
+
+    <button id="adminBtn" class="adminfab" type="button" title="Admin (Ctrl+F9)" aria-label="Admin">Admin</button>
+    <div id="adminPanel" class="adminpanel is-hidden" role="dialog" aria-modal="true" aria-label="Admin Panel">
+      <div class="adminpanel__head">
+        <div>
+          <div class="adminpanel__title">Admin</div>
+          <div class="adminpanel__sub">Aktuelle angezeigte Liste als <code>rlist/radio.lst</code> speichern</div>
+        </div>
+        <button id="adminCloseBtn" class="btn btn--ghost" type="button">Schließen</button>
+      </div>
+      <div class="adminpanel__body">
+        <div class="adminpanel__row">
+          <button id="adminSaveBtn" class="btn btn--primary" type="button">Liste speichern</button>
+          <button id="adminDownloadBtn" class="btn" type="button">Als Datei herunterladen</button>
+        </div>
+        <div class="adminpanel__row">
+          <div class="muted">Speichert serverseitig über PHP (XAMPP). Funktioniert nur über <code>http://localhost/…</code>.</div>
+        </div>
+        <div class="adminpanel__row">
+          <div class="log">
+            <div class="log__row"><span class="muted">Ergebnis:</span> <span id="adminResult">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="app-footer">
+      <div class="app-footer__left">
+        <span class="app-footer__item" id="footerState">Bereit</span>
+        <span class="app-footer__sep">|</span>
+        <span class="app-footer__item" id="footerCount">0 Sender</span>
+        <span class="app-footer__sep">|</span>
+        <span class="app-footer__item" id="footerNow">—</span>
+      </div>
+      <div class="app-footer__right">
+        <span>© DiloUsta58 2026 • WebRadio • v1.0.0</span>
+      </div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
