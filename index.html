@@ -20,7 +20,7 @@
         </button>
         <nav id="mainMenu" class="main-menu is-hidden" aria-label="Ana menü">
           <a class="main-menu__item" href="https://dilousta58.github.io/RadioStation58/WebRadio-release.apk" download>Android APK download</a>
-          <button class="main-menu__item" type="button" disabled>Einstellung</button>
+          <button id="settingsMenuBtn" class="main-menu__item" type="button">Einstellung</button>
         </nav>
       </div>
       <div class="brand">
@@ -170,6 +170,28 @@
       </div>
     </div>
 
+    <section id="settingsPanel" class="settingspanel is-hidden" role="dialog" aria-modal="true" aria-label="Einstellung">
+      <div class="settingspanel__box">
+        <div class="settingspanel__head">
+          <div>
+            <div class="settingspanel__title">Einstellung</div>
+            <div class="settingspanel__sub">Senderliste</div>
+          </div>
+          <button id="settingsCloseBtn" class="settingspanel__close" type="button" aria-label="Schließen">×</button>
+        </div>
+        <div class="settingspanel__body">
+          <label class="setting-row" for="stationFontSizeRange">
+            <span>Schriftgröße</span>
+            <strong id="stationFontSizeValue">14px</strong>
+          </label>
+          <input id="stationFontSizeRange" class="setting-range" type="range" min="12" max="22" step="1" value="14" />
+          <div class="setting-actions">
+            <button id="stationFontResetBtn" type="button">Standard</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <footer class="app-footer">
       <div class="app-footer__left">
         <span class="app-footer__item" id="footerState">Hazır</span>
@@ -180,10 +202,10 @@
       </div>
       <div class="app-footer__right">
         <span id="updateStatus" class="update-status is-hidden"></span>
-        <span>© DiloUsta58 2026 • WebRadyo • v1.0.5</span>
+        <span>© DiloUsta58 2026 • WebRadyo • v1.0.6</span>
       </div>
     </footer>
 
-    <script src="app.js?v=20260502_0215"></script>
+    <script src="app.js?v=20260502_1030"></script>
   </body>
 </html>

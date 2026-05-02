@@ -9,10 +9,11 @@ const LS_UI_STATE_KEY = "webRadioStation:uiState:v1";
 const LS_APP_BOOT_KEY = "webRadioStation:bootVersion";
 const APP_BOOT_VERSION = "20260502-huawei-render-fix";
 const LS_DIAGNOSTICS_KEY = "webRadioStation:diagnosticsEnabled:v1";
+const LS_STATION_FONT_SIZE_KEY = "webRadioStation:stationFontSize:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.0.5";
+const APP_VERSION = "1.0.6";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -20,6 +21,12 @@ let streamDiagnosticsEnabled = false;
 const els = {
   menuBtn: document.getElementById("menuBtn"),
   mainMenu: document.getElementById("mainMenu"),
+  settingsMenuBtn: document.getElementById("settingsMenuBtn"),
+  settingsPanel: document.getElementById("settingsPanel"),
+  settingsCloseBtn: document.getElementById("settingsCloseBtn"),
+  stationFontSizeRange: document.getElementById("stationFontSizeRange"),
+  stationFontSizeValue: document.getElementById("stationFontSizeValue"),
+  stationFontResetBtn: document.getElementById("stationFontResetBtn"),
   reloadBtn: document.getElementById("reloadBtn"),
   playerPanel: document.getElementById("playerPanel"),
   playerToggleBtn: document.getElementById("playerToggleBtn"),
@@ -1445,6 +1452,35 @@ function loadVolume() {
   setVolume(Number.isFinite(v) ? v : 0.8);
 }
 
+function clampStationFontSize(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 14;
+  return Math.max(12, Math.min(22, Math.round(n)));
+}
+
+function applyStationFontSize(value) {
+  const size = clampStationFontSize(value);
+  document.documentElement.style.setProperty("--station-font-size", `${size}px`);
+  if (els.stationFontSizeRange) els.stationFontSizeRange.value = String(size);
+  if (els.stationFontSizeValue) els.stationFontSizeValue.textContent = `${size}px`;
+  return size;
+}
+
+function loadStationFontSize() {
+  const size = applyStationFontSize(localStorage.getItem(LS_STATION_FONT_SIZE_KEY) || 14);
+  localStorage.setItem(LS_STATION_FONT_SIZE_KEY, String(size));
+}
+
+function setStationFontSize(value) {
+  const size = applyStationFontSize(value);
+  localStorage.setItem(LS_STATION_FONT_SIZE_KEY, String(size));
+}
+
+function setSettingsOpen(open) {
+  els.settingsPanel?.classList.toggle("is-hidden", !open);
+  if (open) setMenuOpen(false);
+}
+
 function setMenuOpen(open) {
   els.mainMenu?.classList.toggle("is-hidden", !open);
   els.menuBtn?.setAttribute("aria-expanded", String(Boolean(open)));
@@ -1459,8 +1495,18 @@ function wireEvents() {
     if (!event.target.closest(".menu-wrap")) setMenuOpen(false);
   });
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") setMenuOpen(false);
+    if (event.key === "Escape") {
+      setMenuOpen(false);
+      setSettingsOpen(false);
+    }
   });
+  els.settingsMenuBtn?.addEventListener("click", () => setSettingsOpen(true));
+  els.settingsCloseBtn?.addEventListener("click", () => setSettingsOpen(false));
+  els.settingsPanel?.addEventListener("click", (event) => {
+    if (event.target === els.settingsPanel) setSettingsOpen(false);
+  });
+  els.stationFontSizeRange?.addEventListener("input", () => setStationFontSize(els.stationFontSizeRange.value));
+  els.stationFontResetBtn?.addEventListener("click", () => setStationFontSize(14));
   els.reloadBtn.addEventListener("click", () => loadStations({ bustCache: true }));
   els.playerToggleBtn?.addEventListener("click", () => {
     setPlayerCollapsed(!els.playerPanel?.classList.contains("is-collapsed"));
@@ -1600,6 +1646,7 @@ async function init() {
   wireEvents();
   resetUiStateForNewBuild();
   loadVolume();
+  loadStationFontSize();
   streamDiagnosticsEnabled = localStorage.getItem(LS_DIAGNOSTICS_KEY) === "1";
   const ui = getUiState();
   setPlayerCollapsed(true, { persist: false });
