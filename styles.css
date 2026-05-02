@@ -1189,6 +1189,50 @@ code {
   background: rgba(255, 255, 255, 0.06);
 }
 
+.app-popup {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--footer-height, 72px) + 18px);
+  z-index: 260;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: min(520px, calc(100vw - 28px));
+  padding: 13px 14px 13px 16px;
+  border: 1px solid rgba(208, 166, 59, 0.5);
+  border-radius: 10px;
+  background: rgba(37, 37, 37, 0.97);
+  color: #f5f5f5;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  transition: opacity 160ms ease, transform 160ms ease;
+  white-space: pre-line;
+}
+
+.app-popup.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.app-popup__text {
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.app-popup__close {
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f5f5;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
 .app-footer__item {
   min-width: 0;
   overflow: hidden;

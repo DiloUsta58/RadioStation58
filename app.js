@@ -483,13 +483,33 @@ function setPlayerError(text) {
 }
 
 function popupMessage(text) {
-  setTimeout(() => {
-    try {
-      window.alert(text);
-    } catch {
-      setPlayerError(text);
-    }
-  }, 0);
+  const old = document.querySelector(".app-popup");
+  old?.remove();
+
+  const box = document.createElement("div");
+  box.className = "app-popup";
+  box.setAttribute("role", "status");
+  box.setAttribute("aria-live", "polite");
+
+  const message = document.createElement("div");
+  message.className = "app-popup__text";
+  message.textContent = text;
+
+  const close = document.createElement("button");
+  close.className = "app-popup__close";
+  close.type = "button";
+  close.setAttribute("aria-label", "Kapat");
+  close.textContent = "×";
+  close.addEventListener("click", () => box.remove());
+
+  box.append(message, close);
+  document.body.appendChild(box);
+
+  window.setTimeout(() => box.classList.add("is-visible"), 20);
+  window.setTimeout(() => {
+    box.classList.remove("is-visible");
+    window.setTimeout(() => box.remove(), 220);
+  }, 4200);
 }
 
 function isAndroidApp() {
