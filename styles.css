@@ -192,7 +192,7 @@ code {
     padding: 10px 10px;
   }
   .quick-time {
-    font-size: 21px;
+    font-size: var(--time-font-size, 21px);
   }
   .compact-controls {
     gap: 3px;
@@ -267,7 +267,7 @@ code {
   margin: 0 0 6px 15px;
   color: var(--accent);
   font-family: "WebRadioDigital", ui-monospace, monospace;
-  font-size: 28px;
+  font-size: var(--time-font-size, 28px);
   line-height: 1;
   letter-spacing: 0;
   text-align: left;
@@ -467,7 +467,7 @@ code {
 
 .item__title {
   font-weight: 650;
-  font-size: 14px;
+  font-size: var(--station-font-size, 14px);
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -987,6 +987,105 @@ code {
 
 .adminpanel__row + .adminpanel__row {
   margin-top: 12px;
+}
+
+.settingspanel {
+  position: fixed;
+  inset: 0;
+  z-index: 260;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.settingspanel.is-hidden {
+  display: none;
+}
+
+.settingspanel__box {
+  width: min(420px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #252525;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.38);
+  overflow: hidden;
+}
+
+.settingspanel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settingspanel__title {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.settingspanel__sub {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.settingspanel__close {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.settingspanel__body {
+  padding: 16px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.setting-row--spaced {
+  margin-top: 18px;
+}
+
+.setting-row strong {
+  color: var(--accent);
+}
+
+.setting-range {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.setting-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.setting-actions button {
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font: inherit;
+  font-weight: 800;
 }
 
 .app-footer {

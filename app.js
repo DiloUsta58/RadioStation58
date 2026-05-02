@@ -10,10 +10,11 @@ const LS_APP_BOOT_KEY = "webRadioStation:bootVersion";
 const APP_BOOT_VERSION = "20260502-huawei-render-fix";
 const LS_DIAGNOSTICS_KEY = "webRadioStation:diagnosticsEnabled:v1";
 const LS_STATION_FONT_SIZE_KEY = "webRadioStation:stationFontSize:v1";
+const LS_TIME_FONT_SIZE_KEY = "webRadioStation:timeFontSize:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.0.6";
+const APP_VERSION = "1.0.7";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -26,7 +27,9 @@ const els = {
   settingsCloseBtn: document.getElementById("settingsCloseBtn"),
   stationFontSizeRange: document.getElementById("stationFontSizeRange"),
   stationFontSizeValue: document.getElementById("stationFontSizeValue"),
-  stationFontResetBtn: document.getElementById("stationFontResetBtn"),
+  timeFontSizeRange: document.getElementById("timeFontSizeRange"),
+  timeFontSizeValue: document.getElementById("timeFontSizeValue"),
+  fontResetBtn: document.getElementById("fontResetBtn"),
   reloadBtn: document.getElementById("reloadBtn"),
   playerPanel: document.getElementById("playerPanel"),
   playerToggleBtn: document.getElementById("playerToggleBtn"),
@@ -522,12 +525,12 @@ function showAndroidUpdatePrompt(apkUrl) {
   const box = document.createElement("div");
   box.className = "update-notice";
   box.innerHTML = `
-    <div class="update-box" role="dialog" aria-modal="true" aria-label="Update verfügbar">
-      <h3>update verfügbar!</h3>
-      <p>runterladen ?</p>
+    <div class="update-box" role="dialog" aria-modal="true" aria-label="Güncelleme mevcut">
+      <h3>Güncelleme mevcut!</h3>
+      <p>İndirilsin mi?</p>
       <div class="update-actions">
-        <button id="updateYesBtn" type="button">Ja</button>
-        <button id="updateNoBtn" class="secondary" type="button">Nein</button>
+        <button id="updateYesBtn" type="button">Evet</button>
+        <button id="updateNoBtn" class="secondary" type="button">Hayır</button>
       </div>
     </div>
   `;
@@ -560,7 +563,7 @@ async function checkAndroidUpdateVersion() {
     if (compareVersions(serverVersion, APP_VERSION) <= 0) return;
 
     const apkUrl = data.apkUrl || APK_DOWNLOAD_URL;
-    setUpdateStatus("update verfügbar!", true);
+    setUpdateStatus("Güncelleme mevcut!", true);
     showAndroidUpdatePrompt(apkUrl);
   } catch {
     setUpdateStatus("");
@@ -1458,6 +1461,12 @@ function clampStationFontSize(value) {
   return Math.max(12, Math.min(22, Math.round(n)));
 }
 
+function clampTimeFontSize(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 28;
+  return Math.max(18, Math.min(42, Math.round(n)));
+}
+
 function applyStationFontSize(value) {
   const size = clampStationFontSize(value);
   document.documentElement.style.setProperty("--station-font-size", `${size}px`);
@@ -1466,14 +1475,37 @@ function applyStationFontSize(value) {
   return size;
 }
 
+function applyTimeFontSize(value) {
+  const size = clampTimeFontSize(value);
+  document.documentElement.style.setProperty("--time-font-size", `${size}px`);
+  if (els.timeFontSizeRange) els.timeFontSizeRange.value = String(size);
+  if (els.timeFontSizeValue) els.timeFontSizeValue.textContent = `${size}px`;
+  return size;
+}
+
 function loadStationFontSize() {
   const size = applyStationFontSize(localStorage.getItem(LS_STATION_FONT_SIZE_KEY) || 14);
   localStorage.setItem(LS_STATION_FONT_SIZE_KEY, String(size));
 }
 
+function loadTimeFontSize() {
+  const size = applyTimeFontSize(localStorage.getItem(LS_TIME_FONT_SIZE_KEY) || 28);
+  localStorage.setItem(LS_TIME_FONT_SIZE_KEY, String(size));
+}
+
 function setStationFontSize(value) {
   const size = applyStationFontSize(value);
   localStorage.setItem(LS_STATION_FONT_SIZE_KEY, String(size));
+}
+
+function setTimeFontSize(value) {
+  const size = applyTimeFontSize(value);
+  localStorage.setItem(LS_TIME_FONT_SIZE_KEY, String(size));
+}
+
+function resetFontSettings() {
+  setStationFontSize(14);
+  setTimeFontSize(28);
 }
 
 function setSettingsOpen(open) {
@@ -1506,7 +1538,8 @@ function wireEvents() {
     if (event.target === els.settingsPanel) setSettingsOpen(false);
   });
   els.stationFontSizeRange?.addEventListener("input", () => setStationFontSize(els.stationFontSizeRange.value));
-  els.stationFontResetBtn?.addEventListener("click", () => setStationFontSize(14));
+  els.timeFontSizeRange?.addEventListener("input", () => setTimeFontSize(els.timeFontSizeRange.value));
+  els.fontResetBtn?.addEventListener("click", resetFontSettings);
   els.reloadBtn.addEventListener("click", () => loadStations({ bustCache: true }));
   els.playerToggleBtn?.addEventListener("click", () => {
     setPlayerCollapsed(!els.playerPanel?.classList.contains("is-collapsed"));
@@ -1647,6 +1680,7 @@ async function init() {
   resetUiStateForNewBuild();
   loadVolume();
   loadStationFontSize();
+  loadTimeFontSize();
   streamDiagnosticsEnabled = localStorage.getItem(LS_DIAGNOSTICS_KEY) === "1";
   const ui = getUiState();
   setPlayerCollapsed(true, { persist: false });
