@@ -15,6 +15,8 @@ const STREAM_CHECK_ENABLED = true;
 let streamDiagnosticsEnabled = false;
 
 const els = {
+  menuBtn: document.getElementById("menuBtn"),
+  mainMenu: document.getElementById("mainMenu"),
   reloadBtn: document.getElementById("reloadBtn"),
   playerPanel: document.getElementById("playerPanel"),
   playerToggleBtn: document.getElementById("playerToggleBtn"),
@@ -590,7 +592,8 @@ function updateRecordButtonState() {
   const canRecord = Boolean(activeStationKey);
   const playerRunning = Boolean(els.audio?.src && !els.audio.paused && !els.audio.ended);
   if (els.compactRecordBtn) {
-    els.compactRecordBtn.disabled = !canRecord;
+    const enabled = canRecord && (playerRunning || recording);
+    els.compactRecordBtn.disabled = !enabled;
     els.compactRecordBtn.classList.toggle("is-record-ready", canRecord && playerRunning && !recording);
   }
 }
@@ -1370,7 +1373,22 @@ function loadVolume() {
   setVolume(Number.isFinite(v) ? v : 0.8);
 }
 
+function setMenuOpen(open) {
+  els.mainMenu?.classList.toggle("is-hidden", !open);
+  els.menuBtn?.setAttribute("aria-expanded", String(Boolean(open)));
+}
+
 function wireEvents() {
+  els.menuBtn?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setMenuOpen(els.mainMenu?.classList.contains("is-hidden"));
+  });
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".menu-wrap")) setMenuOpen(false);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setMenuOpen(false);
+  });
   els.reloadBtn.addEventListener("click", () => loadStations({ bustCache: true }));
   els.playerToggleBtn?.addEventListener("click", () => {
     setPlayerCollapsed(!els.playerPanel?.classList.contains("is-collapsed"));
