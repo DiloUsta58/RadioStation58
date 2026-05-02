@@ -27,12 +27,15 @@
         <div class="brand__title">Radio Dinle - 58</div>
         <div class="brand__subtitle">Web radyo • Favoriler • Kanal listesi <code>rlist/radio.lst</code></div>
       </div>
+        <div class="control-item">
+          <button id="reloadBtn" class="iconbtn iconbtn--refresh" type="button" title="Kanal listesini yenile" aria-label="Yenile"></button>
+          <span class="control-label">Yenile</span>
+        </div>      
     </header>
 
     <main class="layout">
       <section class="panel panel--list" aria-label="Kanal listesi">
         <div class="list-quick-controls">
-          <div class="quick-time" id="quickTime" aria-live="polite">00:00:00</div>
           <div class="compact-controls" aria-label="Hızlı kontrol">
             <div class="control-item">
               <button id="compactPrevBtn" class="iconbtn iconbtn--prev" type="button" aria-label="Önceki kanal" title="Önceki kanal"></button>
@@ -55,10 +58,7 @@
               <span class="control-label">Karıştır</span>
             </div>
             <div class="compact-actions">
-              <div class="control-item">
-                <button id="reloadBtn" class="iconbtn iconbtn--refresh" type="button" title="Kanal listesini yenile" aria-label="Yenile"></button>
-                <span class="control-label">Yenile</span>
-              </div>
+
               <div class="control-item">
                 <button id="compactRecordBtn" class="iconbtn iconbtn--record" type="button" aria-label="Kayıt" title="Kayıt başlat" disabled></button>
                 <span class="control-label">Kayıt</span>
@@ -74,7 +74,7 @@
           </div>
           <input id="searchInput" class="input" type="search" placeholder="Ara..." autocomplete="off" />
         </div>
-
+        <div class="quick-time" id="quickTime" aria-live="polite">00:00:00</div>
         <div class="meta">
           <div id="statusText" class="meta__status">Kanal listesi yükleniyor...</div>
           <div id="countText" class="meta__count"></div>

@@ -264,7 +264,7 @@ code {
 
 .quick-time {
   width: 100%;
-  margin: 0 0 6px 0;
+  margin: 0 0 6px 15px;
   color: var(--accent);
   font-family: "WebRadioDigital", ui-monospace, monospace;
   font-size: 28px;
