@@ -6,6 +6,8 @@ const LS_STREAM_PREF_KEY = "webRadioStation:streamIndexByStation:v1";
 const LS_VOLUME_KEY = "webRadioStation:volume:v1";
 const LS_BLOCKED_URLS_KEY = "webRadioStation:blockedUrls:v1";
 const LS_UI_STATE_KEY = "webRadioStation:uiState:v1";
+const LS_APP_BOOT_KEY = "webRadioStation:bootVersion";
+const APP_BOOT_VERSION = "20260502-huawei-render-fix";
 const LS_DIAGNOSTICS_KEY = "webRadioStation:diagnosticsEnabled:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
@@ -167,6 +169,13 @@ function getUiState() {
   const raw = localStorage.getItem(LS_UI_STATE_KEY);
   const obj = safeJsonParse(raw, null);
   return obj && typeof obj === "object" ? obj : {};
+}
+
+function resetUiStateForNewBuild() {
+  if (localStorage.getItem(LS_APP_BOOT_KEY) === APP_BOOT_VERSION) return;
+  localStorage.removeItem(LS_UI_STATE_KEY);
+  localStorage.removeItem(LS_BLOCKED_URLS_KEY);
+  localStorage.setItem(LS_APP_BOOT_KEY, APP_BOOT_VERSION);
 }
 
 function saveUiStateNow() {
@@ -455,6 +464,26 @@ function setPlayerState(text) {
 
 function setPlayerError(text) {
   els.playerError.textContent = text;
+}
+
+function popupMessage(text) {
+  setTimeout(() => {
+    try {
+      window.alert(text);
+    } catch {
+      setPlayerError(text);
+    }
+  }, 0);
+}
+
+function isAndroidApp() {
+  return Boolean(window.AndroidAudio);
+}
+
+function recordingSavePathText(fileName = "") {
+  const name = fileName ? `\nDosya: ${fileName}` : "";
+  if (isAndroidApp()) return `Kayıt yolu: Downloads/WebRadyo${name}`;
+  return `Kayıt yolu: Tarayıcı indirme klasörü\nWindows: C:\\Users\\sivas\\Downloads${name}`;
 }
 
 let playOkFlip = false;
@@ -962,11 +991,11 @@ function scrollActiveIntoView(behavior = "smooth") {
 
 function escapeHtml(s) {
   return String(s)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function setViewMode(mode, { restore } = { restore: false }) {
@@ -1187,6 +1216,7 @@ async function startWebRecording(url, fileName) {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
   setPlayerError(`Kayıt indirildi: ${fileName}`);
+  popupMessage(`Aufnahme gestoppt.\n${recordingSavePathText(fileName)}`);
 }
 
 async function startRecording() {
@@ -1207,6 +1237,7 @@ async function startRecording() {
   recordingStationKey = st.key;
   recordingStartedAt = Date.now();
   setRecordingUi(true, "Kayıt başladı.");
+  popupMessage("Aufnahme gestartet.");
   startRecordingTimer();
   startRecordingBlink();
   renderList();
@@ -1258,6 +1289,7 @@ window.onAndroidRecordingStarted = function onAndroidRecordingStarted(fileName) 
 window.onAndroidRecordingStopped = function onAndroidRecordingStopped(fileName) {
   stopRecordingTimer();
   setRecordingUi(false, `Kayıt kaydedildi: ${fileName || ""}`.trim());
+  popupMessage(`Aufnahme gestoppt.\n${recordingSavePathText(fileName)}`);
   renderList();
 };
 
@@ -1476,12 +1508,13 @@ function wireEvents() {
 
 async function init() {
   wireEvents();
+  resetUiStateForNewBuild();
   loadVolume();
   streamDiagnosticsEnabled = localStorage.getItem(LS_DIAGNOSTICS_KEY) === "1";
   const ui = getUiState();
   setPlayerCollapsed(true, { persist: false });
   els.searchInput.value = "";
-  setViewMode(ui.viewMode === "fav" ? "fav" : "all", { restore: true });
+  setViewMode("all", { restore: true });
   await loadStations();
 
   if (typeof ui.activeStationKey === "string" && stations.some((s) => s.key === ui.activeStationKey)) {
