@@ -12,6 +12,9 @@ const LS_DIAGNOSTICS_KEY = "webRadioStation:diagnosticsEnabled:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
+const APP_VERSION = "1.0.5";
+const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
+const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
 
 const els = {
@@ -53,6 +56,7 @@ const els = {
   footerState: document.getElementById("footerState"),
   footerCount: document.getElementById("footerCount"),
   footerNow: document.getElementById("footerNow"),
+  updateStatus: document.getElementById("updateStatus"),
   audio: document.getElementById("audio"),
 
   adminBtn: document.getElementById("adminBtn"),
@@ -486,6 +490,74 @@ function recordingSavePathText(fileName = "") {
   const name = fileName ? `\nDosya: ${fileName}` : "";
   if (isAndroidApp()) return `Kayıt yolu: Downloads/WebRadyo${name}`;
   return `Kayıt yolu: Tarayıcı indirme klasörü\nWindows: C:\\Users\\sivas\\Downloads${name}`;
+}
+
+function compareVersions(a, b) {
+  const left = String(a || "0").split(".").map((part) => parseInt(part, 10) || 0);
+  const right = String(b || "0").split(".").map((part) => parseInt(part, 10) || 0);
+  const len = Math.max(left.length, right.length);
+  for (let i = 0; i < len; i++) {
+    const diff = (left[i] || 0) - (right[i] || 0);
+    if (diff !== 0) return diff;
+  }
+  return 0;
+}
+
+function setUpdateStatus(text = "", available = false) {
+  if (!els.updateStatus) return;
+  els.updateStatus.textContent = text;
+  els.updateStatus.classList.toggle("is-hidden", !text);
+  els.updateStatus.classList.toggle("is-update-available", available);
+}
+
+function showAndroidUpdatePrompt(apkUrl) {
+  document.querySelector(".update-notice")?.remove();
+  const box = document.createElement("div");
+  box.className = "update-notice";
+  box.innerHTML = `
+    <div class="update-box" role="dialog" aria-modal="true" aria-label="Update verfügbar">
+      <h3>update verfügbar!</h3>
+      <p>runterladen ?</p>
+      <div class="update-actions">
+        <button id="updateYesBtn" type="button">Ja</button>
+        <button id="updateNoBtn" class="secondary" type="button">Nein</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(box);
+  document.getElementById("updateNoBtn")?.addEventListener("click", () => box.remove());
+  document.getElementById("updateYesBtn")?.addEventListener("click", () => {
+    box.style.pointerEvents = "none";
+    box.style.opacity = "0";
+    box.style.visibility = "hidden";
+    window.setTimeout(() => {
+      box.remove();
+      if (window.AndroidAudio?.downloadAndInstallApk) {
+        window.AndroidAudio.downloadAndInstallApk(apkUrl);
+        return;
+      }
+      window.location.href = apkUrl;
+    }, 120);
+  });
+}
+
+async function checkAndroidUpdateVersion() {
+  if (!isAndroidApp()) return;
+  setUpdateStatus("");
+  try {
+    const res = await fetch(VERSION_JSON_URL, { cache: "no-store" });
+    if (!res.ok) throw new Error("version.json nicht erreichbar");
+    const data = await res.json();
+    const serverVersion = data.version;
+    if (!serverVersion) throw new Error("version fehlt");
+    if (compareVersions(serverVersion, APP_VERSION) <= 0) return;
+
+    const apkUrl = data.apkUrl || APK_DOWNLOAD_URL;
+    setUpdateStatus("update verfügbar!", true);
+    showAndroidUpdatePrompt(apkUrl);
+  } catch {
+    setUpdateStatus("");
+  }
 }
 
 let playOkFlip = false;
@@ -1549,6 +1621,7 @@ async function init() {
   void checkCurrentStream({ fastOnly: true });
   setAdminVisible(false);
   setAdminOpen(false);
+  void checkAndroidUpdateVersion();
   scheduleUiSave();
 }
 

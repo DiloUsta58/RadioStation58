@@ -1025,6 +1025,71 @@ code {
   white-space: nowrap;
 }
 
+.update-status {
+  margin-right: 10px;
+  font-weight: 800;
+  color: #f2d05f;
+}
+
+.update-status.is-hidden {
+  display: none;
+}
+
+.update-status.is-update-available {
+  color: #f2d05f;
+}
+
+.update-notice {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.update-box {
+  width: min(360px, 100%);
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #252525;
+  color: var(--text);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.38);
+}
+
+.update-box h3 {
+  margin: 0 0 10px 0;
+  color: #f2d05f;
+  font-size: 20px;
+}
+
+.update-box p {
+  margin: 0 0 18px 0;
+  color: var(--text);
+}
+
+.update-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.update-actions button {
+  min-height: 42px;
+  padding: 8px 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #2f62d9;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+}
+
+.update-actions button.secondary {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 .app-footer__item {
   min-width: 0;
   overflow: hidden;
