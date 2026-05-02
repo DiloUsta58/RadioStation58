@@ -485,6 +485,12 @@ function formatDuration(ms) {
   return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
 }
 
+function runtimeLabel(ms, stationKey = activeStationKey) {
+  const stationName = stations.find((s) => s.key === stationKey)?.name || "";
+  const time = formatDuration(ms);
+  return stationName ? `${time} - ${stationName}` : time;
+}
+
 function sanitizeFilePart(value) {
   return String(value || "WebRadyo")
     .normalize("NFKD")
@@ -511,6 +517,7 @@ function setRecordingUi(active, message = "") {
   recording = Boolean(active);
   els.compactRecordBtn?.classList.toggle("is-recording", recording);
   els.compactRecordBtn?.classList.toggle("is-recording-alt", false);
+  updateRecordButtonState();
   if (els.compactRecordBtn) {
     els.compactRecordBtn.title = recording ? "Kaydı durdur" : "Kayıt başlat";
     els.compactRecordBtn.setAttribute("aria-label", recording ? "Kaydı durdur" : "Kayıt başlat");
@@ -527,7 +534,7 @@ function setRecordingUi(active, message = "") {
 
 function updateRecordingTime() {
   if (!recording) return;
-  const text = formatDuration(Date.now() - recordingStartedAt);
+  const text = runtimeLabel(Date.now() - recordingStartedAt, recordingStationKey);
   if (els.quickTime) els.quickTime.textContent = text;
 }
 
@@ -539,14 +546,23 @@ function updatePlaybackStationTime() {
 function updateMainRuntime() {
   if (!els.quickTime) return;
   if (recording) {
-    els.quickTime.textContent = formatDuration(Date.now() - recordingStartedAt);
+    els.quickTime.textContent = runtimeLabel(Date.now() - recordingStartedAt, recordingStationKey);
     els.quickTime.classList.add("is-recording");
   } else if (playbackStartedAt) {
-    els.quickTime.textContent = formatDuration(Date.now() - playbackStartedAt);
+    els.quickTime.textContent = runtimeLabel(Date.now() - playbackStartedAt, playbackStationKey);
     els.quickTime.classList.remove("is-recording");
   } else {
     els.quickTime.textContent = "00:00:00";
     els.quickTime.classList.remove("is-recording");
+  }
+}
+
+function updateRecordButtonState() {
+  const canRecord = Boolean(activeStationKey);
+  const playerRunning = Boolean(els.audio?.src && !els.audio.paused && !els.audio.ended);
+  if (els.compactRecordBtn) {
+    els.compactRecordBtn.disabled = !canRecord;
+    els.compactRecordBtn.classList.toggle("is-record-ready", canRecord && playerRunning && !recording);
   }
 }
 
@@ -838,7 +854,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
     if (els.compactPrevBtn) els.compactPrevBtn.disabled = getFilteredStations().length === 0;
     if (els.compactNextBtn) els.compactNextBtn.disabled = getFilteredStations().length === 0;
     if (els.compactRandomBtn) els.compactRandomBtn.disabled = getFilteredStations().length === 0;
-    if (els.compactRecordBtn) els.compactRecordBtn.disabled = true;
+    updateRecordButtonState();
     setStreamCheck("—", "neutral");
     return;
   }
@@ -881,7 +897,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   if (els.compactPrevBtn) els.compactPrevBtn.disabled = getFilteredStations().length === 0;
   if (els.compactNextBtn) els.compactNextBtn.disabled = getFilteredStations().length === 0;
   if (els.compactRandomBtn) els.compactRandomBtn.disabled = getFilteredStations().length === 0;
-  if (els.compactRecordBtn) els.compactRecordBtn.disabled = false;
+  updateRecordButtonState();
 
   // Background check of the currently selected stream (does not autoplay).
   if (!skipCheck) void checkCurrentStream({ fastOnly: true });
@@ -889,7 +905,13 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
 
 function renderList() {
   const favs = getFavoritesSet();
-  const list = getFilteredStations();
+  let list = getFilteredStations();
+
+  if (stations.length > 0 && list.length === 0) {
+    viewMode = "all";
+    els.searchInput.value = "";
+    list = stations.slice();
+  }
 
   updateTabLabels();
   setCount(`${list.length} Kanal${viewMode === "fav" ? " (Favoriler)" : ""}`);
@@ -1089,12 +1111,14 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
     setPlayerState("Çalıyor");
     setPlayOkToggle(false);
     notifyNativePlayback(true);
+    updateRecordButtonState();
     startNowPlayingPoll();
     void checkCurrentStream();
   } catch (err) {
     setPlayerState("Durduruldu");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
+    updateRecordButtonState();
     const msg = String(err?.message || err);
     setPlayerError(msg);
 
@@ -1117,6 +1141,7 @@ function pause() {
   setPlayerState("Duraklatıldı");
   setPlayOkToggle(false);
   notifyNativePlayback(false);
+  updateRecordButtonState();
   stopNowPlayingPoll();
   stopPlaybackTimer();
 }
@@ -1129,6 +1154,7 @@ function stop() {
   setPlayerState("Durduruldu");
   setPlayOkToggle(false);
   notifyNativePlayback(false);
+  updateRecordButtonState();
   setStreamCheck("—", "neutral");
   stopNowPlayingPoll();
   stopPlaybackTimer();
@@ -1373,6 +1399,7 @@ function wireEvents() {
   els.audio.addEventListener("playing", () => {
     setPlayerState("Çalıyor");
     notifyNativePlayback(true);
+    updateRecordButtonState();
     if (!playbackStartedAt || playbackStationKey !== activeStationKey) {
       startPlaybackTimer();
     }
@@ -1381,6 +1408,7 @@ function wireEvents() {
     setPlayerState("Duraklatıldı");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
+    updateRecordButtonState();
     stopNowPlayingPoll();
     if (!recording) stopPlaybackTimer();
   });
@@ -1390,6 +1418,7 @@ function wireEvents() {
     setPlayerState("Bitti");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
+    updateRecordButtonState();
     stopPlaybackTimer();
   });
   els.audio.addEventListener("error", () => {
@@ -1398,6 +1427,7 @@ function wireEvents() {
     setPlayerState("Hata");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
+    updateRecordButtonState();
     setPlayerError(mediaError ? `MediaError ${mediaError.code}` : "Bilinmeyen hata");
     stopNowPlayingPoll();
     stopPlaybackTimer();
@@ -1450,7 +1480,7 @@ async function init() {
   streamDiagnosticsEnabled = localStorage.getItem(LS_DIAGNOSTICS_KEY) === "1";
   const ui = getUiState();
   setPlayerCollapsed(true, { persist: false });
-  if (typeof ui.search === "string") els.searchInput.value = ui.search;
+  els.searchInput.value = "";
   setViewMode(ui.viewMode === "fav" ? "fav" : "all", { restore: true });
   await loadStations();
 

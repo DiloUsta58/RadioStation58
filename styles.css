@@ -120,24 +120,30 @@ code {
     gap: 10px;
     padding: 10px 12px;
   }
+  .list-quick-controls {
+    padding: 10px 10px;
+  }
+  .quick-time {
+    font-size: 24px;
+  }
   .compact-controls {
-    gap: 8px;
+    gap: 4px;
   }
   .compact-controls .iconbtn {
-    width: 48px;
-    height: 48px;
-    background-size: 28px 28px;
+    width: 38px;
+    height: 38px;
+    background-size: 38px 38px;
   }
 }
 
 .compact-controls {
-  flex: 0 0 auto;
+  width: 100%;
   min-width: 0;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .compact-controls .iconbtn {
@@ -162,6 +168,9 @@ code {
   letter-spacing: 0;
   text-align: left;
   font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .quick-time.is-recording {
@@ -169,7 +178,7 @@ code {
 }
 
 .list-quick-controls .compact-controls {
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .list-quick-controls .iconbtn {
@@ -574,8 +583,9 @@ code {
 .iconbtn--record { background-image: url("controls/rec_blue.png") !important; }
 .iconbtn--record:hover:not(:disabled) { background-image: url("controls/rec_yelow.png") !important; }
 .iconbtn--record:disabled { background-image: url("controls/rec_red.png") !important; }
-.iconbtn--record.is-recording { background-image: url("controls/rec_red.png") !important; }
-.iconbtn--record.is-recording-alt { background-image: url("controls/rec_yelow.png") !important; }
+.iconbtn--record.is-record-ready { background-image: url("controls/rec_red.png") !important; }
+.iconbtn--record.is-recording { background-image: url("controls/rec_aktiv_green.png") !important; }
+.iconbtn--record.is-recording-alt { background-image: url("controls/rec_red.png") !important; }
 
 /* Safety net: apply icons by id even if old HTML/CSS is cached */
 #playBtn,
@@ -598,6 +608,25 @@ code {
   padding: 0 !important;
   color: transparent !important;
   font-size: 0 !important;
+}
+
+@media (max-width: 520px) {
+  #playBtn,
+  #pauseBtn,
+  #nextBtn,
+  #prevBtn,
+  #randomBtn,
+  #reloadBtn,
+  #compactPlayBtn,
+  #compactPauseBtn,
+  #compactPrevBtn,
+  #compactNextBtn,
+  #compactRandomBtn,
+  #compactRecordBtn {
+    width: 38px;
+    height: 38px;
+    background-size: 38px 38px;
+  }
 }
 
 #playBtn { background-image: url("controls/play_blue.png"); }
@@ -625,8 +654,9 @@ code {
 #compactNextBtn:disabled { background-image: url("controls/next_red.png"); }
 #compactRandomBtn:disabled { background-image: url("controls/random_red.png"); }
 #compactRecordBtn:disabled { background-image: url("controls/rec_red.png"); }
-#compactRecordBtn.is-recording { background-image: url("controls/rec_red.png"); }
-#compactRecordBtn.is-recording-alt { background-image: url("controls/rec_yelow.png"); }
+#compactRecordBtn.is-record-ready { background-image: url("controls/rec_red.png"); }
+#compactRecordBtn.is-recording { background-image: url("controls/rec_aktiv_green.png"); }
+#compactRecordBtn.is-recording-alt { background-image: url("controls/rec_red.png"); }
 
 #playBtn:hover:not(:disabled) { background-image: url("controls/play_yellow.png"); }
 #pauseBtn:hover:not(:disabled) { background-image: url("controls/pause_yellow.png"); }
@@ -640,6 +670,25 @@ code {
 #compactNextBtn:hover:not(:disabled) { background-image: url("controls/next_yellow.png"); }
 #compactRandomBtn:hover:not(:disabled) { background-image: url("controls/random_yellow.png"); }
 #compactRecordBtn:hover:not(:disabled):not(.is-recording) { background-image: url("controls/rec_yelow.png"); }
+
+@media (max-width: 520px) {
+  .compact-controls {
+    gap: 4px;
+    flex-wrap: nowrap;
+  }
+
+  #compactPlayBtn,
+  #compactPauseBtn,
+  #compactPrevBtn,
+  #compactNextBtn,
+  #compactRandomBtn,
+  #compactRecordBtn,
+  #reloadBtn {
+    width: 38px;
+    height: 38px;
+    background-size: 38px 38px;
+  }
+}
 
 .row {
   display: grid;

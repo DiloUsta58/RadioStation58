@@ -1,5 +1,5 @@
 # WebRadyo dışa aktarım
-# Oluşturuldu: 2026-05-02T12:27:25.181Z
+# Oluşturuldu: 2026-05-02T13:11:00.721Z
 # Görünüm: all
 # Arama: 
 
@@ -269,8 +269,6 @@ TRT FM = https://ssl4.radyotvonline.com/radyohome/trtfm.stream_aac/playlist.m3u8
 TRT GAP DİYARBAKIR = https://radio-trtgap.medya.trt.com.tr/master.m3u8
 TRT MEMLEKETİM FM = https://radio-trtmemleketimfm.medya.trt.com.tr/master.m3u8 | icon/trt_memleketİm_fm.jpg
 TRT NAĞME = https://ssl4.radyotvonline.com/radyohome/trtnagme.stream_aac/playlist.m3u8 | icon/trt_nağme.jpg
-TRT RADYO 1 = https://ssl4.radyotvonline.com/radyohome/trtradyo1.stream_aac/playlist.m3u8 | icon/trt_radyo_1.jpg
-TRT RADYO 3 = https://ssl4.radyotvonline.com/radyohome/trtradyo3.stream_aac/playlist.m3u8 | icon/trt_radyo_3.jpg
 TRT RADYO 6 = https://radio-trtradyo6.medya.trt.com.tr/master.m3u8 | icon/trt_radyo_6.jpg
 TRT TRABZON = https://radio-trttrabzon.medya.trt.com.tr/master.m3u8 | icon/trt_trabzon.jpg
 TRT TÜRKİYE'NİN SESİ = https://radio-trttsr.medya.trt.com.tr/master.m3u8
