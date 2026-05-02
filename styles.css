@@ -16,6 +16,14 @@
     "Segoe UI Emoji";
 }
 
+@font-face {
+  font-family: "WebRadioDigital";
+  src: url("fonts/digital.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -44,6 +52,19 @@ code {
   justify-content: space-between;
   padding: 18px 20px;
   gap: 12px;
+}
+
+.brand {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.topbar__right {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .brand__title {
@@ -87,7 +108,7 @@ code {
   min-height: 58px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   padding: 12px 14px;
   border-bottom: 1px solid var(--border);
@@ -124,6 +145,42 @@ code {
   height: 50px;
   border-radius: 14px;
   background-size: 30px 30px;
+}
+
+.list-quick-controls {
+  padding: 12px 14px;
+  background: transparent;
+}
+
+.quick-time {
+  width: 100%;
+  margin: 0 0 6px 0;
+  color: var(--accent);
+  font-family: "WebRadioDigital", ui-monospace, monospace;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+.quick-time.is-recording {
+  color: #ef6b73;
+}
+
+.list-quick-controls .compact-controls {
+  justify-content: center;
+}
+
+.list-quick-controls .iconbtn {
+  border: none;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.list-quick-controls .iconbtn:hover:not(:disabled) {
+  border: none;
+  background-color: transparent;
 }
 
 .compact-control {
@@ -513,6 +570,13 @@ code {
 .iconbtn--refresh:hover:not(:disabled) { background-image: url("controls/refresh_yellow.png") !important; }
 .iconbtn--refresh:disabled { background-image: url("controls/refresh_red.png") !important; }
 
+/* Record */
+.iconbtn--record { background-image: url("controls/rec_blue.png") !important; }
+.iconbtn--record:hover:not(:disabled) { background-image: url("controls/rec_yelow.png") !important; }
+.iconbtn--record:disabled { background-image: url("controls/rec_red.png") !important; }
+.iconbtn--record.is-recording { background-image: url("controls/rec_red.png") !important; }
+.iconbtn--record.is-recording-alt { background-image: url("controls/rec_yelow.png") !important; }
+
 /* Safety net: apply icons by id even if old HTML/CSS is cached */
 #playBtn,
 #pauseBtn,
@@ -524,12 +588,13 @@ code {
 #compactPauseBtn,
 #compactPrevBtn,
 #compactNextBtn,
-#compactRandomBtn {
+#compactRandomBtn,
+#compactRecordBtn {
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 28px 28px;
-  width: 52px;
-  height: 52px;
+  background-size: 48px 48px;
+  width: 48px;
+  height: 48px;
   padding: 0 !important;
   color: transparent !important;
   font-size: 0 !important;
@@ -546,6 +611,7 @@ code {
 #compactPrevBtn { background-image: url("controls/prev_blue.png"); }
 #compactNextBtn { background-image: url("controls/next_blue.png"); }
 #compactRandomBtn { background-image: url("controls/random_blue.png"); }
+#compactRecordBtn { background-image: url("controls/rec_blue.png"); }
 
 #playBtn:disabled { background-image: url("controls/play_red.png"); }
 #pauseBtn:disabled { background-image: url("controls/pause_red.png"); }
@@ -558,6 +624,9 @@ code {
 #compactPrevBtn:disabled { background-image: url("controls/prev_red.png"); }
 #compactNextBtn:disabled { background-image: url("controls/next_red.png"); }
 #compactRandomBtn:disabled { background-image: url("controls/random_red.png"); }
+#compactRecordBtn:disabled { background-image: url("controls/rec_red.png"); }
+#compactRecordBtn.is-recording { background-image: url("controls/rec_red.png"); }
+#compactRecordBtn.is-recording-alt { background-image: url("controls/rec_yelow.png"); }
 
 #playBtn:hover:not(:disabled) { background-image: url("controls/play_yellow.png"); }
 #pauseBtn:hover:not(:disabled) { background-image: url("controls/pause_yellow.png"); }
@@ -570,6 +639,7 @@ code {
 #compactPrevBtn:hover:not(:disabled) { background-image: url("controls/prev_yellow.png"); }
 #compactNextBtn:hover:not(:disabled) { background-image: url("controls/next_yellow.png"); }
 #compactRandomBtn:hover:not(:disabled) { background-image: url("controls/random_yellow.png"); }
+#compactRecordBtn:hover:not(:disabled):not(.is-recording) { background-image: url("controls/rec_yelow.png"); }
 
 .row {
   display: grid;
@@ -636,8 +706,8 @@ code {
   .layout {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "player"
-      "list";
+      "list"
+      "player";
   }
   .list {
     max-height: var(--station-list-height, 52vh);
@@ -647,12 +717,11 @@ code {
 /* Tablet portrait tuning */
 @media (max-width: 900px) and (orientation: portrait) {
   .topbar {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
   }
 
   .topbar__right {
-    display: flex;
     justify-content: flex-end;
   }
 

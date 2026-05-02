@@ -38,6 +38,8 @@ const els = {
   compactPrevBtn: document.getElementById("compactPrevBtn"),
   compactNextBtn: document.getElementById("compactNextBtn"),
   compactRandomBtn: document.getElementById("compactRandomBtn"),
+  compactRecordBtn: document.getElementById("compactRecordBtn"),
+  quickTime: document.getElementById("quickTime"),
   streamSelect: document.getElementById("streamSelect"),
   volumeRange: document.getElementById("volumeRange"),
   volumeText: document.getElementById("volumeText"),
@@ -86,6 +88,18 @@ let metaTimer = 0;
 let metaAbortController = null;
 let lastMetaTitle = "";
 let listHeightTimer = 0;
+let recording = false;
+let recordingStationKey = null;
+let recordingStartedAt = 0;
+let recordingTimer = 0;
+let recordingBlinkTimer = 0;
+let recordingBlinkAlt = false;
+let recordingAbortController = null;
+let recordingReader = null;
+let recordingChunks = [];
+let playbackStartedAt = 0;
+let playbackTimer = 0;
+let playbackStationKey = null;
 
 /**
  * Cache for quick stream checks so we don't probe the same URL repeatedly.
@@ -187,8 +201,10 @@ function updateStationListHeight() {
   const rect = els.stationList.getBoundingClientRect();
   const footer = document.querySelector(".app-footer");
   const footerHeight = footer?.getBoundingClientRect().height ?? 0;
+  const isStackedLayout = window.matchMedia("(max-width: 980px)").matches;
+  const playerReserve = isStackedLayout ? (els.playerPanel?.getBoundingClientRect().height ?? 0) + 16 : 0;
   const bottomGap = 12;
-  const available = window.innerHeight - rect.top - footerHeight - bottomGap;
+  const available = window.innerHeight - rect.top - footerHeight - playerReserve - bottomGap;
   const height = Math.max(180, Math.floor(available));
   els.stationList.style.setProperty("--station-list-height", `${height}px`);
 }
@@ -457,6 +473,135 @@ function notifyNativePlayback(playing) {
   }
 }
 
+function pad2(n) {
+  return String(Math.max(0, Math.floor(n))).padStart(2, "0");
+}
+
+function formatDuration(ms) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+}
+
+function sanitizeFilePart(value) {
+  return String(value || "WebRadyo")
+    .normalize("NFKD")
+    .replace(/[^\w.-]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 60) || "WebRadyo";
+}
+
+function inferRecordingExt(url) {
+  const clean = String(url || "").split("?")[0].toLowerCase();
+  if (/\.m3u8$/.test(clean)) return "m3u8";
+  if (/\.(aac|m4a)$/.test(clean)) return "aac";
+  if (/\.ogg$|\.oga$|\.opus$/.test(clean)) return "ogg";
+  return "mp3";
+}
+
+function recordingFileName(st, ext) {
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+z$/i, "").replace("T", "_");
+  return `WebRadyo_${sanitizeFilePart(st?.name)}_${stamp}.${ext}`;
+}
+
+function setRecordingUi(active, message = "") {
+  recording = Boolean(active);
+  els.compactRecordBtn?.classList.toggle("is-recording", recording);
+  els.compactRecordBtn?.classList.toggle("is-recording-alt", false);
+  if (els.compactRecordBtn) {
+    els.compactRecordBtn.title = recording ? "Kaydı durdur" : "Kayıt başlat";
+    els.compactRecordBtn.setAttribute("aria-label", recording ? "Kaydı durdur" : "Kayıt başlat");
+  }
+  els.quickTime?.classList.toggle("is-recording", recording);
+  if (!recording) {
+    recordingStationKey = null;
+    updateMainRuntime();
+    stopRecordingBlink();
+    renderList();
+  }
+  if (message) setPlayerError(message);
+}
+
+function updateRecordingTime() {
+  if (!recording) return;
+  const text = formatDuration(Date.now() - recordingStartedAt);
+  if (els.quickTime) els.quickTime.textContent = text;
+}
+
+function updatePlaybackStationTime() {
+  if (!playbackStartedAt || recording) return;
+  updateMainRuntime();
+}
+
+function updateMainRuntime() {
+  if (!els.quickTime) return;
+  if (recording) {
+    els.quickTime.textContent = formatDuration(Date.now() - recordingStartedAt);
+    els.quickTime.classList.add("is-recording");
+  } else if (playbackStartedAt) {
+    els.quickTime.textContent = formatDuration(Date.now() - playbackStartedAt);
+    els.quickTime.classList.remove("is-recording");
+  } else {
+    els.quickTime.textContent = "00:00:00";
+    els.quickTime.classList.remove("is-recording");
+  }
+}
+
+function startPlaybackTimer() {
+  stopPlaybackTimer();
+  playbackStartedAt = Date.now();
+  playbackStationKey = activeStationKey;
+  renderList();
+  updatePlaybackStationTime();
+  playbackTimer = window.setInterval(updatePlaybackStationTime, 1000);
+}
+
+function stopPlaybackTimer({ keepElapsed = false } = {}) {
+  if (playbackTimer) {
+    window.clearInterval(playbackTimer);
+    playbackTimer = 0;
+  }
+  if (!keepElapsed) {
+    playbackStartedAt = 0;
+    playbackStationKey = null;
+    updateMainRuntime();
+  }
+}
+
+function startRecordingTimer() {
+  stopRecordingTimer();
+  updateRecordingTime();
+  recordingTimer = window.setInterval(updateRecordingTime, 1000);
+}
+
+function stopRecordingTimer() {
+  if (recordingTimer) {
+    window.clearInterval(recordingTimer);
+    recordingTimer = 0;
+  }
+}
+
+function startRecordingBlink() {
+  stopRecordingBlink();
+  recordingBlinkAlt = false;
+  recordingBlinkTimer = window.setInterval(() => {
+    recordingBlinkAlt = !recordingBlinkAlt;
+    els.compactRecordBtn?.classList.toggle("is-recording-alt", recordingBlinkAlt);
+  }, 650);
+}
+
+function stopRecordingBlink() {
+  if (recordingBlinkTimer) {
+    window.clearInterval(recordingBlinkTimer);
+    recordingBlinkTimer = 0;
+  }
+  recordingBlinkAlt = false;
+  els.compactRecordBtn?.classList.toggle("is-recording-alt", false);
+}
+
 function setStreamCheck(text, kind = "neutral") {
   els.streamCheck.textContent = text;
   if (kind === "ok") els.streamCheck.style.color = "rgba(87, 227, 163, 0.95)";
@@ -693,6 +838,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
     if (els.compactPrevBtn) els.compactPrevBtn.disabled = getFilteredStations().length === 0;
     if (els.compactNextBtn) els.compactNextBtn.disabled = getFilteredStations().length === 0;
     if (els.compactRandomBtn) els.compactRandomBtn.disabled = getFilteredStations().length === 0;
+    if (els.compactRecordBtn) els.compactRecordBtn.disabled = true;
     setStreamCheck("—", "neutral");
     return;
   }
@@ -735,6 +881,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   if (els.compactPrevBtn) els.compactPrevBtn.disabled = getFilteredStations().length === 0;
   if (els.compactNextBtn) els.compactNextBtn.disabled = getFilteredStations().length === 0;
   if (els.compactRandomBtn) els.compactRandomBtn.disabled = getFilteredStations().length === 0;
+  if (els.compactRecordBtn) els.compactRecordBtn.disabled = false;
 
   // Background check of the currently selected stream (does not autoplay).
   if (!skipCheck) void checkCurrentStream({ fastOnly: true });
@@ -889,6 +1036,12 @@ async function loadStations({ bustCache } = { bustCache: false }) {
 }
 
 function selectStation(key) {
+  if (recording && key !== activeStationKey) {
+    stopRecording();
+  }
+  if (key !== activeStationKey) {
+    stopPlaybackTimer();
+  }
   selectionToken++;
   activeStationKey = key;
   applyActiveToPlayer();
@@ -959,14 +1112,17 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
 }
 
 function pause() {
+  if (recording) stopRecording();
   els.audio.pause();
   setPlayerState("Duraklatıldı");
   setPlayOkToggle(false);
   notifyNativePlayback(false);
   stopNowPlayingPoll();
+  stopPlaybackTimer();
 }
 
 function stop() {
+  if (recording) stopRecording();
   els.audio.pause();
   els.audio.removeAttribute("src");
   els.audio.load();
@@ -975,8 +1131,115 @@ function stop() {
   notifyNativePlayback(false);
   setStreamCheck("—", "neutral");
   stopNowPlayingPoll();
+  stopPlaybackTimer();
   setNowMeta("—");
 }
+
+async function startWebRecording(url, fileName) {
+  recordingAbortController = new AbortController();
+  recordingChunks = [];
+  const response = await fetch(url, { cache: "no-store", signal: recordingAbortController.signal });
+  if (!response.ok || !response.body) throw new Error(`Kayıt başlatılamadı: HTTP ${response.status}`);
+  recordingReader = response.body.getReader();
+  while (true) {
+    const { done, value } = await recordingReader.read();
+    if (done || !recording) break;
+    if (value && value.length) recordingChunks.push(value);
+  }
+  recordingReader = null;
+  if (!recordingChunks.length) {
+    setPlayerError("Kayıt verisi alınamadı.");
+    return;
+  }
+  const blob = new Blob(recordingChunks, { type: "audio/mpeg" });
+  const objectUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = objectUrl;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+  setPlayerError(`Kayıt indirildi: ${fileName}`);
+}
+
+async function startRecording() {
+  const st = getActiveStation();
+  const url = getActiveStreamUrl();
+  if (!st || !url) return;
+  const ext = inferRecordingExt(url);
+  if (ext === "m3u8") {
+    setPlayerError("HLS yayını doğrudan dosya olarak kaydedilmiyor.");
+    return;
+  }
+
+  if (els.audio.paused) {
+    await play({ initiatedByUser: true });
+  }
+
+  const fileName = recordingFileName(st, ext);
+  recordingStationKey = st.key;
+  recordingStartedAt = Date.now();
+  setRecordingUi(true, "Kayıt başladı.");
+  startRecordingTimer();
+  startRecordingBlink();
+  renderList();
+
+  try {
+    if (window.AndroidAudio?.startRecording) {
+      window.AndroidAudio.startRecording(url, st.name, fileName);
+      return;
+    }
+  } catch (err) {
+    setRecordingUi(false, String(err?.message || err));
+    stopRecordingTimer();
+    return;
+  }
+
+  startWebRecording(url, fileName).catch((err) => {
+    if (!recording) return;
+    stopRecordingTimer();
+    setRecordingUi(false, String(err?.message || err));
+  });
+}
+
+function stopRecording() {
+  if (!recording) return;
+  recording = false;
+  try {
+    if (window.AndroidAudio?.stopRecording) {
+      window.AndroidAudio.stopRecording();
+    } else {
+      recordingReader?.cancel();
+    }
+  } catch (err) {
+    setPlayerError(String(err?.message || err));
+  }
+  stopRecordingTimer();
+  setRecordingUi(false, "Kayıt durduruldu.");
+  renderList();
+}
+
+function toggleRecording() {
+  if (recording) stopRecording();
+  else void startRecording();
+}
+
+window.onAndroidRecordingStarted = function onAndroidRecordingStarted(fileName) {
+  setRecordingUi(true, `Kayıt başladı: ${fileName || ""}`.trim());
+};
+
+window.onAndroidRecordingStopped = function onAndroidRecordingStopped(fileName) {
+  stopRecordingTimer();
+  setRecordingUi(false, `Kayıt kaydedildi: ${fileName || ""}`.trim());
+  renderList();
+};
+
+window.onAndroidRecordingError = function onAndroidRecordingError(message) {
+  stopRecordingTimer();
+  setRecordingUi(false, message || "Kayıt hatası.");
+  renderList();
+};
 
 function toggleFavorite() {
   const st = getActiveStation();
@@ -1097,7 +1360,10 @@ function wireEvents() {
   els.compactPrevBtn?.addEventListener("click", () => prevStation({ initiatedByUser: true }));
   els.compactNextBtn?.addEventListener("click", () => nextStation({ initiatedByUser: true }));
   els.compactRandomBtn?.addEventListener("click", () => randomStation({ initiatedByUser: true }));
+  els.compactRecordBtn?.addEventListener("click", () => toggleRecording());
   els.streamSelect.addEventListener("change", () => {
+    if (recording) stopRecording();
+    stopPlaybackTimer();
     selectionToken++;
     setAudioSourceForActiveStation();
     if (!els.audio.paused) play({ initiatedByUser: true });
@@ -1107,12 +1373,16 @@ function wireEvents() {
   els.audio.addEventListener("playing", () => {
     setPlayerState("Çalıyor");
     notifyNativePlayback(true);
+    if (!playbackStartedAt || playbackStationKey !== activeStationKey) {
+      startPlaybackTimer();
+    }
   });
   els.audio.addEventListener("pause", () => {
     setPlayerState("Duraklatıldı");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
     stopNowPlayingPoll();
+    if (!recording) stopPlaybackTimer();
   });
   els.audio.addEventListener("waiting", () => setPlayerState("Tamponlanıyor..."));
   els.audio.addEventListener("stalled", () => setPlayerState("Veri bekleniyor..."));
@@ -1120,6 +1390,7 @@ function wireEvents() {
     setPlayerState("Bitti");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
+    stopPlaybackTimer();
   });
   els.audio.addEventListener("error", () => {
     const tokenAtError = selectionToken;
@@ -1129,6 +1400,7 @@ function wireEvents() {
     notifyNativePlayback(false);
     setPlayerError(mediaError ? `MediaError ${mediaError.code}` : "Bilinmeyen hata");
     stopNowPlayingPoll();
+    stopPlaybackTimer();
 
     const failingUrl = els.audio.currentSrc || els.audio.src || getActiveStreamUrl();
     const keyForUrl = findStationKeyForUrl(failingUrl) ?? activeStationKey;
@@ -1177,7 +1449,7 @@ async function init() {
   loadVolume();
   streamDiagnosticsEnabled = localStorage.getItem(LS_DIAGNOSTICS_KEY) === "1";
   const ui = getUiState();
-  setPlayerCollapsed(Boolean(ui.playerCollapsed), { persist: false });
+  setPlayerCollapsed(true, { persist: false });
   if (typeof ui.search === "string") els.searchInput.value = ui.search;
   setViewMode(ui.viewMode === "fav" ? "fav" : "all", { restore: true });
   await loadStations();

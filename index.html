@@ -4,25 +4,37 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#252525" />
-    <title>WebRadyo</title>
+    <title>Radio Dinle - 58</title>
     <link rel="icon" type="image/x-icon" href="appIcon/Radio.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="appIcon/FavIcon-Radio.32.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="appIcon/Radio.512.png" />
-    <link rel="stylesheet" href="styles.css?v=20260501_2308" />
+    <link rel="stylesheet" href="styles.css?v=20260502_0120" />
   </head>
   <body>
     <header class="topbar">
       <div class="brand">
-        <div class="brand__title">WebRadyo</div>
+        <div class="brand__title">Radio Dinle - 58</div>
         <div class="brand__subtitle">Web radyo • Favoriler • Kanal listesi <code>rlist/radio.lst</code></div>
-      </div>
-      <div class="topbar__right">
-        <button id="reloadBtn" class="iconbtn iconbtn--refresh" type="button" title="Kanal listesini yenile" aria-label="Yenile"></button>
       </div>
     </header>
 
     <main class="layout">
       <section class="panel panel--list" aria-label="Kanal listesi">
+        <div class="list-quick-controls">
+          <div class="quick-time" id="quickTime" aria-live="polite">00:00:00</div>
+          <div class="compact-controls" aria-label="Hızlı kontrol">
+            <button id="compactPrevBtn" class="iconbtn iconbtn--prev" type="button" aria-label="Önceki kanal" title="Önceki kanal"></button>
+            <button id="compactPlayBtn" class="iconbtn iconbtn--play" type="button" aria-label="Oynat" title="Oynat"></button>
+            <button id="compactPauseBtn" class="iconbtn iconbtn--pause" type="button" aria-label="Pause" title="Pause"></button>
+            <button id="compactNextBtn" class="iconbtn iconbtn--next" type="button" aria-label="Sonraki kanal" title="Sonraki kanal"></button>
+            <button id="compactRandomBtn" class="iconbtn iconbtn--random" type="button" aria-label="Rastgele" title="Rastgele"></button>
+            <button id="compactRecordBtn" class="iconbtn iconbtn--record" type="button" aria-label="Kayıt" title="Kayıt başlat"></button>
+            <div class="topbar__right">
+              <button id="reloadBtn" class="iconbtn iconbtn--refresh" type="button" title="Kanal listesini yenile" aria-label="Yenile"></button>
+            </div>            
+          </div>
+        </div>
+
         <div class="panel__toolbar">
           <div class="segmented" role="tablist" aria-label="Görünüm">
             <button id="tabAll" class="segmented__btn is-active" type="button" role="tab" aria-selected="true">Tümü</button>
@@ -39,17 +51,10 @@
         <div id="stationList" class="list" role="list"></div>
       </section>
 
-      <section id="playerPanel" class="panel panel--player" aria-label="Oynatıcı">
+      <section id="playerPanel" class="panel panel--player is-collapsed" aria-label="Oynatıcı">
         <div class="panel__collapseHead">
-          <div class="compact-controls" aria-label="Hızlı kontrol">
-            <button id="compactPlayBtn" class="iconbtn iconbtn--play" type="button" aria-label="Oynat" title="Oynat"></button>
-            <button id="compactPrevBtn" class="iconbtn iconbtn--prev" type="button" aria-label="Önceki kanal" title="Önceki kanal"></button>
-            <button id="compactPauseBtn" class="iconbtn iconbtn--pause" type="button" aria-label="Pause" title="Pause"></button>
-            <button id="compactNextBtn" class="iconbtn iconbtn--next" type="button" aria-label="Sonraki kanal" title="Sonraki kanal"></button>
-            <button id="compactRandomBtn" class="iconbtn iconbtn--random" type="button" aria-label="Rastgele" title="Rastgele"></button>
-          </div>
-          <button id="playerToggleBtn" class="collapse-btn" type="button" aria-expanded="true" aria-controls="playerBody">
-            Daralt ▲
+          <button id="playerToggleBtn" class="collapse-btn" type="button" aria-expanded="false" aria-controls="playerBody">
+            Aç ▼
           </button>
         </div>
         <div id="playerBody" class="player">
@@ -142,10 +147,10 @@
         <span class="app-footer__item" id="footerNow">—</span>
       </div>
       <div class="app-footer__right">
-        <span>© DiloUsta58 2026 • WebRadyo • v1.0.1</span>
+        <span>© DiloUsta58 2026 • WebRadyo • v1.0.3</span>
       </div>
     </footer>
 
-    <script src="app.js?v=20260501_2308"></script>
+    <script src="app.js?v=20260502_0120"></script>
   </body>
 </html>
