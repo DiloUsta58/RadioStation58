@@ -68,6 +68,7 @@ const els = {
   footerNow: document.getElementById("footerNow"),
   updateStatus: document.getElementById("updateStatus"),
   audio: document.getElementById("audio"),
+  youtubeFrame: document.getElementById("youtubeFrame"),
 
   adminBtn: document.getElementById("adminBtn"),
   adminPanel: document.getElementById("adminPanel"),
@@ -399,6 +400,64 @@ function normalizeUrl(raw) {
   return url;
 }
 
+function getYoutubeVideoId(url) {
+  const value = String(url || "").trim();
+  if (!value) return "";
+  try {
+    const parsed = new URL(value);
+    const host = parsed.hostname.replace(/^www\./i, "").toLowerCase();
+    if (host === "youtu.be") return parsed.pathname.split("/").filter(Boolean)[0] || "";
+    if (host === "youtube.com" || host === "m.youtube.com" || host === "music.youtube.com") {
+      if (parsed.pathname === "/watch") return parsed.searchParams.get("v") || "";
+      const parts = parsed.pathname.split("/").filter(Boolean);
+      if (parts[0] === "embed" || parts[0] === "shorts" || parts[0] === "live") return parts[1] || "";
+    }
+  } catch {
+    return "";
+  }
+  return "";
+}
+
+function isYoutubeUrl(url) {
+  return Boolean(getYoutubeVideoId(url));
+}
+
+function youtubeEmbedUrl(url, autoplay = true) {
+  const id = getYoutubeVideoId(url);
+  if (!id) return "";
+  const params = new URLSearchParams({
+    autoplay: autoplay ? "1" : "0",
+    playsinline: "1",
+    enablejsapi: "1",
+    rel: "0",
+  });
+  return `https://www.youtube.com/embed/${encodeURIComponent(id)}?${params.toString()}`;
+}
+
+function stopYoutubePlayer() {
+  if (!els.youtubeFrame) return;
+  els.youtubeFrame.src = "about:blank";
+  els.youtubeFrame.classList.add("is-hidden");
+}
+
+function postYoutubeCommand(command) {
+  if (!els.youtubeFrame?.contentWindow) return;
+  const payload = JSON.stringify({ event: "command", func: command, args: [] });
+  els.youtubeFrame.contentWindow.postMessage(payload, "https://www.youtube.com");
+}
+
+function startYoutubePlayer(url) {
+  if (!els.youtubeFrame) return false;
+  const embed = youtubeEmbedUrl(url, true);
+  if (!embed) return false;
+  els.audio.pause();
+  els.audio.removeAttribute("src");
+  els.audio.load();
+  els.youtubeFrame.classList.remove("is-hidden");
+  if (els.youtubeFrame.src !== embed) els.youtubeFrame.src = embed;
+  return true;
+}
+
 function makeStationKey(name) {
   return String(name || "")
     .trim()
@@ -693,10 +752,11 @@ function updateMainRuntime() {
 function updateRecordButtonState() {
   const canRecord = Boolean(activeStationKey);
   const playerRunning = Boolean(els.audio?.src && !els.audio.paused && !els.audio.ended);
+  const isYoutube = isYoutubeUrl(getActiveStreamUrl());
   if (els.compactRecordBtn) {
-    const enabled = canRecord && (playerRunning || recording);
+    const enabled = canRecord && !isYoutube && (playerRunning || recording);
     els.compactRecordBtn.disabled = !enabled;
-    els.compactRecordBtn.classList.toggle("is-record-ready", canRecord && playerRunning && !recording);
+    els.compactRecordBtn.classList.toggle("is-record-ready", canRecord && !isYoutube && playerRunning && !recording);
   }
 }
 
@@ -923,6 +983,10 @@ async function checkCurrentStream({ fastOnly } = { fastOnly: false }) {
     setStreamCheck("—", "neutral");
     return;
   }
+  if (isYoutubeUrl(url)) {
+    setStreamCheck("YouTube", "neutral");
+    return;
+  }
 
   // Quick hint for HLS playlists: often not supported in Chrome/Firefox on Windows.
   if (/\.m3u8(\?|#|$)/i.test(url)) {
@@ -1005,7 +1069,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   els.streamSelect.innerHTML = st.streams
     .map((url, idx) => {
       const isBlocked = hasAnyUnblocked && blocked.has(url);
-      const label = `Yayın ${idx + 1}${/m3u8/i.test(url) ? " (HLS)" : ""}${isBlocked ? " (engelli)" : ""}`;
+      const label = `Yayın ${idx + 1}${isYoutubeUrl(url) ? " (YouTube)" : ""}${/m3u8/i.test(url) ? " (HLS)" : ""}${isBlocked ? " (engelli)" : ""}`;
       return `<option value="${idx}" ${isBlocked ? "disabled" : ""}>${label}</option>`;
     })
     .join("");
@@ -1061,8 +1125,9 @@ function renderList() {
       const isFav = favs.has(s.key);
       const issue = streamDiagnosticsEnabled ? stationIssue.get(s.key) : null;
       const isTimeout = issue === "timeout" || issue === "unsupported";
-      const badge = `<span class="badge">${s.streams.length} Yayın</span>`;
-      const sub = s.streams.length > 1 ? `${s.streams.length} yayın mevcut` : abbreviateUrl(s.streams[0]);
+      const hasYoutube = s.streams.some((url) => isYoutubeUrl(url));
+      const badge = `<span class="badge">${hasYoutube ? "YouTube" : `${s.streams.length} Yayın`}</span>`;
+      const sub = hasYoutube ? "YouTube yayın" : (s.streams.length > 1 ? `${s.streams.length} yayın mevcut` : abbreviateUrl(s.streams[0]));
       return `
         <div class="item ${isActive ? "is-active" : ""} ${isTimeout ? "is-timeout" : ""}" role="listitem" data-key="${s.key}">
           <div class="item__main">
@@ -1197,6 +1262,7 @@ function selectStation(key) {
   }
   if (key !== activeStationKey) {
     stopPlaybackTimer();
+    stopYoutubePlayer();
   }
   selectionToken++;
   activeStationKey = key;
@@ -1222,6 +1288,16 @@ function setAudioSourceForActiveStation() {
   els.nowStreamChip.title = url;
   els.nowLogo.src = stationIconSrc(st);
 
+  if (isYoutubeUrl(url)) {
+    els.audio.pause();
+    els.audio.removeAttribute("src");
+    els.audio.load();
+    setStreamCheck("YouTube", "neutral");
+    updateRecordButtonState();
+    return;
+  }
+
+  stopYoutubePlayer();
   if (els.audio.src !== url) {
     els.audio.src = url;
     els.audio.load();
@@ -1240,6 +1316,21 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
 
   setPlayerState("Bağlanıyor...");
   setPlayerError("—");
+  if (isYoutubeUrl(urlForThisPlay)) {
+    if (startYoutubePlayer(urlForThisPlay)) {
+      setPlayerState("Çalıyor");
+      setStreamCheck("YouTube", "neutral");
+      setPlayOkToggle(false);
+      notifyNativePlayback(true);
+      updateRecordButtonState();
+      startPlaybackTimer();
+    } else {
+      setPlayerState("Durduruldu");
+      setPlayerError("YouTube bağlantısı açılamadı.");
+    }
+    return;
+  }
+
   try {
     await els.audio.play();
     setPlayerState("Çalıyor");
@@ -1271,6 +1362,9 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
 
 function pause() {
   if (recording) stopRecording();
+  if (isYoutubeUrl(getActiveStreamUrl())) {
+    postYoutubeCommand("pauseVideo");
+  }
   els.audio.pause();
   setPlayerState("Duraklatıldı");
   setPlayOkToggle(false);
@@ -1282,6 +1376,7 @@ function pause() {
 
 function stop() {
   if (recording) stopRecording();
+  stopYoutubePlayer();
   els.audio.pause();
   els.audio.removeAttribute("src");
   els.audio.load();
@@ -1331,6 +1426,10 @@ async function startRecording() {
   const ext = inferRecordingExt(url);
   if (ext === "m3u8") {
     setPlayerError("HLS yayını doğrudan dosya olarak kaydedilmiyor.");
+    return;
+  }
+  if (isYoutubeUrl(url)) {
+    setPlayerError("YouTube yayınları kayıt için desteklenmiyor.");
     return;
   }
 

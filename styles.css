@@ -346,6 +346,18 @@ code {
   display: none;
 }
 
+.youtube-frame {
+  width: 1px;
+  height: 1px;
+  position: absolute;
+  left: -9999px;
+  border: 0;
+}
+
+.youtube-frame.is-hidden {
+  display: none;
+}
+
 .panel__toolbar {
   padding: 14px 14px 10px 14px;
   display: flex;
