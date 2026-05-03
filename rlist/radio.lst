@@ -1,5 +1,5 @@
 # WebRadyo dışa aktarım
-# Oluşturuldu: 2026-05-03T16:31:48.262Z
+# Oluşturuldu: 2026-05-03T22:01:06.301Z
 # Görünüm: all
 # Arama: 
 
@@ -21,12 +21,16 @@ ALEM FM = https://turkmedya.radyotvonline.net/alemfmaac | icon/alem_fm.jpg
 ALEM FM = https://turkmedya.radyotvonline.com/turkmedya/alemfm.stream/playlist.m3u8 | icon/alem_fm.jpg
 ALTIN ŞARKILAR = https://moondigitalmaster.radyotvonline.net/altinsarkilar/playlist.m3u8
 ANKARA HAVALARI = https://moondigitalmaster.radyotvonline.net/ankarahavalari/playlist.m3u8 | icon/ankara_havalari.jpg
+Ankara Radyo Banko = https://stream.netradyom.com/listen/radyobanko/radio.mp3/;stream.mp3
+Ankara Radyo Beyaz = https://radyodinle1.turkhosted.com/yayin?uri=radyo.normyazilim.com:8030/&tkn=MGuOGA4A7AowoZ0KU3swmg&tms=1777944593
+Ankara Radyo Özgür = https://radyoozgur.kesintisizyayin.com:9898/stream?
 ARABESK DAMAR FM = https://yayin.damarfm.com:8080/; | icon/arabesk_damar_fm.jpg
 ARABESK FM = https://anadolu.liderhost.com.tr:10949/; | icon/arabesk_fm.jpg
 ARABESK FM BİZ = https://yayin.arabeskfm.biz:8042/stream?icy=http | icon/arabesk_fm_bİz.jpeg
 ARABESK VADİSİ = https://arabeskv.80.yayin.com.tr/; | icon/arabesk_vadİsİ.jpg
 ARABESKLAND = https://moondigitalmaster.radyotvonline.net/arabeskland/playlist.m3u8 | icon/arabeskland.jpg
 ARNAVUTKÖY FM = https://arnavut2.80.yayin.com.tr/;
+Atlantis FM = https://stream.netradyom.com/listen/imajpop/radio.mp3/;stream.mp3
 AVRASYA TÜRK = https://sslyayin.netyayin.net:10909/; | icon/avrasya_türk.jpg
 BABA RADYO = https://babaradyo.turkhosted.com/best/babaradyo.stream/playlist.m3u8 | icon/baba_radyo.jpg
 BABYLAND = https://moondigitaledge.radyotvonline.net/babyland/playlist.m3u8
@@ -34,12 +38,14 @@ BARTIN FM = https://radyo.yayin.com.tr:5918/;
 BAŞKA = https://playerservices.streamtheworld.com/api/livestream-redirect/BASKA_SC?/;
 BATI RADYO = https://sslyayin.netyayin.net:10902/;
 BAYRAM FM = https://sslyayin.netyayin.net/3442/stream
+Bergama Süper FM = https://panel.radyomhd.com:1330/stream?
 BEST FM = https://babaradyo.turkhosted.com/best/bestfm.stream/playlist.m3u8 | icon/best_fm.jpg
 BİZ FM = https://radio.hostlab.net.tr:10973/; | icon/bİz_fm.jpg
 BİZİM RADYO = https://ip132.ozelip.com:7017/stream?
 BLOOMBERG HT RADYO = https://ciner-live.ercdn.net/bloombergradyo/bloombergradyo_1.m3u8
 BOLU RADYO YANKI = https://radyoyanki.ozelip.com/9918/stream | icon/bolu_radyo_yanki.jpg
 BORUSAN KLASIK = https://playerservices.streamtheworld.com/api/livestream-redirect/BORUSAN_KLASIK_SC?/; | icon/borusan_klasik.jpg
+Buca FM = https://radyo.yayin.com.tr:4444/stream
 BURSA GÜL FM = https://yayin2.canliyayin.org:10989/;
 BURSA RADYO S = https://icecast.netmedya.net/radyos | icon/bursa_radyo_s.jpg
 CAN RADYO Kayseri = https://ip132.ozelip.com:7040/; | icon/can_radyo_kayseri.jpg
@@ -59,6 +65,7 @@ DİYANET RİSALET RADYO = https://eustr73.mediatriple.net/videoonlylive/mtikoimx
 DOKSANLAR = https://moondigitaledge.radyotvonline.net/radyolanddoksanlar/playlist.m3u8
 DREAMTÜRK FM = https://radyo.duhnet.tv/dreamturk
 EASYLAND = https://moondigitaledge.radyotvonline.net/easyland/playlist.m3u8
+Efkar FM = https://playerservices.streamtheworld.com/api/livestream-redirect/EFKAR128AAC.aac
 EFSANE 4'LÜ = https://moondigitalmaster.radyotvonline.net/efsane4lu/playlist.m3u8
 EGE HAVALARI = https://moondigitalmaster.radyotvonline.net/egehavalari/playlist.m3u8 | icon/ege_havalari.jpg
 ERCİŞ FM = https://anadolu.liderhost.com.tr:10970/;
@@ -89,17 +96,23 @@ GURDEK FM = https://anadolu.liderhost.com.tr/8112/;
 GURDEK FM = https://anadolu.liderhost.com.tr:10940/;
 HAKKARİ FM = https://radyo.slmbilisim.net/8004/stream; | icon/hakkarİ_fm.jpeg
 HAKTAN FM = https://anadolu.liderhost.com.tr:10980/;
+Halk Radyo = https://playerservices.streamtheworld.com/api/livestream-redirect/SUPER_FM_ITUNES.mp3?
+Halk Radyo = https://25503.live.streamtheworld.com/SUPER_FM_ITUNES.mp3
 HAMSİ FM = https://anadolu.liderhost.com.tr/8028/stream | icon/hamsİ_fm.jpeg
 HAYATMİX REMİX = https://hayatmix.yayin.com.tr/;
 HOME KLASİK = https://ssl4.radyotvonline.com/radyohome/klasikhome.stream_aac/playlist.m3u8 | icon/home_klasİk.jpg
 HOS MİX = https://anadolu.liderhost.com.tr:10871/;
 HOUSELAND = https://moondigitaledge.radyotvonline.net/houseland/playlist.m3u8
+Imaj Pop = https://stream.netradyom.com/listen/imajpop/radio.mp3
+Istanbulun Sesi Radyosu = https://yayin.radyomadyo.com:9180/stream
+İzmir Kordon FM = https://radyo.medyahost.com.tr/8050/stream?
 JAZZLAND = https://moondigitaledge.radyotvonline.net/jazzland/playlist.m3u8
 JOY JAZZ = https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_JAZZ_SC?/;
 JOY TURK = https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_TURK_SC?/;
 JOYTURK ROCK = https://playerservices.streamtheworld.com/api/livestream-redirect/JOYTURK_ROCK_SC?/;
 KAFA RADYO = https://moondigitalmaster.radyotvonline.net/kafaradyo/playlist.m3u8 | icon/kafa_radyo.jpg
 KAFA RADYO = https://moondigitaledge2.radyotvonline.net/kafaradyo/playlist.m3u8 | icon/kafa_radyo.jpg
+Kalp FM = https://yayin.kalpfm.com:8080/stream?
 KARADENİZ AKUSTİK = https://karadenizakustik.radyotvonline.net/;
 KARADENİZ FM = https://wowza1.radyotvonline.com/unitedmedia/karadenizfm.stream/playlist.m3u8 | icon/karadenİz_fm.jpeg
 KARADENİZ FM = https://moondigitalmaster.radyotvonline.net/karadenizfm/playlist.m3u8 | icon/karadenİz_fm.jpeg
@@ -140,11 +153,14 @@ OSTİM RADYO = https://stream.netradyom.com/radio/8010/radio.mp3 | icon/ostİm_r
 PAL FM = https://moondigitalmaster.radyotvonline.net/palfm/playlist.m3u8 | icon/pal_fm.ico
 PAL NOSTALJİ = https://ssl4.radyotvonline.com/radyohome/palnostaljihome.stream_aac/playlist.m3u8
 PAL NOSTALJİ = https://moondigitalmaster.radyotvonline.net/palnostalji/playlist.m3u8
+Park FM = https://stream.netradyom.com/listen/parkfm/radio.mp3/;stream.mp3
 PAZARCIK FM = https://anadolu.liderhost.com.tr/9090/stream
 PAZARCIK FM 2 = https://anadolu.liderhost.com.tr/9092/stream | icon/pazarcik_fm_2.jpg
 PAZARCIK FM 3 = https://anadolu.liderhost.com.tr/9094/stream | icon/pazarcik_fm_3.jpg
 PAZARCIK FM 3 INT = https://anadolu.liderhost.com.tr:10934/;
 PODNET RADYO = https://radyo1.radyo-dinle.tc:7046/;
+Polis Radyosu TSM = https://m.egm.gov.tr:8095/stream?/;stream.mp3
+Polis Radyosu TSM = https://m.egm.gov.tr:8095/stream?
 POP HOME = https://moondigitalmaster.radyotvonline.net/pophome/playlist.m3u8 | icon/pop_home.jpg
 POP HOME = https://ssl4.radyotvonline.com/radyohome/pophome.stream_aac/playlist.m3u8 | icon/pop_home.jpg
 POPLAND = https://moondigitaledge.radyotvonline.net/popland/playlist.m3u8
@@ -164,53 +180,86 @@ POWERTÜRK DANS = https://listen.powerapp.com.tr/powerturkdans/abr/powerturkdans
 POWERTÜRK FM = https://live.powerapp.com.tr/powerturk/abr/powerturk/128/playlist.m3u8 | icon/powertürk_fm.jpg
 POWERTÜRK RAP = https://listen.powerapp.com.tr/powerturkrap/abr/powerturkrap/128/playlist.m3u8
 RADIO LIGHT = https://yayin.radiolight.net:8005/live | icon/radio_light.jpg
-RADİO 5 = https://radiotrc.80.yayin.com.tr/stream | icon/radİo_5.jpg
-RADİO NET = https://anadolu.liderhost.com.tr:10983/; | icon/radİo_net.jpg
+RADIO MYDONOSE = https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO_MYDONOSE128AAC.aac?
+RADIO MYDONOSE = https://25603.live.streamtheworld.com/RADIO_MYDONOSE128AAC.aac?
+Radyo 06 Ankara = https://radyo.yayin.com.tr:5132/stream?
 RADYO 2000 FM Osmaniye = https://sslyayin.netyayin.net:10915/; | icon/radyo_2000_fm_osmaniye.jpg
+RADYO 35 = https://yayin.turkhosted.com/6012/stream/;stream.mp3
 RADYO 38 = https://anadolu.liderhost.com.tr:10892/;
 RADYO 45LİK = https://stream.radyo45lik.com:4545/stream | icon/radyo_45lİk.jpg
+RADYO 5 = https://radiotrc.80.yayin.com.tr/stream | icon/radİo_5.jpg
+RADYO 7 Nostalji = https://moondigitaledge2.radyotvonline.net/radyo7nostalji/playlist.m3u8
 RADYO 75 = https://anadolu.liderhost.com.tr/8126/stream | icon/radyo_75.jpeg
 RADYO AKDENİZ Antalya = https://yayin.radyoakdeniz.com/9470/stream? | icon/radyo_akdenİz_antalya.jpg
 RADYO ALATURKA = https://yayin.jumboserver.net:9100/stream | icon/radyo_alaturka.png
 RADYO ALİS = https://anadolu.liderhost.com.tr:10946/; | icon/radyo_alİs.jpeg
 RADYO ALPERENCE = https://anadolu.liderhost.com.tr:10932/;
+Radyo Ankara = https://radyoankara.ozelip.net:8152/
 RADYO ARABESK = https://yayin.radyoarabesk.com.tr:8000/stream | icon/radyo_arabesk.jpg
 RADYO ARGUVAN = https://radyo1.radyo-dinle.tc:7041/stream?type=http&nocache=23 | icon/radyo_arguvan.jpeg
 RADYO AYVALIK = https://radyo1.radyo-dinle.tc:7002/; | icon/radyo_ayvalik.jpeg
 RADYO BAŞAKŞEHİR = https://icecast.netmedya.net/rbasaksehir | icon/radyo_başakşehİr.jpeg
+Radyo Başkent = https://playerservices.streamtheworld.com/api/livestream-redirect/SUPER_FM_ITUNES.mp3?
+Radyo Başkent = https://28503.live.streamtheworld.com/SUPER_FM_ITUNES.mp3
+RADYO BATI = https://sslyayin.netyayin.net:10902/stream?
+Radyo Bilkent = https://stream.netradyom.com/listen/radyobilkent/radio.mp3
+RADYO CAN = https://radyo.yayindakiler.com:3124/stream?
 RADYO D = https://radyo.duhnet.tv/radyod | icon/radyo_d.jpg
+RADYO DADA = https://radyo.yayin.com.tr:5088/stream?
 RADYO DELTA = https://anadolu.liderhost.com.tr:10954/; | icon/radyo_delta.jpg
 RADYO DENGE = https://anadolu.liderhost.com.tr:10930/;
 RADYO DORUK = https://yayin5.radyohizmeti.com/8034/;stream | icon/radyo_doruk.jpeg
 RADYO DUBLE = https://anadolu.liderhost.com.tr:10894/;
+Radyo Durak = https://radyo.yayindakiler.com:8018/stream?/;stream.mp3
 RADYO EFLATUN = https://radyo1.radyo-dinle.tc:7037/;
+RADYO EKIN = https://yayin.turkhosted.com:6006/stream?/
 RADYO ENERJİ = https://trkvz-radyolar.ercdn.net/radyoenergy/playlist.m3u8 | icon/radyo_enerjİ.jpg
 RADYO GEDİK = https://radyo-t.gedik.edu.tr/stream.mp3?ver=19976 | icon/radyo_gedİk.jpeg
+Radyo Gimsa = https://yayin2.canliyayin.org:9482/stream/;stream.mp3
 RADYO GİREBİ = https://ssl123.ozelip.com/8066/; | icon/radyo_gİrebİ.jpeg
 RADYO GOL = https://wowza1.radyotvonline.com/unitedmedia/radyogol.stream/playlist.m3u8 | icon/radyo_gol.jpg
 RADYO GÖZDE FM = https://gozdefm.80.yayin.com.tr/;
 RADYO GÜLÜSTAN = https://anadolu.liderhost.com.tr:10967/;
+Radyo Harman FM = https://free.rcast.net/200259?/;stream.mp3
+Radyo Hedef = https://stream.rcast.net/200299
+Radyo Hedef = https://free.rcast.net/200299
 RADYO HİLTON = https://radyo1.radyo-dinle.tc:7001/; | icon/radyo_hİlton.jpeg
+RADYO IMBAT = https://radyo.medyahost.com.tr/8034/stream?
 RADYO İLAHİ = https://anadolu.liderhost.com.tr:10994/;
 RADYO İMZA = https://anadolu.liderhost.com.tr:10952/; | icon/radyo_İmza.jpeg
 RADYO İZMİR FM = https://usa4.fastcast4u.com/proxy/radyoizmirfm?mp=/mp3stream128
 RADYO KABE = https://anadolu.liderhost.com.tr:10955/;
 RADYO KALPLERİN SESİ = https://anadolu.liderhost.com.tr:10873/;
-RADYO KARADENİZ = https://radyo1.radyo-dinle.tc/8138/stream | icon/radyo_karadenİz.jpeg
-RADYO KARADENİZ = https://ssl.radyosfer.com:7076//; | icon/radyo_karadenİz.jpeg
+Radyo Karadeniz = https://radyo1.radyo-dinle.tc/8138/stream?/;stream.mp3 | icon/radyo_karadenİz.jpeg
+Radyo Karadeniz = https://radyo1.radyo-dinle.tc/8138/stream | icon/radyo_karadenİz.jpeg
+Radyo Karadeniz = https://ssl.radyosfer.com:7076//; | icon/radyo_karadenİz.jpeg
 RADYO KENT = https://radyo1.radyo-dinle.tc:7060/; | icon/radyo_kent.jpg
+Radyo Kent FM = https://playerservices.streamtheworld.com/api/livestream-redirect/SUPER_FM_ITUNES.mp3?
+Radyo Kent FM = https://27953.live.streamtheworld.com/SUPER_FM_ITUNES.mp3
+RADYO Kordelya = https://radyo.medyahost.com.tr/8048/stream?
 RADYO KURAN = https://anadolu.liderhost.com.tr:10995/;
 RADYO MAKARA = https://ip169.ozelip.com:10998/;
+Radyo Mars = https://yayin.radyomadyo.com:9400/stream?/;stream.mp3
 RADYO MEAL = https://anadolu.liderhost.com.tr:10993/;
+Radyo Megasite = https://stream.netradyom.com/listen/megasite/radio.mp3/;stream.mp3
+Radyo Megasite = https://stream.netradyom.com/listen/megasite/radio.mp3/;
 RADYO MODOKO = https://sslyayin.radyoyayini.com:7002/;
 RADYO MUHABBET = https://radyo1.radyo-dinle.tc:7051/;
+RADYO NET = https://anadolu.liderhost.com.tr:10983/; | icon/radİo_net.jpg
 RADYO NİKOMEDYA = https://sslyayin.radyoyayini.com:7091//;
 RADYO NİSBET = https://anadolu.liderhost.com.tr:10875/; | icon/radyo_nİsbet.jpeg
+Radyo ODTÜ = https://stream.radyoodtu.com.tr/canli;/;stream.mp3
+Radyo ODTÜ = https://stream3.radyoodtu.com.tr:8000/canli;/;stream.mp3
 RADYO ONLİNE TÜRK = https://anadolu.liderhost.com.tr:10960/; | icon/radyo_onlİne_türk.jpeg
 RADYO ORJİNAL = https://anadolu.liderhost.com.tr:10938/; | icon/radyo_orjİnal.jpeg
-RADYO SAHİL = https://radyo1.radyo-dinle.tc/8056/; | icon/radyo_sahİl.jpg
+Radyo Ostim = https://stream.netradyom.com/radio/8010/radio.mp3
+RADYO PAUSE = https://radyopause.ozelip.com.tr:8040/stream?
+RADYO REMIX = https://radyo.yayin.com.tr:5250/playlist.mp3?/;stream.mp3
+RADYO SAHIL = https://radyo1.radyo-dinle.tc/8056/stream? | icon/radyo_sahİl.jpg
+RADYO SAHIL = https://radyo1.radyo-dinle.tc/8056/; | icon/radyo_sahİl.jpg
 RADYO SEKK = https://radyo1.radyo-dinle.tc:7003/;
 RADYO SES = https://oyunzade.yayin.com.tr/stream
+Radyo Ses (KUR'AN-I KERİM - İLAHİ ) = https://radyodinle1.turkhosted.com/yayin?uri=radyo.normyazilim.com:8020/&tkn=JfXnwYkiwdXh9kPeBBpBrQ&tms=1777946837
 RADYO SEYMEN = https://yayin.radyoseymen.com.tr:1070/stream | icon/radyo_seymen.jpg
 RADYO SLAYT = https://live.radyo.in/8050/stream
 RADYO SOFT = https://trkvz-radyolar.ercdn.net/radyosoft/playlist.m3u8
@@ -219,9 +268,14 @@ RADYO SPOR = https://ssl4.radyotvonline.com/radyohome/radyosporhome.stream_aac/p
 RADYO ŞANLI = https://radyo1.radyo-dinle.tc:7020/;
 RADYO TATLISES = https://sslyayin.radyoyayini.com:7009/default | icon/radyo_tatlises.jpg
 RADYO Tİ = https://anadolu.liderhost.com.tr:10968/;
-RADYO TRAFİK = https://ssl4.radyotvonline.com/radyohome/radyotrafikhome.stream_aac/playlist.m3u8 | icon/radyo_trafİk.jpg
+Radyo Trafik = https://wowza1.radyotvonline.com/saran/radyotrafikankara.stream/chunklist_w1277412776.m3u8 | icon/radyo_trafİk.jpg
+Radyo Trafik = https://ssl4.radyotvonline.com/radyohome/radyotrafikhome.stream_aac/playlist.m3u8 | icon/radyo_trafİk.jpg
+RADYO Trafik İzmir = https://wowza1.radyotvonline.com/saran/radyotrafikizmir.stream/chunklist_w1880548894.m3u8
+Radyo Trend Ankara = https://radyo.yayin.com.tr:5132/stream?t=1760000812541
+Radyo Trio (Nostalji) = https://radyotrio.radyotvonline.net/radyotrio?/;stream.mp3
 RADYO TURAN = https://anadolu.liderhost.com.tr:10996/;
 RADYO TURKUVAZ = https://trkvz-radyolar.ercdn.net/radyoturkuvaz/playlist.m3u8
+Radyo Tuzgölü = https://radyo.yayin.com.tr:5870/stream?
 RADYO VİVA = https://ssl4.radyotvonline.com/radyohome/radyovivahome.stream_aac/playlist.m3u8 | icon/radyo_vİva.jpg
 RADYO VİZYON = https://stream.netradyom.com/radio/9300/radio.mp3 | icon/radyo_vİzyon.jpg
 RADYO VOKAL = https://moondigitalmaster.radyotvonline.net/radyovokal/playlist.m3u8 | icon/radyo_vokal.jpg
@@ -285,17 +339,18 @@ VIRGIN RADIO = https://playerservices.streamtheworld.com/api/livestream-redirect
 VİYANA FM = https://radyo.viyanafm.at/1453/stream | icon/vİyana_fm.jpeg
 WORLD HİTS = https://moondigitaledge.radyotvonline.net/worldhits/playlist.m3u8 | icon/world_hİts.jpg
 X RADYO = https://stream.xradio.com.tr:8770/stream
-YZ - Anatolian Rock - #01 - 70'ler (Canlı)= https://www.youtube.com/watch?v=MNl9sknx-7k
-YZ - Anatolian Rock - #02 - (Canlı)= https://www.youtube.com/watch?v=JRQGif7Y7Kg
-YZ - Anatolian Rock - #03 - (Canlı)= https://www.youtube.com/watch?v=YhPud7oPGc8
-YZ - Anatolian Rock - #04 - Türküler (Canlı) = https://www.youtube.com/watch?v=wEm1d_d3CPs
-YZ - Anatolian Rock - #05 - (Canlı)= https://www.youtube.com/watch?v=O3Y9V6CXYIk
-YZ - Anatolian Rock - #06 - 70’ler ve 80’lerden (Canlı)= https://www.youtube.com/watch?v=9Sg5YNoX_Qs
-YZ - Anatolian Rock - #07 - (Canlı)= https://www.youtube.com/watch?v=rjsL-DAfKnk
-YZ - Anatolian Rock - #08 - (Canlı)= https://www.youtube.com/watch?v=owN2aNtUGus
-YZ - Radyo Türkü (Canlı)=https://www.youtube.com/watch?v=NAaJYGbKRQo
-YZ - Neo Anatolian Rock (12 saat) = https://www.youtube.com/watch?v=BTmwRHI0sYY&list=RDBTmwRHI0sYY&start_radio=1
+Yıldız FM = https://wowza1.radyotvonline.com/shoutcast/yildizfm.stream/media_w1425287450_42373.aac
 YOZGAT FM = https://sslyayin.netyayin.net:10921/stream | icon/yozgat_fm.jpeg
+YZ - Anatolian Rock - #01 - 70'ler (Canlı) = https://www.youtube.com/watch?v=MNl9sknx-7k
+YZ - Anatolian Rock - #02 - (Canlı) = https://www.youtube.com/watch?v=JRQGif7Y7Kg
+YZ - Anatolian Rock - #03 - (Canlı) = https://www.youtube.com/watch?v=YhPud7oPGc8
+YZ - Anatolian Rock - #04 - Türküler (Canlı) = https://www.youtube.com/watch?v=wEm1d_d3CPs
+YZ - Anatolian Rock - #05 - (Canlı) = https://www.youtube.com/watch?v=O3Y9V6CXYIk
+YZ - Anatolian Rock - #06 - 70’ler ve 80’lerden (Canlı) = https://www.youtube.com/watch?v=9Sg5YNoX_Qs
+YZ - Anatolian Rock - #07 - (Canlı) = https://www.youtube.com/watch?v=rjsL-DAfKnk
+YZ - Anatolian Rock - #08 - (Canlı) = https://www.youtube.com/watch?v=owN2aNtUGus
+YZ - Neo Anatolian Rock (12 saat) = https://www.youtube.com/watch?v=BTmwRHI0sYY&list=RDBTmwRHI0sYY&start_radio=1
+YZ - Radyo Türkü (Canlı) = https://www.youtube.com/watch?v=NAaJYGbKRQo
 ZEN CHOPPER = https://anadolu.liderhost.com.tr:10877/;
 ZEN NOSTALJİ = https://anadolu.liderhost.com.tr:10879/;
 ZEN RADYO = https://anadolu.liderhost.com.tr:10880/;
