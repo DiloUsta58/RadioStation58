@@ -469,6 +469,16 @@ function isMobileLike() {
   }
 }
 
+function openYoutubeExternally(url) {
+  try {
+    // Prefer leaving embed playback on mobile where ads and autoplay policies are stricter.
+    location.href = url;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function runYoutubeGestureCommands() {
   // On mobile browsers, audio usually requires a user gesture.
   // When we are in a user-initiated play(), try to force unmute+play a few times
@@ -1364,6 +1374,10 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
   setPlayerState("Bağlanıyor...");
   setPlayerError("—");
   if (isYoutubeUrl(urlForThisPlay)) {
+    if (initiatedByUser && isMobileLike()) {
+      // Mobile browsers are stricter (autoplay + ads); external playback is far more reliable.
+      if (openYoutubeExternally(urlForThisPlay)) return;
+    }
     if (startYoutubePlayer(urlForThisPlay, { initiatedByUser })) {
       setPlayerState("Çalıyor");
       setStreamCheck("YouTube", "neutral");
