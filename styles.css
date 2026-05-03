@@ -359,6 +359,16 @@ code {
   display: none;
 }
 
+.youtube-frame.is-minimized {
+  position: fixed;
+  right: 6px;
+  bottom: 6px;
+  width: 1px;
+  height: 1px;
+  opacity: 0.001;
+  pointer-events: none;
+}
+
 .youtube-unmute {
   position: fixed;
   right: 14px;

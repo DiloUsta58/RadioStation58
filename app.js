@@ -423,7 +423,7 @@ function isYoutubeUrl(url) {
   return Boolean(getYoutubeVideoId(url));
 }
 
-function youtubeEmbedUrl(url, autoplay = true) {
+function youtubeEmbedUrl(url, autoplay = true, muted = false) {
   const id = getYoutubeVideoId(url);
   if (!id) return "";
   const origin = typeof location !== "undefined" && location.origin && location.origin !== "null" ? location.origin : "";
@@ -431,6 +431,7 @@ function youtubeEmbedUrl(url, autoplay = true) {
     autoplay: autoplay ? "1" : "0",
     playsinline: "1",
     enablejsapi: "1",
+    mute: muted ? "1" : "0",
     rel: "0",
   });
   if (origin) params.set("origin", origin);
@@ -441,33 +442,66 @@ function stopYoutubePlayer() {
   if (!els.youtubeFrame) return;
   els.youtubeFrame.src = "about:blank";
   els.youtubeFrame.classList.add("is-hidden");
+  els.youtubeFrame.classList.remove("is-minimized");
   els.youtubeUnmuteBtn?.classList.add("is-hidden");
 }
 
 function postYoutubeCommand(command, args = []) {
-  if (!els.youtubeFrame?.contentWindow) return;
+  if (!els.youtubeFrame?.contentWindow) return false;
   const payload = JSON.stringify({ event: "command", func: command, args: Array.isArray(args) ? args : [] });
   els.youtubeFrame.contentWindow.postMessage(payload, "https://www.youtube.com");
+  return true;
 }
 
 function shouldAutoplayYoutube() {
   try {
-    return !matchMedia("(pointer:coarse)").matches;
+    return true;
   } catch {
     return true;
   }
 }
 
-function startYoutubePlayer(url) {
+function isMobileLike() {
+  try {
+    return matchMedia("(pointer:coarse)").matches;
+  } catch {
+    return false;
+  }
+}
+
+function runYoutubeGestureCommands() {
+  // On mobile browsers, audio usually requires a user gesture.
+  // When we are in a user-initiated play(), try to force unmute+play a few times
+  // until the iframe is ready.
+  const startedAt = Date.now();
+  const maxMs = 3500;
+  const tick = () => {
+    if (!els.youtubeFrame || els.youtubeFrame.classList.contains("is-hidden")) return;
+    const ok =
+      postYoutubeCommand("unMute") &&
+      postYoutubeCommand("setVolume", [100]) &&
+      postYoutubeCommand("playVideo");
+    if (ok) return;
+    if (Date.now() - startedAt > maxMs) return;
+    setTimeout(tick, 250);
+  };
+  tick();
+}
+
+function startYoutubePlayer(url, { initiatedByUser = false } = {}) {
   if (!els.youtubeFrame) return false;
-  const embed = youtubeEmbedUrl(url, shouldAutoplayYoutube());
+  const mobile = isMobileLike();
+  const muted = mobile && !initiatedByUser;
+  const embed = youtubeEmbedUrl(url, shouldAutoplayYoutube(), muted);
   if (!embed) return false;
   els.audio.pause();
   els.audio.removeAttribute("src");
   els.audio.load();
   els.youtubeFrame.classList.remove("is-hidden");
-  els.youtubeUnmuteBtn?.classList.remove("is-hidden");
+  els.youtubeFrame.classList.toggle("is-minimized", mobile && !initiatedByUser);
+  els.youtubeUnmuteBtn?.classList.toggle("is-hidden", !mobile);
   if (els.youtubeFrame.src !== embed) els.youtubeFrame.src = embed;
+  if (initiatedByUser) runYoutubeGestureCommands();
   return true;
 }
 
@@ -1330,7 +1364,7 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
   setPlayerState("Bağlanıyor...");
   setPlayerError("—");
   if (isYoutubeUrl(urlForThisPlay)) {
-    if (startYoutubePlayer(urlForThisPlay)) {
+    if (startYoutubePlayer(urlForThisPlay, { initiatedByUser })) {
       setPlayerState("Çalıyor");
       setStreamCheck("YouTube", "neutral");
       setPlayOkToggle(false);
