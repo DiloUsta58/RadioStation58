@@ -1,8 +1,7 @@
 # WebRadyo dışa aktarım
-# Oluşturuldu: 2026-05-02T13:11:00.721Z
+# Oluşturuldu: 2026-05-03T16:31:48.262Z
 # Görünüm: all
 # Arama: 
-
 
 103.6 Radyo Light = https://yayin.radiolight.net:8005/live
 90'LAR = https://moondigitalmaster.radyotvonline.net/90lar/playlist.m3u8
@@ -225,14 +224,6 @@ RADYO TURAN = https://anadolu.liderhost.com.tr:10996/;
 RADYO TURKUVAZ = https://trkvz-radyolar.ercdn.net/radyoturkuvaz/playlist.m3u8
 RADYO VİVA = https://ssl4.radyotvonline.com/radyohome/radyovivahome.stream_aac/playlist.m3u8 | icon/radyo_vİva.jpg
 RADYO VİZYON = https://stream.netradyom.com/radio/9300/radio.mp3 | icon/radyo_vİzyon.jpg
-RADYO VİZYON ANKARA = https://stream.netradyom.com/radio/7030/radio.mp3
-RADYO VİZYON BEBEK = https://stream.netradyom.com/radio/7080/radio.mp3
-RADYO VİZYON HALK = https://stream.netradyom.com/radio/7070/radio.mp3
-RADYO VİZYON KLASİK = https://stream.netradyom.com/radio/7100/radio.mp3
-RADYO VİZYON LOUNGE = https://stream.netradyom.com/radio/7050/radio.mp3
-RADYO VİZYON NOSTALJİ = https://stream.netradyom.com/radio/7090/radio.mp3
-RADYO VİZYON ROCK = https://stream.netradyom.com/radio/7040/radio.mp3
-RADYO VİZYON SEK = https://stream.netradyom.com/radio/7060/radio.mp3
 RADYO VOKAL = https://moondigitalmaster.radyotvonline.net/radyovokal/playlist.m3u8 | icon/radyo_vokal.jpg
 RAKS FM = https://sslyayin.radyoyayini.com:7092//;
 RAP HOME = https://moondigitalmaster.radyotvonline.net/raphome/playlist.m3u8 | icon/rap_home.jpeg
@@ -296,9 +287,9 @@ WORLD HİTS = https://moondigitaledge.radyotvonline.net/worldhits/playlist.m3u8 
 X RADYO = https://stream.xradio.com.tr:8770/stream
 Yapay Zeka - Anatolian Rock Radyo | Psychedelic 70's = https://www.youtube.com/watch?v=MNl9sknx-7k
 Yapay Zeka - Psychedelic Anatolian Rock = https://www.youtube.com/watch?v=JRQGif7Y7Kg
-Yapay Zeka - Radyo Anatolian Rock = https://www.youtube.com/watch?v=O3Y9V6CXYIk
 Yapay Zeka - Psychedelic Anatolian Rock = https://www.youtube.com/watch?v=YhPud7oPGc8
 Yapay Zeka - Radyo Anatolian - Psychedelic Anatolian Rock Türküler = https://www.youtube.com/watch?v=wEm1d_d3CPs
+Yapay Zeka - Radyo Anatolian Rock = https://www.youtube.com/watch?v=O3Y9V6CXYIk
 YOZGAT FM = https://sslyayin.netyayin.net:10921/stream | icon/yozgat_fm.jpeg
 ZEN CHOPPER = https://anadolu.liderhost.com.tr:10877/;
 ZEN NOSTALJİ = https://anadolu.liderhost.com.tr:10879/;

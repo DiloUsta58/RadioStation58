@@ -267,7 +267,7 @@ code {
   margin: 0 0 6px 15px;
   color: var(--accent);
   font-family: "WebRadioDigital", ui-monospace, monospace;
-  font-size: var(--time-font-size, 28px);
+  font-size: var(--time-font-size, 18px);
   line-height: 1;
   letter-spacing: 0;
   text-align: left;
@@ -355,6 +355,22 @@ code {
 }
 
 .youtube-frame.is-hidden {
+  display: none;
+}
+
+.video-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: min(46vh, 430px);
+  display: block;
+  margin: 12px 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #000;
+  object-fit: contain;
+}
+
+.video-player.is-hidden {
   display: none;
 }
 
@@ -553,8 +569,8 @@ code {
 }
 
 .logo {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: #242424;

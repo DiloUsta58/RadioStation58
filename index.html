@@ -20,12 +20,13 @@
         </button>
         <nav id="mainMenu" class="main-menu is-hidden" aria-label="Ana menü">
           <a class="main-menu__item" href="https://dilousta58.github.io/RadioStation58/WebRadio-release.apk" download>Android APK indir</a>
+          <button id="modeToggleMenuBtn" class="main-menu__item" type="button">Tv Izle</button>
           <button id="settingsMenuBtn" class="main-menu__item" type="button">Ayarlar</button>
         </nav>
       </div>
       <div class="brand">
-        <div class="brand__title">Radio Dinle - 58</div>
-        <div class="brand__subtitle">Web radyo • Favoriler • Kanal listesi <code>rlist/radio.lst</code></div>
+        <div id="brandTitle" class="brand__title">Radio Dinle - 58</div>
+        <div id="brandSubtitle" class="brand__subtitle">Web radyo • Favoriler • Kanal listesi <code>rlist/radio.lst</code></div>
       </div>
         <div class="control-item">
           <button id="reloadBtn" class="iconbtn iconbtn--refresh" type="button" title="Kanal listesini yenile" aria-label="Yenile"></button>
@@ -106,6 +107,8 @@
               </button>
             </div>
           </div>
+
+          <video id="videoPlayer" class="video-player is-hidden" controls playsinline webkit-playsinline preload="metadata"></video>
 
           <div class="controls" aria-label="Oynatma kontrolü">
             <button id="playBtn" class="iconbtn iconbtn--play" type="button" disabled aria-label="Oynat" title="Oynat"></button>
@@ -217,6 +220,7 @@
       </div>
     </footer>
 
-    <script src="app.js?v=20260502_1045"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
+    <script src="app.js?v=20260503_1928"></script>
   </body>
 </html>
