@@ -425,12 +425,14 @@ function isYoutubeUrl(url) {
 function youtubeEmbedUrl(url, autoplay = true) {
   const id = getYoutubeVideoId(url);
   if (!id) return "";
+  const origin = typeof location !== "undefined" && location.origin && location.origin !== "null" ? location.origin : "";
   const params = new URLSearchParams({
     autoplay: autoplay ? "1" : "0",
     playsinline: "1",
     enablejsapi: "1",
     rel: "0",
   });
+  if (origin) params.set("origin", origin);
   return `https://www.youtube.com/embed/${encodeURIComponent(id)}?${params.toString()}`;
 }
 
