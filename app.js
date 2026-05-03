@@ -69,7 +69,6 @@ const els = {
   updateStatus: document.getElementById("updateStatus"),
   audio: document.getElementById("audio"),
   youtubeFrame: document.getElementById("youtubeFrame"),
-  youtubeUnmuteBtn: document.getElementById("youtubeUnmuteBtn"),
 
   adminBtn: document.getElementById("adminBtn"),
   adminPanel: document.getElementById("adminPanel"),
@@ -423,18 +422,15 @@ function isYoutubeUrl(url) {
   return Boolean(getYoutubeVideoId(url));
 }
 
-function youtubeEmbedUrl(url, autoplay = true, muted = false) {
+function youtubeEmbedUrl(url, autoplay = true) {
   const id = getYoutubeVideoId(url);
   if (!id) return "";
-  const origin = typeof location !== "undefined" && location.origin && location.origin !== "null" ? location.origin : "";
   const params = new URLSearchParams({
     autoplay: autoplay ? "1" : "0",
     playsinline: "1",
     enablejsapi: "1",
-    mute: muted ? "1" : "0",
     rel: "0",
   });
-  if (origin) params.set("origin", origin);
   return `https://www.youtube.com/embed/${encodeURIComponent(id)}?${params.toString()}`;
 }
 
@@ -442,76 +438,23 @@ function stopYoutubePlayer() {
   if (!els.youtubeFrame) return;
   els.youtubeFrame.src = "about:blank";
   els.youtubeFrame.classList.add("is-hidden");
-  els.youtubeFrame.classList.remove("is-minimized");
-  els.youtubeUnmuteBtn?.classList.add("is-hidden");
 }
 
-function postYoutubeCommand(command, args = []) {
-  if (!els.youtubeFrame?.contentWindow) return false;
-  const payload = JSON.stringify({ event: "command", func: command, args: Array.isArray(args) ? args : [] });
+function postYoutubeCommand(command) {
+  if (!els.youtubeFrame?.contentWindow) return;
+  const payload = JSON.stringify({ event: "command", func: command, args: [] });
   els.youtubeFrame.contentWindow.postMessage(payload, "https://www.youtube.com");
-  return true;
 }
 
-function shouldAutoplayYoutube() {
-  try {
-    return true;
-  } catch {
-    return true;
-  }
-}
-
-function isMobileLike() {
-  try {
-    return matchMedia("(pointer:coarse)").matches;
-  } catch {
-    return false;
-  }
-}
-
-function openYoutubeExternally(url) {
-  try {
-    // Prefer leaving embed playback on mobile where ads and autoplay policies are stricter.
-    location.href = url;
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function runYoutubeGestureCommands() {
-  // On mobile browsers, audio usually requires a user gesture.
-  // When we are in a user-initiated play(), try to force unmute+play a few times
-  // until the iframe is ready.
-  const startedAt = Date.now();
-  const maxMs = 3500;
-  const tick = () => {
-    if (!els.youtubeFrame || els.youtubeFrame.classList.contains("is-hidden")) return;
-    const ok =
-      postYoutubeCommand("unMute") &&
-      postYoutubeCommand("setVolume", [100]) &&
-      postYoutubeCommand("playVideo");
-    if (ok) return;
-    if (Date.now() - startedAt > maxMs) return;
-    setTimeout(tick, 250);
-  };
-  tick();
-}
-
-function startYoutubePlayer(url, { initiatedByUser = false } = {}) {
+function startYoutubePlayer(url) {
   if (!els.youtubeFrame) return false;
-  const mobile = isMobileLike();
-  const muted = mobile && !initiatedByUser;
-  const embed = youtubeEmbedUrl(url, shouldAutoplayYoutube(), muted);
+  const embed = youtubeEmbedUrl(url, true);
   if (!embed) return false;
   els.audio.pause();
   els.audio.removeAttribute("src");
   els.audio.load();
   els.youtubeFrame.classList.remove("is-hidden");
-  els.youtubeFrame.classList.toggle("is-minimized", mobile && !initiatedByUser);
-  els.youtubeUnmuteBtn?.classList.toggle("is-hidden", !mobile);
   if (els.youtubeFrame.src !== embed) els.youtubeFrame.src = embed;
-  if (initiatedByUser) runYoutubeGestureCommands();
   return true;
 }
 
@@ -1374,11 +1317,7 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
   setPlayerState("Bağlanıyor...");
   setPlayerError("—");
   if (isYoutubeUrl(urlForThisPlay)) {
-    if (initiatedByUser && isMobileLike()) {
-      // Mobile browsers are stricter (autoplay + ads); external playback is far more reliable.
-      if (openYoutubeExternally(urlForThisPlay)) return;
-    }
-    if (startYoutubePlayer(urlForThisPlay, { initiatedByUser })) {
+    if (startYoutubePlayer(urlForThisPlay)) {
       setPlayerState("Çalıyor");
       setStreamCheck("YouTube", "neutral");
       setPlayOkToggle(false);
@@ -1768,11 +1707,6 @@ function wireEvents() {
   els.compactNextBtn?.addEventListener("click", () => nextStation({ initiatedByUser: true }));
   els.compactRandomBtn?.addEventListener("click", () => randomStation({ initiatedByUser: true }));
   els.compactRecordBtn?.addEventListener("click", () => toggleRecording());
-  els.youtubeUnmuteBtn?.addEventListener("click", () => {
-    postYoutubeCommand("unMute");
-    postYoutubeCommand("setVolume", [100]);
-    postYoutubeCommand("playVideo");
-  });
   els.streamSelect.addEventListener("change", () => {
     if (recording) stopRecording();
     stopPlaybackTimer();
