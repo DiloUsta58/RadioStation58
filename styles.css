@@ -347,14 +347,28 @@ code {
 }
 
 .youtube-frame {
-  width: 1px;
-  height: 1px;
-  position: absolute;
-  left: -9999px;
+  width: 100%;
+  max-width: 100%;
+  height: min(56.25vw, 320px);
   border: 0;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .youtube-frame.is-hidden {
+  display: none;
+}
+
+.youtube-unmute {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  z-index: 60;
+  padding: 10px 12px;
+  font-weight: 800;
+}
+
+.youtube-unmute.is-hidden {
   display: none;
 }
 

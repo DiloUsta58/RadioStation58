@@ -69,6 +69,7 @@ const els = {
   updateStatus: document.getElementById("updateStatus"),
   audio: document.getElementById("audio"),
   youtubeFrame: document.getElementById("youtubeFrame"),
+  youtubeUnmuteBtn: document.getElementById("youtubeUnmuteBtn"),
 
   adminBtn: document.getElementById("adminBtn"),
   adminPanel: document.getElementById("adminPanel"),
@@ -440,22 +441,32 @@ function stopYoutubePlayer() {
   if (!els.youtubeFrame) return;
   els.youtubeFrame.src = "about:blank";
   els.youtubeFrame.classList.add("is-hidden");
+  els.youtubeUnmuteBtn?.classList.add("is-hidden");
 }
 
-function postYoutubeCommand(command) {
+function postYoutubeCommand(command, args = []) {
   if (!els.youtubeFrame?.contentWindow) return;
-  const payload = JSON.stringify({ event: "command", func: command, args: [] });
+  const payload = JSON.stringify({ event: "command", func: command, args: Array.isArray(args) ? args : [] });
   els.youtubeFrame.contentWindow.postMessage(payload, "https://www.youtube.com");
+}
+
+function shouldAutoplayYoutube() {
+  try {
+    return !matchMedia("(pointer:coarse)").matches;
+  } catch {
+    return true;
+  }
 }
 
 function startYoutubePlayer(url) {
   if (!els.youtubeFrame) return false;
-  const embed = youtubeEmbedUrl(url, true);
+  const embed = youtubeEmbedUrl(url, shouldAutoplayYoutube());
   if (!embed) return false;
   els.audio.pause();
   els.audio.removeAttribute("src");
   els.audio.load();
   els.youtubeFrame.classList.remove("is-hidden");
+  els.youtubeUnmuteBtn?.classList.remove("is-hidden");
   if (els.youtubeFrame.src !== embed) els.youtubeFrame.src = embed;
   return true;
 }
@@ -1709,6 +1720,11 @@ function wireEvents() {
   els.compactNextBtn?.addEventListener("click", () => nextStation({ initiatedByUser: true }));
   els.compactRandomBtn?.addEventListener("click", () => randomStation({ initiatedByUser: true }));
   els.compactRecordBtn?.addEventListener("click", () => toggleRecording());
+  els.youtubeUnmuteBtn?.addEventListener("click", () => {
+    postYoutubeCommand("unMute");
+    postYoutubeCommand("setVolume", [100]);
+    postYoutubeCommand("playVideo");
+  });
   els.streamSelect.addEventListener("change", () => {
     if (recording) stopRecording();
     stopPlaybackTimer();
