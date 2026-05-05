@@ -648,6 +648,129 @@ code {
   background: #313131;
 }
 
+.carmode {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 16px 18px 16px;
+  background: #101010;
+}
+
+.carmode.is-hidden {
+  display: none;
+}
+
+.carmode__top {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: #151517;
+  padding: 14px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+.carmode__logoBtn {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 6px 8px 2px 8px;
+  cursor: pointer;
+}
+
+.carmode__logoBtn:active {
+  transform: none;
+}
+
+.carmode__logo {
+  width: min(320px, 80vw);
+  height: auto;
+  display: block;
+}
+
+.carmode__title {
+  margin-top: 10px;
+  font-size: 22px;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  text-align: center;
+}
+
+.carmode__url {
+  margin-top: 6px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+  text-align: center;
+}
+
+.carmode__fav {
+  margin-top: 10px;
+  align-self: stretch;
+  min-height: 72px;
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  padding: 10px 14px;
+}
+
+.carmode__controls {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  background: #151517;
+  padding: 14px 14px 16px 14px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  flex: 1 1 auto;
+}
+
+.carmode__row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  height: 100%;
+}
+
+.carmode__btn {
+  width: 100% !important;
+  height: clamp(92px, 22vh, 180px) !important;
+  background-size: clamp(56px, 10vh, 96px) !important;
+  border-radius: 18px;
+}
+
+.carmode__btn--wide {
+  height: clamp(80px, 18vh, 150px) !important;
+}
+
+body.is-carmode .topbar,
+body.is-carmode .layout,
+body.is-carmode .adminfab,
+body.is-carmode .adminpanel,
+body.is-carmode .settingspanel,
+body.is-carmode .app-footer {
+  display: none !important;
+}
+
+@media (max-width: 520px) {
+  .carmode__btn {
+    height: clamp(92px, 20vh, 170px) !important;
+    background-size: clamp(56px, 10vh, 92px) !important;
+  }
+}
+
 .iconbtn {
   appearance: none;
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -662,6 +785,28 @@ code {
   color: transparent;
   font-size: 0;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22);
+  transition: transform 70ms ease, filter 70ms ease, box-shadow 70ms ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.iconbtn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.97);
+  filter: brightness(1.08) saturate(1.05);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+    inset 0 10px 18px rgba(0, 0, 0, 0.35);
+}
+
+.btn {
+  transition: transform 70ms ease, filter 70ms ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.99);
+  filter: brightness(1.06);
 }
 
 .iconbtn:disabled {
@@ -697,6 +842,10 @@ code {
 .iconbtn--refresh { background-image: url("controls/refresh_blue.png") !important; }
 .iconbtn--refresh:disabled { background-image: url("controls/refresh_red.png") !important; }
 
+/* CarMod */
+.iconbtn--carmod { background-image: url("controls/car_mod_blue.png") !important; }
+.iconbtn--carmod:disabled { background-image: url("controls/car_mod_red.png") !important; }
+
 /* Record */
 .iconbtn--record { background-image: url("controls/rec_blue.png") !important; }
 .iconbtn--record:disabled { background-image: url("controls/rec_blue.png") !important; opacity: 0.48; }
@@ -711,6 +860,7 @@ code {
 #prevBtn,
 #randomBtn,
 #reloadBtn,
+#carmodBtn,
 #compactPlayBtn,
 #compactPauseBtn,
 #compactPrevBtn,

@@ -31,7 +31,30 @@
           <button id="reloadBtn" class="iconbtn iconbtn--refresh" type="button" title="Kanal listesini yenile" aria-label="Yenile"></button>
           <span class="control-label">Yenile</span>
         </div>      
+      <div class="control-item">
+          <button id="carmodBtn" class="iconbtn iconbtn--carmod" type="button" title="Aracı modunu değiştir" aria-label="Araç modu"></button>
+          <span class="control-label">Araç modu</span>          
+      </div>
     </header>
+
+    <section id="carMode" class="carmode is-hidden" aria-label="Araç modu">
+      <div class="carmode__top" aria-label="Car Mode">
+        <button id="carExitBtn" class="carmode__logoBtn" type="button" aria-label="Geri">
+          <img class="carmode__logo" src="controls/car_mod_green.png" alt="Car Mode" />
+        </button>
+        <div id="carNowTitle" class="carmode__title">—</div>
+        <button id="carFavBtn" class="btn btn--ghost carmode__fav" type="button" disabled title="Favorilere ekle/kaldır" aria-label="Favori">☆</button>
+      </div>
+
+      <div class="carmode__controls" aria-label="Kontroller">
+        <div class="carmode__row">
+          <button id="carPrevBtn" class="iconbtn iconbtn--prev carmode__btn" type="button" aria-label="Zurück"></button>
+          <button id="carPlayBtn" class="iconbtn iconbtn--play carmode__btn" type="button" aria-label="Başlat"></button>
+          <button id="carNextBtn" class="iconbtn iconbtn--next carmode__btn" type="button" aria-label="Vor"></button>
+        </div>
+        <button id="carRandomBtn" class="iconbtn iconbtn--random carmode__btn carmode__btn--wide" type="button" aria-label="Rastgele"></button>
+      </div>
+    </section>
 
     <main class="layout">
       <section class="panel panel--list" aria-label="Kanal listesi">

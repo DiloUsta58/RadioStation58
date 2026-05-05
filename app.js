@@ -25,6 +25,7 @@ const els = {
   menuBtn: document.getElementById("menuBtn"),
   mainMenu: document.getElementById("mainMenu"),
   settingsMenuBtn: document.getElementById("settingsMenuBtn"),
+  carmodBtn: document.getElementById("carmodBtn"),
   brandTitle: document.getElementById("brandTitle"),
   brandSubtitle: document.getElementById("brandSubtitle"),
   settingsPanel: document.getElementById("settingsPanel"),
@@ -74,6 +75,15 @@ const els = {
   audio: document.getElementById("audio"),
   youtubeFrame: document.getElementById("youtubeFrame"),
   citySelect: document.getElementById("button"),
+
+  carMode: document.getElementById("carMode"),
+  carNowTitle: document.getElementById("carNowTitle"),
+  carFavBtn: document.getElementById("carFavBtn"),
+  carPrevBtn: document.getElementById("carPrevBtn"),
+  carPlayBtn: document.getElementById("carPlayBtn"),
+  carNextBtn: document.getElementById("carNextBtn"),
+  carRandomBtn: document.getElementById("carRandomBtn"),
+  carExitBtn: document.getElementById("carExitBtn"),
 
   adminBtn: document.getElementById("adminBtn"),
   adminPanel: document.getElementById("adminPanel"),
@@ -1395,6 +1405,7 @@ function selectStation(key) {
   activeStationKey = key;
   applyActiveToPlayer();
   renderList();
+  updateCarModeNowPlaying();
   scrollActiveIntoView();
   setPlayerError("—");
   scheduleUiSave();
@@ -1414,6 +1425,7 @@ function setAudioSourceForActiveStation() {
   els.nowStreamChip.textContent = abbreviateUrl(url);
   els.nowStreamChip.title = url;
   els.nowLogo.src = stationIconSrc(st);
+  updateCarModeNowPlaying();
 
   if (isYoutubeUrl(url)) {
     els.audio.pause();
@@ -1764,6 +1776,28 @@ function setMenuOpen(open) {
   els.menuBtn?.setAttribute("aria-expanded", String(Boolean(open)));
 }
 
+function setCarMode(enabled) {
+  document.body.classList.toggle("is-carmode", Boolean(enabled));
+  els.carMode?.classList.toggle("is-hidden", !enabled);
+  if (enabled) {
+    setMenuOpen(false);
+    setSettingsOpen(false);
+  }
+  updateCarModeNowPlaying();
+}
+
+function updateCarModeNowPlaying() {
+  if (!els.carMode || els.carMode.classList.contains("is-hidden")) return;
+  const st = getActiveStation();
+  if (els.carNowTitle) els.carNowTitle.textContent = st?.name || "—";
+  if (els.carFavBtn) {
+    const favs = getFavoritesSet();
+    const isFav = Boolean(activeStationKey && favs.has(activeStationKey));
+    els.carFavBtn.textContent = isFav ? "★" : "☆";
+    els.carFavBtn.disabled = !activeStationKey;
+  }
+}
+
 function wireEvents() {
   els.menuBtn?.addEventListener("click", (event) => {
     event.stopPropagation();
@@ -1779,6 +1813,10 @@ function wireEvents() {
     }
   });
   els.settingsMenuBtn?.addEventListener("click", () => setSettingsOpen(true));
+  els.carmodBtn?.addEventListener("click", () => {
+    const enabled = !document.body.classList.contains("is-carmode");
+    setCarMode(enabled);
+  });
   els.settingsCloseBtn?.addEventListener("click", () => setSettingsOpen(false));
   els.settingsPanel?.addEventListener("click", (event) => {
     if (event.target === els.settingsPanel) setSettingsOpen(false);
@@ -1837,6 +1875,17 @@ function wireEvents() {
   els.citySelect?.addEventListener("change", () => {
     void onCitySelectionChanged();
   });
+  els.carExitBtn?.addEventListener("click", () => setCarMode(false));
+  els.carPrevBtn?.addEventListener("click", () => prevStation({ initiatedByUser: true }));
+  els.carNextBtn?.addEventListener("click", () => nextStation({ initiatedByUser: true }));
+  els.carRandomBtn?.addEventListener("click", () => randomStation({ initiatedByUser: true }));
+  els.carPlayBtn?.addEventListener("click", () => play({ initiatedByUser: true }));
+  els.carFavBtn?.addEventListener("click", () => {
+    if (!activeStationKey) return;
+    // Same behavior as main page favorite button.
+    toggleFavoriteByKey(activeStationKey);
+    updateCarModeNowPlaying();
+  });
   els.streamSelect.addEventListener("change", () => {
     if (recording) stopRecording();
     stopPlaybackTimer();
@@ -1851,6 +1900,7 @@ function wireEvents() {
     setPlayerState("Çalıyor");
     notifyNativePlayback(true);
     updateRecordButtonState();
+    updateCarModeNowPlaying();
     if (!playbackStartedAt || playbackStationKey !== activeStationKey) {
       startPlaybackTimer();
     }
@@ -1860,6 +1910,7 @@ function wireEvents() {
     setPlayOkToggle(false);
     notifyNativePlayback(false);
     updateRecordButtonState();
+    updateCarModeNowPlaying();
     stopNowPlayingPoll();
     if (!recording) stopPlaybackTimer();
   });
