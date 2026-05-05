@@ -698,9 +698,12 @@ code {
   font-weight: 900;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
   width: 100%;
   text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
 }
 
 .carmode__url {
@@ -724,6 +727,11 @@ code {
   display: grid;
   place-items: center;
   padding: 10px 14px;
+}
+
+/* Hide stream URL chip (show station name only) */
+#nowStreamChip {
+  display: none !important;
 }
 
 .carmode__controls {

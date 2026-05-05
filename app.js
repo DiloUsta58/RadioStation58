@@ -1190,6 +1190,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
     if (els.compactRandomBtn) els.compactRandomBtn.disabled = getFilteredStations().length === 0;
     updateRecordButtonState();
     setStreamCheck("—", "neutral");
+    updateCarModeNowPlaying();
     return;
   }
 
@@ -1219,6 +1220,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   els.nowStreamChip.title = st.streams[pref];
   els.nowLogo.src = stationIconSrc(st);
   setNowMeta(st.group || "—");
+  updateCarModeNowPlaying();
 
   els.playBtn.disabled = false;
   els.pauseBtn.disabled = false;
@@ -1996,6 +1998,7 @@ async function init() {
   els.searchInput.value = "";
   setViewMode("all", { restore: true });
   await loadStations();
+  updateCarModeNowPlaying();
 
   if (typeof ui.activeStationKey === "string" && stations.some((s) => s.key === ui.activeStationKey)) {
     activeStationKey = ui.activeStationKey;
