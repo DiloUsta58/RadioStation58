@@ -78,6 +78,7 @@ const els = {
 
   carMode: document.getElementById("carMode"),
   carNowTitle: document.getElementById("carNowTitle"),
+  carNowFooterTitle: document.getElementById("carNowFooterTitle"),
   carFavBtn: document.getElementById("carFavBtn"),
   carPrevBtn: document.getElementById("carPrevBtn"),
   carPlayBtn: document.getElementById("carPlayBtn"),
@@ -1791,7 +1792,9 @@ function setCarMode(enabled) {
 function updateCarModeNowPlaying() {
   if (!els.carMode || els.carMode.classList.contains("is-hidden")) return;
   const st = getActiveStation();
-  if (els.carNowTitle) els.carNowTitle.textContent = st?.name || "—";
+  const name = st?.name || "—";
+  if (els.carNowTitle) els.carNowTitle.textContent = name;
+  if (els.carNowFooterTitle) els.carNowFooterTitle.textContent = name;
   if (els.carFavBtn) {
     const favs = getFavoritesSet();
     const isFav = Boolean(activeStationKey && favs.has(activeStationKey));
