@@ -1,12 +1,13 @@
 /* WebRadioStation - vanilla HTML/CSS/JS */
 
 const RADIO_LIST_URL = "rlist/radio.lst";
-const TV_LIST_URL = "https://iptv-org.github.io/iptv/countries/tr.m3u";
+const CITY_LIST_DIR = "ŞehirlerRadio";
 const LS_FAV_KEY = "webRadioStation:favorites:v1";
 const LS_STREAM_PREF_KEY = "webRadioStation:streamIndexByStation:v1";
 const LS_VOLUME_KEY = "webRadioStation:volume:v1";
 const LS_BLOCKED_URLS_KEY = "webRadioStation:blockedUrls:v1";
 const LS_UI_STATE_KEY = "webRadioStation:uiState:v1";
+const LS_CITY_KEY = "webRadioStation:cityList:v1";
 const LS_APP_BOOT_KEY = "webRadioStation:bootVersion";
 const APP_BOOT_VERSION = "20260502-huawei-render-fix";
 const LS_DIAGNOSTICS_KEY = "webRadioStation:diagnosticsEnabled:v1";
@@ -14,9 +15,8 @@ const LS_STATION_FONT_SIZE_KEY = "webRadioStation:stationFontSize:v1";
 const LS_TIME_FONT_SIZE_KEY = "webRadioStation:timeFontSize:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
-const HLS_PROXY_URL = "api/hls-proxy.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.0.9";
+const APP_VERSION = "1.1.0";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -24,7 +24,6 @@ let streamDiagnosticsEnabled = false;
 const els = {
   menuBtn: document.getElementById("menuBtn"),
   mainMenu: document.getElementById("mainMenu"),
-  modeToggleMenuBtn: document.getElementById("modeToggleMenuBtn"),
   settingsMenuBtn: document.getElementById("settingsMenuBtn"),
   brandTitle: document.getElementById("brandTitle"),
   brandSubtitle: document.getElementById("brandSubtitle"),
@@ -74,7 +73,7 @@ const els = {
   updateStatus: document.getElementById("updateStatus"),
   audio: document.getElementById("audio"),
   youtubeFrame: document.getElementById("youtubeFrame"),
-  videoPlayer: document.getElementById("videoPlayer"),
+  citySelect: document.getElementById("button"),
 
   adminBtn: document.getElementById("adminBtn"),
   adminPanel: document.getElementById("adminPanel"),
@@ -92,10 +91,11 @@ const els = {
 let stations = [];
 /** @type {string | null} */
 let activeStationKey = null;
-/** @type {"radio" | "tv"} */
-let currentListMode = "radio";
 /** @type {"all" | "fav"} */
 let viewMode = "all";
+
+/** @type {string} */
+let activeListUrl = RADIO_LIST_URL;
 
 /** @type {Map<string, "timeout" | "unsupported">} */
 const stationIssue = new Map();
@@ -127,7 +127,6 @@ let recordingChunks = [];
 let playbackStartedAt = 0;
 let playbackTimer = 0;
 let playbackStationKey = null;
-let hlsPlayer = null;
 
 /**
  * Cache for quick stream checks so we don't probe the same URL repeatedly.
@@ -462,138 +461,127 @@ function startYoutubePlayer(url) {
   els.audio.pause();
   els.audio.removeAttribute("src");
   els.audio.load();
-  stopVideoPlayer();
   els.youtubeFrame.classList.remove("is-hidden");
   if (els.youtubeFrame.src !== embed) els.youtubeFrame.src = embed;
   return true;
 }
 
-function stopVideoPlayer() {
-  try {
-    window.AndroidAudio?.stopTvStream?.();
-  } catch {
-    // ignore native cleanup errors
-  }
-  if (!els.videoPlayer) return;
-  try {
-    if (hlsPlayer) {
-      hlsPlayer.destroy();
-      hlsPlayer = null;
-    }
-    els.videoPlayer.pause();
-    els.videoPlayer.removeAttribute("src");
-    els.videoPlayer.load();
-  } catch {
-    // ignore cleanup errors
-  }
-  els.videoPlayer.classList.add("is-hidden");
-}
-
-function videoErrorText(error) {
-  const code = Number(error?.code || 0);
-  if (code === 1) return "TV yayını iptal edildi.";
-  if (code === 2) return "TV yayını ağına bağlanılamadı.";
-  if (code === 3) return "TV yayını çözümlenemedi.";
-  if (code === 4) return "TV yayını bu cihaz/tarayıcı tarafından desteklenmiyor.";
-  return "TV yayını açılamadı.";
-}
-
-function getNativeVideoRect() {
-  const rect = els.videoPlayer?.getBoundingClientRect?.();
-  if (!rect) return null;
-  const scale = window.devicePixelRatio || 1;
-  return {
-    left: Math.round(rect.left * scale),
-    top: Math.round(rect.top * scale),
-    width: Math.round(rect.width * scale),
-    height: Math.round(rect.height * scale),
-  };
-}
-
-function playNativeTvStream(url) {
-  if (!window.AndroidAudio?.playTvStream || !els.videoPlayer) return false;
-  const rect = getNativeVideoRect();
-  if (!rect || rect.width <= 0 || rect.height <= 0) return false;
-  window.AndroidAudio.playTvStream(url, rect.left, rect.top, rect.width, rect.height);
-  return true;
-}
-
-function playBrowserHlsStream(url) {
-  if (!els.videoPlayer) return false;
-  if (!/\.m3u8(\?|#|$)/i.test(url)) return false;
-  const hlsUrl = `${HLS_PROXY_URL}?url=${encodeURIComponent(url)}`;
-
-  if (hlsPlayer) {
-    hlsPlayer.destroy();
-    hlsPlayer = null;
-  }
-
-  if (typeof Hls !== "undefined" && Hls.isSupported()) {
-    hlsPlayer = new Hls({
-      lowLatencyMode: true,
-      backBufferLength: 30,
-      maxBufferLength: 20,
-    });
-    hlsPlayer.on(Hls.Events.ERROR, (_event, data) => {
-      if (data?.fatal) {
-        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-          hlsPlayer?.startLoad();
-          return;
-        }
-        if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-          hlsPlayer?.recoverMediaError();
-          return;
-        }
-        setPlayerError("TV yayını açılamadı.");
-        setPlayerState("Durduruldu");
-      }
-    });
-    hlsPlayer.loadSource(hlsUrl);
-    hlsPlayer.attachMedia(els.videoPlayer);
-    return true;
-  }
-
-  if (els.videoPlayer.canPlayType("application/vnd.apple.mpegurl")) {
-    els.videoPlayer.src = hlsUrl;
-    return true;
-  }
-
-  setPlayerError("Bu tarayıcı HLS TV yayınını desteklemiyor.");
-  return false;
-}
-
-window.onNativeTvError = function onNativeTvError(message) {
-  setPlayerState("Durduruldu");
-  setPlayerError(message || "TV yayını açılamadı.");
-  notifyNativePlayback(false);
-  updateRecordButtonState();
-};
-
-function isTvMode() {
-  return currentListMode === "tv";
-}
-
 function currentListUrl() {
-  return isTvMode() ? TV_LIST_URL : RADIO_LIST_URL;
+  return activeListUrl;
 }
 
 function currentListLabel() {
-  return isTvMode() ? "TV listesi" : "Kanal listesi";
+  return "Kanal listesi";
 }
 
 function updateModeUi() {
-  if (els.modeToggleMenuBtn) {
-    els.modeToggleMenuBtn.textContent = isTvMode() ? "Radio dinle" : "Tv Izle";
-  }
   if (els.brandTitle) {
-    els.brandTitle.textContent = isTvMode() ? "Tv Izle - 58" : "Radio Dinle - 58";
+    els.brandTitle.textContent = "Radio Dinle - 58";
   }
   if (els.brandSubtitle) {
     const path = currentListUrl();
-    els.brandSubtitle.innerHTML = isTvMode()
-      ? `Canlı TV • Favoriler • Kanal listesi <code>${escapeHtml(path)}</code>`
-      : `Web radyo • Favoriler • Kanal listesi <code>${escapeHtml(path)}</code>`;
+    els.brandSubtitle.innerHTML = `Web radyo • Favoriler • Kanal listesi <code>${escapeHtml(path)}</code>`;
   }
+}
+
+async function assetExists(url) {
+  try {
+    if (location.protocol === "file:") {
+      await loadTextAsset(url);
+      return true;
+    }
+    const head = await fetch(url, { method: "HEAD", cache: "no-store" });
+    if (head.ok) return true;
+  } catch {
+    // ignore
+  }
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+function cityListCandidates(cityKey) {
+  const key = String(cityKey || "").trim();
+  if (!key) return [];
+  const enc = encodeURIComponent(key);
+  const list = [`${CITY_LIST_DIR}/${enc}.lst`];
+  // Common Windows filename accident: trailing space before extension (e.g. "bilecik .lst")
+  list.push(`${CITY_LIST_DIR}/${encodeURIComponent(key + " ")}.lst`);
+  return list;
+}
+
+async function resolveCityListUrl(cityKey) {
+  const candidates = cityListCandidates(cityKey);
+  for (const url of candidates) {
+    if (await assetExists(url)) return url;
+  }
+  return null;
+}
+
+function setActiveListUrl(url) {
+  activeListUrl = url || RADIO_LIST_URL;
+  updateModeUi();
+}
+
+async function filterMissingCityOptions() {
+  if (!els.citySelect) return;
+  const options = Array.from(els.citySelect.querySelectorAll("option"));
+  const checks = options.map(async (opt) => {
+    const value = String(opt.getAttribute("value") || "").trim();
+    if (!value) return { opt, ok: true };
+    const url = await resolveCityListUrl(value);
+    return { opt, ok: Boolean(url) };
+  });
+  const results = await Promise.all(checks);
+  for (const { opt, ok } of results) {
+    if (!ok) opt.remove();
+  }
+}
+
+async function applyCitySelection(cityKey, { persist } = { persist: true }) {
+  const key = String(cityKey || "").trim();
+  if (!key) {
+    if (persist) localStorage.removeItem(LS_CITY_KEY);
+    setActiveListUrl(RADIO_LIST_URL);
+    return;
+  }
+  const url = await resolveCityListUrl(key);
+  if (!url) {
+    if (persist) localStorage.removeItem(LS_CITY_KEY);
+    setActiveListUrl(RADIO_LIST_URL);
+    return;
+  }
+  if (persist) localStorage.setItem(LS_CITY_KEY, key);
+  setActiveListUrl(url);
+}
+
+async function onCitySelectionChanged() {
+  if (!els.citySelect) return;
+  const raw = String(els.citySelect.value || "");
+  const key = raw.trim();
+  await applyCitySelection(key, { persist: true });
+  if (key) {
+    const resolved = await resolveCityListUrl(key);
+    if (!resolved) {
+      // Remove missing entry from the list as requested.
+      const opt = els.citySelect.querySelector(`option[value="${CSS.escape(raw)}"]`);
+      opt?.remove();
+      els.citySelect.value = "";
+      await applyCitySelection("", { persist: true });
+    }
+  }
+  activeStationKey = null;
+  selectionToken++;
+  stationIssue.clear();
+  streamCheckCache.clear();
+  els.searchInput.value = "";
+  viewMode = "all";
+  setViewMode("all", { restore: true });
+  await loadStations({ bustCache: true });
+  scheduleListHeightUpdate();
 }
 
 function makeStationKey(name) {
@@ -646,77 +634,6 @@ function parseLst(text) {
     out.push({ key, name: value.name, streams: value.streams, icon: value.icon });
   }
   out.sort((a, b) => a.name.localeCompare(b.name, "tr"));
-  return out;
-}
-
-function parseExtInfAttrs(line) {
-  const attrs = {};
-  const attrText = String(line || "");
-  const re = /([\w-]+)="([^"]*)"/g;
-  let match;
-  while ((match = re.exec(attrText)) !== null) {
-    attrs[match[1].toLowerCase()] = match[2];
-  }
-  return attrs;
-}
-
-function parseExtInfName(line) {
-  const idx = String(line || "").lastIndexOf(",");
-  if (idx < 0) return "";
-  return line.slice(idx + 1).trim();
-}
-
-function parseM3uTv(text) {
-  const blocked = getBlockedUrlsSet();
-  /** @type {Station[]} */
-  const out = [];
-  const seen = new Set();
-  const lines = String(text || "").split(/\r?\n/);
-  let pending = null;
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-    if (!line) continue;
-
-    if (/^#EXTINF:/i.test(line)) {
-      const attrs = parseExtInfAttrs(line);
-      pending = {
-        name: parseExtInfName(line),
-        icon: attrs["tvg-logo"] || "",
-        group: attrs["group-title"] || "",
-      };
-      continue;
-    }
-
-    if (line.startsWith("#")) continue;
-
-    const url = normalizeUrl(line);
-    if (!/^https?:\/\//i.test(url) || blocked.has(url)) {
-      pending = null;
-      continue;
-    }
-
-    const name = pending?.name || `TV ${out.length + 1}`;
-    const baseKey = makeStationKey(`tv-${pending?.group || ""}-${name}`) || `tv-${out.length + 1}`;
-    let key = baseKey;
-    let suffix = 2;
-    while (seen.has(key)) {
-      key = `${baseKey}-${suffix}`;
-      suffix += 1;
-    }
-    seen.add(key);
-
-    out.push({
-      key,
-      name,
-      streams: [url],
-      icon: pending?.icon || "",
-      group: pending?.group || "TV",
-      type: "tv",
-    });
-    pending = null;
-  }
-
   return out;
 }
 
@@ -960,14 +877,12 @@ function updateMainRuntime() {
 
 function updateRecordButtonState() {
   const canRecord = Boolean(activeStationKey);
-  const playerRunning = isTvMode()
-    ? Boolean(els.videoPlayer?.src && !els.videoPlayer.paused && !els.videoPlayer.ended)
-    : Boolean(els.audio?.src && !els.audio.paused && !els.audio.ended);
+  const playerRunning = Boolean(els.audio?.src && !els.audio.paused && !els.audio.ended);
   const isYoutube = isYoutubeUrl(getActiveStreamUrl());
   if (els.compactRecordBtn) {
-    const enabled = canRecord && !isTvMode() && !isYoutube && (playerRunning || recording);
+    const enabled = canRecord && !isYoutube && (playerRunning || recording);
     els.compactRecordBtn.disabled = !enabled;
-    els.compactRecordBtn.classList.toggle("is-record-ready", canRecord && !isTvMode() && !isYoutube && playerRunning && !recording);
+    els.compactRecordBtn.classList.toggle("is-record-ready", canRecord && !isYoutube && playerRunning && !recording);
   }
 }
 
@@ -1198,10 +1113,6 @@ async function checkCurrentStream({ fastOnly } = { fastOnly: false }) {
     setStreamCheck("YouTube", "neutral");
     return;
   }
-  if (isTvMode()) {
-    setStreamCheck("TV", "neutral");
-    return;
-  }
 
   // Quick hint for HLS playlists: often not supported in Chrome/Firefox on Windows.
   if (/\.m3u8(\?|#|$)/i.test(url)) {
@@ -1284,7 +1195,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   els.streamSelect.innerHTML = st.streams
     .map((url, idx) => {
       const isBlocked = hasAnyUnblocked && blocked.has(url);
-      const label = `${isTvMode() ? "TV" : "Yayın"} ${idx + 1}${isYoutubeUrl(url) ? " (YouTube)" : ""}${/m3u8/i.test(url) ? " (HLS)" : ""}${isBlocked ? " (engelli)" : ""}`;
+      const label = `Yayın ${idx + 1}${isYoutubeUrl(url) ? " (YouTube)" : ""}${/m3u8/i.test(url) ? " (HLS)" : ""}${isBlocked ? " (engelli)" : ""}`;
       return `<option value="${idx}" ${isBlocked ? "disabled" : ""}>${label}</option>`;
     })
     .join("");
@@ -1457,7 +1368,7 @@ async function loadStations({ bustCache } = { bustCache: false }) {
     return;
   }
 
-  stations = isTvMode() ? parseM3uTv(text) : parseLst(text);
+  stations = parseLst(text);
   setStatus(`${currentListLabel()} yüklendi.`);
   setCount(`${stations.length} Kanal`);
   updateTabLabels();
@@ -1472,26 +1383,6 @@ async function loadStations({ bustCache } = { bustCache: false }) {
   renderList();
 }
 
-async function setListMode(mode) {
-  if (mode !== "radio" && mode !== "tv") return;
-  if (mode === currentListMode) return;
-
-  if (recording) stopRecording();
-  stop();
-  currentListMode = mode;
-  activeStationKey = null;
-  selectionToken++;
-  stationIssue.clear();
-  streamCheckCache.clear();
-  els.searchInput.value = "";
-  viewMode = "all";
-  updateModeUi();
-  setViewMode("all", { restore: true });
-  await loadStations({ bustCache: false });
-  setMenuOpen(false);
-  scheduleListHeightUpdate();
-}
-
 function selectStation(key) {
   if (recording && key !== activeStationKey) {
     stopRecording();
@@ -1499,7 +1390,6 @@ function selectStation(key) {
   if (key !== activeStationKey) {
     stopPlaybackTimer();
     stopYoutubePlayer();
-    stopVideoPlayer();
   }
   selectionToken++;
   activeStationKey = key;
@@ -1524,17 +1414,6 @@ function setAudioSourceForActiveStation() {
   els.nowStreamChip.textContent = abbreviateUrl(url);
   els.nowStreamChip.title = url;
   els.nowLogo.src = stationIconSrc(st);
-
-  if (isTvMode()) {
-    els.audio.pause();
-    els.audio.removeAttribute("src");
-    els.audio.load();
-    stopYoutubePlayer();
-    setStreamCheck("TV", "neutral");
-    setNowMeta(st.group || "TV");
-    updateRecordButtonState();
-    return;
-  }
 
   if (isYoutubeUrl(url)) {
     els.audio.pause();
@@ -1564,48 +1443,6 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
 
   setPlayerState("Bağlanıyor...");
   setPlayerError("—");
-  if (isTvMode()) {
-    if (!els.videoPlayer) return;
-    stopYoutubePlayer();
-    els.audio.pause();
-    els.audio.removeAttribute("src");
-    els.audio.load();
-    els.videoPlayer.classList.remove("is-hidden");
-    setPlayerCollapsed(false);
-    if (playNativeTvStream(urlForThisPlay)) {
-      setPlayerState("TV oynatılıyor");
-      setStreamCheck("TV", "neutral");
-      setPlayOkToggle(false);
-      notifyNativePlayback(true);
-      updateRecordButtonState();
-      stopNowPlayingPoll();
-      startPlaybackTimer();
-      return;
-    }
-    const hlsAttached = playBrowserHlsStream(urlForThisPlay);
-    if (!hlsAttached && els.videoPlayer.src !== urlForThisPlay) {
-      els.videoPlayer.setAttribute("src", urlForThisPlay);
-      els.videoPlayer.load();
-    }
-    try {
-      await els.videoPlayer.play();
-      setPlayerState("TV oynatılıyor");
-      setStreamCheck("TV", "neutral");
-      setPlayOkToggle(false);
-      notifyNativePlayback(true);
-      updateRecordButtonState();
-      stopNowPlayingPoll();
-      startPlaybackTimer();
-    } catch (err) {
-      setPlayerState("Durduruldu");
-      const mediaError = els.videoPlayer?.error;
-      setPlayerError(mediaError ? videoErrorText(mediaError) : String(err?.message || err));
-      notifyNativePlayback(false);
-      updateRecordButtonState();
-    }
-    return;
-  }
-
   if (isYoutubeUrl(urlForThisPlay)) {
     if (startYoutubePlayer(urlForThisPlay)) {
       setPlayerState("Çalıyor");
@@ -1655,14 +1492,6 @@ function pause() {
   if (isYoutubeUrl(getActiveStreamUrl())) {
     postYoutubeCommand("pauseVideo");
   }
-  if (isTvMode()) {
-    try {
-      window.AndroidAudio?.pauseTvStream?.();
-    } catch {
-      // ignore native pause errors
-    }
-    els.videoPlayer?.pause();
-  }
   els.audio.pause();
   setPlayerState("Duraklatıldı");
   setPlayOkToggle(false);
@@ -1675,7 +1504,6 @@ function pause() {
 function stop() {
   if (recording) stopRecording();
   stopYoutubePlayer();
-  stopVideoPlayer();
   els.audio.pause();
   els.audio.removeAttribute("src");
   els.audio.load();
@@ -1722,10 +1550,6 @@ async function startRecording() {
   const st = getActiveStation();
   const url = getActiveStreamUrl();
   if (!st || !url) return;
-  if (isTvMode()) {
-    setPlayerError("TV yayınlarında kayıt devre dışı.");
-    return;
-  }
   const ext = inferRecordingExt(url);
   if (ext === "m3u8") {
     setPlayerError("HLS yayını doğrudan dosya olarak kaydedilmiyor.");
@@ -1955,9 +1779,6 @@ function wireEvents() {
     }
   });
   els.settingsMenuBtn?.addEventListener("click", () => setSettingsOpen(true));
-  els.modeToggleMenuBtn?.addEventListener("click", () => {
-    void setListMode(isTvMode() ? "radio" : "tv");
-  });
   els.settingsCloseBtn?.addEventListener("click", () => setSettingsOpen(false));
   els.settingsPanel?.addEventListener("click", (event) => {
     if (event.target === els.settingsPanel) setSettingsOpen(false);
@@ -2013,14 +1834,14 @@ function wireEvents() {
   els.compactNextBtn?.addEventListener("click", () => nextStation({ initiatedByUser: true }));
   els.compactRandomBtn?.addEventListener("click", () => randomStation({ initiatedByUser: true }));
   els.compactRecordBtn?.addEventListener("click", () => toggleRecording());
+  els.citySelect?.addEventListener("change", () => {
+    void onCitySelectionChanged();
+  });
   els.streamSelect.addEventListener("change", () => {
     if (recording) stopRecording();
     stopPlaybackTimer();
-    stopVideoPlayer();
     selectionToken++;
-    const wasPlaying = isTvMode()
-      ? Boolean(els.videoPlayer && !els.videoPlayer.paused && !els.videoPlayer.ended)
-      : Boolean(!els.audio.paused);
+    const wasPlaying = Boolean(!els.audio.paused);
     setAudioSourceForActiveStation();
     if (wasPlaying) play({ initiatedByUser: true });
   });
@@ -2033,31 +1854,6 @@ function wireEvents() {
     if (!playbackStartedAt || playbackStationKey !== activeStationKey) {
       startPlaybackTimer();
     }
-  });
-  els.videoPlayer?.addEventListener("playing", () => {
-    setPlayerState("TV oynatılıyor");
-    notifyNativePlayback(true);
-    updateRecordButtonState();
-    if (!playbackStartedAt || playbackStationKey !== activeStationKey) {
-      startPlaybackTimer();
-    }
-  });
-  els.videoPlayer?.addEventListener("pause", () => {
-    notifyNativePlayback(false);
-    updateRecordButtonState();
-  });
-  els.videoPlayer?.addEventListener("ended", () => {
-    setPlayerState("Durduruldu");
-    notifyNativePlayback(false);
-    updateRecordButtonState();
-    stopPlaybackTimer();
-  });
-  els.videoPlayer?.addEventListener("error", () => {
-    const err = els.videoPlayer?.error;
-    setPlayerError(videoErrorText(err));
-    setPlayerState("Durduruldu");
-    notifyNativePlayback(false);
-    updateRecordButtonState();
   });
   els.audio.addEventListener("pause", () => {
     setPlayerState("Duraklatıldı");
@@ -2131,6 +1927,13 @@ function wireEvents() {
 
 async function init() {
   wireEvents();
+  await filterMissingCityOptions();
+  const savedCity = String(localStorage.getItem(LS_CITY_KEY) || "").trim();
+  if (els.citySelect && savedCity) {
+    const has = Array.from(els.citySelect.options).some((o) => String(o.value || "").trim() === savedCity);
+    if (has) els.citySelect.value = savedCity;
+  }
+  await applyCitySelection(els.citySelect?.value || savedCity, { persist: false });
   updateModeUi();
   resetUiStateForNewBuild();
   loadVolume();

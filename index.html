@@ -20,13 +20,12 @@
         </button>
         <nav id="mainMenu" class="main-menu is-hidden" aria-label="Ana menü">
           <a class="main-menu__item" href="https://dilousta58.github.io/RadioStation58/WebRadio-release.apk" download>Android APK indir</a>
-          <button id="modeToggleMenuBtn" class="main-menu__item" type="button">Tv Izle</button>
           <button id="settingsMenuBtn" class="main-menu__item" type="button">Ayarlar</button>
         </nav>
       </div>
       <div class="brand">
         <div id="brandTitle" class="brand__title">Radio Dinle - 58</div>
-        <div id="brandSubtitle" class="brand__subtitle">Web radyo • Favoriler • Kanal listesi <code>rlist/radio.lst</code></div>
+        <div id="brandSubtitle" class="brand__subtitle">Web radyo • Favoriler • Kanal listesi <code></code></div>
       </div>
         <div class="control-item">
           <button id="reloadBtn" class="iconbtn iconbtn--refresh" type="button" title="Kanal listesini yenile" aria-label="Yenile"></button>
@@ -75,6 +74,88 @@
           </div>
           <input id="searchInput" class="input" type="search" placeholder="Ara..." autocomplete="off" />
         </div>
+
+        <div aria-label="cities" class="input select" align="center">
+          <nav class="city-select">Şehir Seçebilirsiniz: 
+            <select name="il" id="button" aria-label="cities" class="input select">
+              <option value="" selected="selected">Hepsi</option>
+              <option value="adana">adana</option>
+              <option value="adapazari-sakarya">Adapazari-Sakarya</option>
+              <option value="adıyaman">Adıyaman</option>
+              <option value="afyon">Afyon</option>
+              <option value="ağrı">Ağrı</option>
+              <option value="aksaray">Aksaray</option>
+              <option value="amasya">Amasya</option>
+              <option value="ankara">Ankara</option>
+              <option value="antakya-hatay">Antakya-Hatay</option>
+              <option value="antalya">Antalya</option>
+              <option value="artvin">Artvin</option>
+              <option value="aydın">Aydın</option>
+              <option value="balıkesir">Balıkesir</option>
+              <option value="bartın">Bartın</option>
+              <option value="batman">Batman</option>
+              <option value="bayburt">Bayburt</option>
+              <option value="bilecik">Bilecik</option>
+              <option value="bingöl">Bingöl</option>
+              <option value="bitlis">Bitlis</option>
+              <option value="bolu">Bolu</option>
+              <option value="bursa">Bursa</option>
+              <option value="çanakkale">Çanakkale</option>
+              <option value="çorum">Çorum</option>
+              <option value="denizli">Denizli</option>
+              <option value="diyarbakır">Diyarbakır</option>
+              <option value="düzce">Düzce</option>
+              <option value="edirne">Edirne</option>
+              <option value="elazığ">Elazığ</option>
+              <option value="erzincan">Erzincan</option>
+              <option value="erzurum">Erzurum</option>
+              <option value="eskişehir">Eskişehir</option>
+              <option value="gaziantep">Gaziantep</option>
+              <option value="giresun">Giresun</option>
+              <option value="istanbul">İstanbul</option>
+              <option value="izmir">İzmir</option>
+              <option value="izmit">İzmit</option>
+              <option value="ığdır">Iğdır</option>
+              <option value="ısparta">Isparta</option>
+              <option value="kahramanmaraş">Kahramanmaraş</option>
+              <option value="karabük">Karabük</option>
+              <option value="karaman">Karaman</option>
+              <option value="kars">Kars</option>
+              <option value="kastamonu">Kastamonu</option>
+              <option value="kayseri">Kayseri</option>
+              <option value="kırıkkale">Kırıkkale</option>
+              <option value="kırşehir">Kırşehir</option>
+              <option value="konya">Konya</option>
+              <option value="kütahya">Kütahya</option>
+              <option value="malatya">Malatya</option>
+              <option value="manisa">Manisa</option>
+              <option value="mardin">Mardin</option>
+              <option value="mersin">Mersin</option>
+              <option value="muğla">Muğla</option>
+              <option value="nevşehir">Nevşehir</option>
+              <option value="niğde">Niğde</option>
+              <option value="ordu">Ordu</option>
+              <option value="osmaniye">Osmaniye</option>
+              <option value="rize">Rize</option>
+              <option value="samsun">Samsun</option>
+              <option value="sanliurfa">Şanlıurfa</option>
+              <option value="sinop">Sinop</option>
+              <option value="sivas">Sivas</option>
+              <option value="Şırnak">Şırnak</option>
+              <option value="tekirdağ">Tekirdağ</option>
+              <option value="tokat">Tokat</option>
+              <option value="trabzon">Trabzon</option>
+              <option value="tunceli">Tunceli</option>
+              <option value="uşak">Uşak</option>
+              <option value="van">Van</option>
+              <option value="yalova">Yalova</option>
+              <option value="yozgat">Yozgat</option>
+              <option value="zonguldak">Yonguldak</option>
+            </select>
+          </nav>
+        </div>    
+        
+
         <div class="quick-time" id="quickTime" aria-live="polite">00:00:00</div>
         <div class="meta">
           <div id="statusText" class="meta__status">Kanal listesi yükleniyor...</div>
@@ -107,8 +188,6 @@
               </button>
             </div>
           </div>
-
-          <video id="videoPlayer" class="video-player is-hidden" controls playsinline webkit-playsinline preload="metadata"></video>
 
           <div class="controls" aria-label="Oynatma kontrolü">
             <button id="playBtn" class="iconbtn iconbtn--play" type="button" disabled aria-label="Oynat" title="Oynat"></button>
@@ -216,11 +295,10 @@
       </div>
       <div class="app-footer__right">
         <span id="updateStatus" class="update-status is-hidden"></span>
-        <span>© DiloUsta58 2026 • WebRadyo • v1.0.9</span>
+        <span>© DiloUsta58 2026 • WebRadyo • v1.1.0</span>
       </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
-    <script src="app.js?v=20260503_1928"></script>
+    <script src="app.js?v=20260505_2220"></script>
   </body>
 </html>

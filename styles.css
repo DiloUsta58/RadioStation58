@@ -313,10 +313,6 @@ code {
   background: #3a3424;
 }
 
-.compact-control:hover {
-  background: #3a3a3a;
-}
-
 .collapse-btn {
   appearance: none;
   min-height: 36px;
@@ -668,10 +664,6 @@ code {
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22);
 }
 
-.iconbtn:hover:not(:disabled) {
-  border-color: rgba(255, 255, 255, 0.22);
-}
-
 .iconbtn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -679,7 +671,6 @@ code {
 
 /* Play */
 .iconbtn--play { background-image: url("controls/play_blue.png") !important; }
-.iconbtn--play:hover:not(:disabled) { background-image: url("controls/play_yellow.png") !important; }
 .iconbtn--play:disabled { background-image: url("controls/play_red.png") !important; }
 
 .iconbtn--play.is-okalt {
@@ -688,32 +679,26 @@ code {
 
 /* Pause */
 .iconbtn--pause { background-image: url("controls/pause_blue.png") !important; }
-.iconbtn--pause:hover:not(:disabled) { background-image: url("controls/pause_yellow.png") !important; }
 .iconbtn--pause:disabled { background-image: url("controls/pause_red.png") !important; }
 
 /* Next */
 .iconbtn--next { background-image: url("controls/next_blue.png") !important; }
-.iconbtn--next:hover:not(:disabled) { background-image: url("controls/next_yellow.png") !important; }
 .iconbtn--next:disabled { background-image: url("controls/next_red.png") !important; }
 
 /* Prev */
 .iconbtn--prev { background-image: url("controls/prev_blue.png") !important; }
-.iconbtn--prev:hover:not(:disabled) { background-image: url("controls/prev_yellow.png") !important; }
 .iconbtn--prev:disabled { background-image: url("controls/prev_red.png") !important; }
 
 /* Random */
 .iconbtn--random { background-image: url("controls/random_blue.png") !important; }
-.iconbtn--random:hover:not(:disabled) { background-image: url("controls/random_yellow.png") !important; }
 .iconbtn--random:disabled { background-image: url("controls/random_red.png") !important; }
 
 /* Refresh */
 .iconbtn--refresh { background-image: url("controls/refresh_blue.png") !important; }
-.iconbtn--refresh:hover:not(:disabled) { background-image: url("controls/refresh_yellow.png") !important; }
 .iconbtn--refresh:disabled { background-image: url("controls/refresh_red.png") !important; }
 
 /* Record */
 .iconbtn--record { background-image: url("controls/rec_blue.png") !important; }
-.iconbtn--record:hover:not(:disabled) { background-image: url("controls/rec_yelow.png") !important; }
 .iconbtn--record:disabled { background-image: url("controls/rec_blue.png") !important; opacity: 0.48; }
 .iconbtn--record.is-record-ready { background-image: url("controls/rec_red.png") !important; }
 .iconbtn--record.is-recording { background-image: url("controls/rec_aktiv_green.png") !important; }
@@ -789,19 +774,6 @@ code {
 #compactRecordBtn.is-record-ready { background-image: url("controls/rec_red.png"); }
 #compactRecordBtn.is-recording { background-image: url("controls/rec_aktiv_green.png"); }
 #compactRecordBtn.is-recording-alt { background-image: url("controls/rec_red.png"); }
-
-#playBtn:hover:not(:disabled) { background-image: url("controls/play_yellow.png"); }
-#pauseBtn:hover:not(:disabled) { background-image: url("controls/pause_yellow.png"); }
-#nextBtn:hover:not(:disabled) { background-image: url("controls/next_yellow.png"); }
-#prevBtn:hover:not(:disabled) { background-image: url("controls/prev_yellow.png"); }
-#randomBtn:hover:not(:disabled) { background-image: url("controls/random_yellow.png"); }
-#reloadBtn:hover:not(:disabled) { background-image: url("controls/refresh_yellow.png"); }
-#compactPlayBtn:hover:not(:disabled) { background-image: url("controls/play_yellow.png"); }
-#compactPauseBtn:hover:not(:disabled) { background-image: url("controls/pause_yellow.png"); }
-#compactPrevBtn:hover:not(:disabled) { background-image: url("controls/prev_yellow.png"); }
-#compactNextBtn:hover:not(:disabled) { background-image: url("controls/next_yellow.png"); }
-#compactRandomBtn:hover:not(:disabled) { background-image: url("controls/random_yellow.png"); }
-#compactRecordBtn:hover:not(:disabled):not(.is-recording) { background-image: url("controls/rec_yelow.png"); }
 
 @media (max-width: 520px) {
   .compact-controls {
