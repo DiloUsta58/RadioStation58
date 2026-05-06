@@ -688,7 +688,7 @@ code {
 }
 
 .carmode__logo {
-  width: min(320px, 80vw);
+  width: min(128px, 75vw);
   height: auto;
   display: block;
 }
@@ -718,8 +718,8 @@ code {
 }
 
 .carmode__footerTitle {
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -742,7 +742,7 @@ code {
   margin-top: 10px;
   align-self: stretch;
   min-height: 72px;
-  font-size: 44px;
+  font-size: 24px;
   font-weight: 900;
   line-height: 1;
   display: grid;
