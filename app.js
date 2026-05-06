@@ -120,6 +120,27 @@ const AUTO_SKIP_MAX_PER_MIN = 12;
 let uiSaveTimer = 0;
 
 let selectionToken = 0;
+
+let savedViewportContent = null;
+
+function setCarModeZoomLocked(locked) {
+  const meta = document.querySelector('meta[name="viewport"]');
+  if (!meta) return;
+
+  if (locked) {
+    if (savedViewportContent === null) savedViewportContent = meta.getAttribute("content") || "";
+    meta.setAttribute(
+      "content",
+      "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    );
+    return;
+  }
+
+  if (savedViewportContent !== null) {
+    meta.setAttribute("content", savedViewportContent);
+    savedViewportContent = null;
+  }
+}
 let skipIssuedForToken = -1;
 
 let metaTimer = 0;
@@ -1782,6 +1803,7 @@ function setMenuOpen(open) {
 function setCarMode(enabled) {
   document.body.classList.toggle("is-carmode", Boolean(enabled));
   els.carMode?.classList.toggle("is-hidden", !enabled);
+  setCarModeZoomLocked(Boolean(enabled));
   if (enabled) {
     setMenuOpen(false);
     setSettingsOpen(false);
