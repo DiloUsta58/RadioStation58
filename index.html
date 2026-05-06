@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="appIcon/Radio.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="appIcon/FavIcon-Radio.32.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="appIcon/Radio.512.png" />
-    <link rel="stylesheet" href="styles.css?v=20260506_0235" />
+    <link rel="stylesheet" href="styles.css?v=20260506_0245" />
   </head>
   <body>
     <header class="topbar">
@@ -39,15 +39,17 @@
 
     <section id="carMode" class="carmode is-hidden" aria-label="Araç modu">
       <div class="carmode__top" aria-label="Car Mode">
-        <div class="carmode__topRow" aria-label="Logo">
+        <div class="carmode__topGrid" aria-label="Car Mode Header">
+          <div class="carmode__topRow carmode__topRow--icons" aria-label="Icons">
           <button id="carExitBtn" class="carmode__logoBtn" type="button" aria-label="Geri">
             <img id="carModeLogo" class="carmode__logo" src="controls/car_mod_green.png" alt="Car Mode" />
           </button>
-          <div class="carmode__mid" aria-label="Kanal">
-            <div id="carNowTitle" class="carmode__title">—</div>
-<button id="carFavBtn" class="btn btn--ghost carmode__fav carmode__fav--stack" type="button" disabled title="Favorilere ekle/kaldır" aria-label="Favori">☆</button>
-          </div>
           <img id="carStationIcon" class="carmode__stationIcon is-hidden" alt="Kanal" />
+        </div>
+          <div class="carmode__topRow carmode__topRow--meta" aria-label="Now Playing">
+            <div id="carNowTitle" class="carmode__title carmode__title--left">—</div>
+            <button id="carFavBtn" class="btn btn--ghost carmode__fav carmode__fav--square" type="button" disabled title="Favorilere ekle/kaldır" aria-label="Favori">☆</button>
+          </div>
         </div>
       </div>
 
@@ -332,10 +334,10 @@
       </div>
       <div class="app-footer__right">
         <span id="updateStatus" class="update-status is-hidden"></span>
-        <span>© DiloUsta58 2026 • WebRadyo • v1.1.5</span>
+        <span>© DiloUsta58 2026 • WebRadyo • v1.1.6</span>
       </div>
     </footer>
 
-    <script src="app.js?v=20260506_0235"></script>
+    <script src="app.js?v=20260506_0245"></script>
   </body>
 </html>

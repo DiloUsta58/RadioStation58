@@ -679,22 +679,30 @@ code {
   min-height: 32vh;
 }
 
+.carmode__topGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
 .carmode__topRow {
   width: 100%;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto auto;
   align-items: center;
   gap: 12px;
 }
 
-.carmode__mid {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 0 8px;
+.carmode__topRow--icons {
+  justify-content: space-between;
+  grid-template-columns: auto auto;
+}
+
+.carmode__topRow--meta {
+  justify-content: space-between;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
 }
 
 .carmode__logoBtn {
@@ -746,6 +754,10 @@ code {
   line-clamp: 2;
 }
 
+.carmode__title--left {
+  text-align: left;
+}
+
 .carmode__footer {
   margin-top: auto;
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -788,12 +800,11 @@ code {
   padding: 10px 14px;
 }
 
-.carmode__fav--stack {
+.carmode__fav--square {
   margin-top: 0;
   align-self: center;
-  min-height: unset;
   height: clamp(44px, 8vw, 56px);
-  width: clamp(56px, 14vw, 72px);
+  width: clamp(44px, 8vw, 56px);
   padding: 0;
   border-radius: 14px;
   font-size: clamp(22px, 4.5vw, 28px);
