@@ -13,6 +13,7 @@ const APP_BOOT_VERSION = "20260502-huawei-render-fix";
 const LS_DIAGNOSTICS_KEY = "webRadioStation:diagnosticsEnabled:v1";
 const LS_STATION_FONT_SIZE_KEY = "webRadioStation:stationFontSize:v1";
 const LS_TIME_FONT_SIZE_KEY = "webRadioStation:timeFontSize:v1";
+const LS_AUTOSTART_KEY = "webRadioStation:autoStartOnLaunch:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
@@ -34,6 +35,7 @@ const els = {
   stationFontSizeValue: document.getElementById("stationFontSizeValue"),
   timeFontSizeRange: document.getElementById("timeFontSizeRange"),
   timeFontSizeValue: document.getElementById("timeFontSizeValue"),
+  autoStartToggle: document.getElementById("autoStartToggle"),
   fontResetBtn: document.getElementById("fontResetBtn"),
   reloadBtn: document.getElementById("reloadBtn"),
   playerPanel: document.getElementById("playerPanel"),
@@ -77,8 +79,10 @@ const els = {
   citySelect: document.getElementById("button"),
 
   carMode: document.getElementById("carMode"),
+  carModeLogo: document.getElementById("carModeLogo"),
   carNowTitle: document.getElementById("carNowTitle"),
   carNowFooterTitle: document.getElementById("carNowFooterTitle"),
+  carStationIcon: document.getElementById("carStationIcon"),
   carFavBtn: document.getElementById("carFavBtn"),
   carPrevBtn: document.getElementById("carPrevBtn"),
   carPlayBtn: document.getElementById("carPlayBtn"),
@@ -122,6 +126,7 @@ let uiSaveTimer = 0;
 let selectionToken = 0;
 
 let savedViewportContent = null;
+let autoStartAttempted = false;
 
 function setCarModeZoomLocked(locked) {
   const meta = document.querySelector('meta[name="viewport"]');
@@ -1809,6 +1814,38 @@ function setCarMode(enabled) {
     setSettingsOpen(false);
   }
   updateCarModeNowPlaying();
+  queueSyncCarModeIcons();
+}
+
+let carModeSyncQueued = false;
+function queueSyncCarModeIcons() {
+  if (carModeSyncQueued) return;
+  carModeSyncQueued = true;
+  requestAnimationFrame(() => {
+    carModeSyncQueued = false;
+    syncCarModeIcons();
+  });
+}
+
+function syncCarModeIcons() {
+  if (!els.carMode || els.carMode.classList.contains("is-hidden")) return;
+  if (!els.carModeLogo || !els.carStationIcon) return;
+
+  const rect = els.carModeLogo.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  els.carStationIcon.style.width = `${Math.round(rect.width)}px`;
+  els.carStationIcon.style.height = `${Math.round(rect.height)}px`;
+}
+
+function maybeAutoStart() {
+  if (autoStartAttempted) return;
+  if (localStorage.getItem(LS_AUTOSTART_KEY) !== "1") return;
+  if (!activeStationKey) return;
+  if (!els.audio) return;
+  if (!els.audio.paused) return;
+  autoStartAttempted = true;
+  setTimeout(() => void play({ initiatedByUser: false }), 0);
 }
 
 function updateCarModeNowPlaying() {
@@ -1817,6 +1854,17 @@ function updateCarModeNowPlaying() {
   const name = st?.name || "—";
   if (els.carNowTitle) els.carNowTitle.textContent = name;
   if (els.carNowFooterTitle) els.carNowFooterTitle.textContent = name;
+  if (els.carStationIcon) {
+    const src = st ? stationIconSrc(st) : "";
+    if (src) {
+      els.carStationIcon.src = src;
+      els.carStationIcon.classList.remove("is-hidden");
+    } else {
+      els.carStationIcon.removeAttribute("src");
+      els.carStationIcon.classList.add("is-hidden");
+    }
+  }
+  queueSyncCarModeIcons();
   if (els.carFavBtn) {
     const favs = getFavoritesSet();
     const isFav = Boolean(activeStationKey && favs.has(activeStationKey));
@@ -1851,12 +1899,19 @@ function wireEvents() {
   els.stationFontSizeRange?.addEventListener("input", () => setStationFontSize(els.stationFontSizeRange.value));
   els.timeFontSizeRange?.addEventListener("input", () => setTimeFontSize(els.timeFontSizeRange.value));
   els.fontResetBtn?.addEventListener("click", resetFontSettings);
+  els.autoStartToggle?.addEventListener("change", () => {
+    localStorage.setItem(LS_AUTOSTART_KEY, els.autoStartToggle.checked ? "1" : "0");
+  });
   els.reloadBtn.addEventListener("click", () => loadStations({ bustCache: true }));
   els.playerToggleBtn?.addEventListener("click", () => {
     setPlayerCollapsed(!els.playerPanel?.classList.contains("is-collapsed"));
   });
   window.addEventListener("resize", scheduleListHeightUpdate, { passive: true });
-  window.addEventListener("orientationchange", () => setTimeout(scheduleListHeightUpdate, 250));
+  window.addEventListener("resize", queueSyncCarModeIcons, { passive: true });
+  window.addEventListener("orientationchange", () => {
+    setTimeout(scheduleListHeightUpdate, 250);
+    setTimeout(queueSyncCarModeIcons, 250);
+  });
   els.tabAll.addEventListener("click", () => setViewMode("all"));
   els.tabFav.addEventListener("click", () => setViewMode("fav"));
   els.searchInput.addEventListener("input", () => {
@@ -1999,8 +2054,13 @@ function wireEvents() {
 
   window.addEventListener("pagehide", () => saveUiStateNow());
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") saveUiStateNow();
+    if (document.visibilityState === "hidden") {
+      saveUiStateNow();
+      return;
+    }
+    if (document.visibilityState === "visible") maybeAutoStart();
   });
+  window.addEventListener("pageshow", () => maybeAutoStart(), { passive: true });
 }
 
 async function init() {
@@ -2017,6 +2077,9 @@ async function init() {
   loadVolume();
   loadStationFontSize();
   loadTimeFontSize();
+  if (els.autoStartToggle) {
+    els.autoStartToggle.checked = localStorage.getItem(LS_AUTOSTART_KEY) === "1";
+  }
   streamDiagnosticsEnabled = localStorage.getItem(LS_DIAGNOSTICS_KEY) === "1";
   const ui = getUiState();
   setPlayerCollapsed(true, { persist: false });
@@ -2030,6 +2093,8 @@ async function init() {
     applyActiveToPlayer({ skipCheck: true });
     renderList();
   }
+
+  maybeAutoStart();
 
   const desiredScroll = viewMode === "fav" ? Number(ui.scrollFav || 0) : Number(ui.scrollAll || 0);
   scheduleListHeightUpdate();

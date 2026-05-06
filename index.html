@@ -39,11 +39,16 @@
 
     <section id="carMode" class="carmode is-hidden" aria-label="Araç modu">
       <div class="carmode__top" aria-label="Car Mode">
-        <button id="carExitBtn" class="carmode__logoBtn" type="button" aria-label="Geri">
-          <img class="carmode__logo" src="controls/car_mod_green.png" alt="Car Mode" />
-        </button>
-        <div id="carNowTitle" class="carmode__title">—</div>
-        <button id="carFavBtn" class="btn btn--ghost carmode__fav" type="button" disabled title="Favorilere ekle/kaldır" aria-label="Favori">☆</button>
+        <div class="carmode__topRow" aria-label="Logo">
+          <button id="carExitBtn" class="carmode__logoBtn" type="button" aria-label="Geri">
+            <img id="carModeLogo" class="carmode__logo" src="controls/car_mod_green.png" alt="Car Mode" />
+          </button>
+          <div class="carmode__mid" aria-label="Kanal">
+            <div id="carNowTitle" class="carmode__title">—</div>
+            <button id="carFavBtn" class="btn btn--ghost carmode__fav carmode__fav--inline" type="button" disabled title="Favorilere ekle/kaldır" aria-label="Favori">☆</button>
+          </div>
+          <img id="carStationIcon" class="carmode__stationIcon is-hidden" alt="Kanal" />
+        </div>
       </div>
 
       <div class="carmode__controls" aria-label="Kontroller">
@@ -305,6 +310,11 @@
             <strong id="timeFontSizeValue">28px</strong>
           </label>
           <input id="timeFontSizeRange" class="setting-range" type="range" min="18" max="42" step="1" value="28" />
+
+          <label class="setting-row setting-row--spaced" for="autoStartToggle">
+            <span>Başlangıçta otomatik oynat</span>
+            <input id="autoStartToggle" type="checkbox" />
+          </label>
           <div class="setting-actions">
             <button id="fontResetBtn" type="button">Varsayılan</button>
           </div>

@@ -677,6 +677,22 @@ code {
   justify-items: center;
 }
 
+.carmode__topRow {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.carmode__mid {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
 .carmode__logoBtn {
   appearance: none;
   border: none;
@@ -695,19 +711,30 @@ code {
   display: block;
 }
 
+.carmode__stationIcon {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35));
+}
+
+.is-hidden {
+  display: none !important;
+}
+
 .carmode__title {
-  margin-top: 10px;
+  margin-top: 0;
   font-size: 22px;
   font-weight: 900;
   color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   width: 100%;
   text-align: center;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  line-clamp: 2;
 }
 
 .carmode__footer {
@@ -750,6 +777,17 @@ code {
   display: grid;
   place-items: center;
   padding: 10px 14px;
+}
+
+.carmode__fav--inline {
+  margin-top: 0;
+  align-self: center;
+  min-height: 52px;
+  height: 52px;
+  width: 56px;
+  padding: 0;
+  border-radius: 14px;
+  font-size: 26px;
 }
 
 /* Hide stream URL chip (show station name only) */
@@ -816,11 +854,11 @@ body.is-carmode .app-footer {
     width: min(220px, 38vw);
   }
 
+  .carmode__stationIcon { }
+
   .carmode__title {
-    margin-top: 8px;
     font-size: 18px;
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
+    text-align: center;
   }
 
   .carmode__fav {
