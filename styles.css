@@ -675,6 +675,8 @@ code {
   display: grid;
   grid-template-columns: 1fr;
   justify-items: center;
+  flex: 1 1 auto;
+  min-height: 32vh;
 }
 
 .carmode__topRow {
@@ -687,10 +689,11 @@ code {
 
 .carmode__mid {
   min-width: 0;
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 8px;
 }
 
 .carmode__logoBtn {
@@ -727,7 +730,7 @@ code {
 
 .carmode__title {
   margin-top: 0;
-  font-size: 22px;
+  font-size: clamp(14px, 3.2vw, 22px);
   font-weight: 900;
   color: var(--text);
   overflow: hidden;
@@ -779,12 +782,12 @@ code {
   padding: 10px 14px;
 }
 
-.carmode__fav--inline {
+.carmode__fav--stack {
   margin-top: 0;
   align-self: center;
   min-height: 52px;
   height: 52px;
-  width: 56px;
+  width: min(180px, 40vw);
   padding: 0;
   border-radius: 14px;
   font-size: 26px;
@@ -803,14 +806,13 @@ code {
   display: grid;
   grid-template-columns: 1fr;
   gap: 14px;
-  flex: 1 1 auto;
+  flex: 0 0 auto;
 }
 
 .carmode__row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
-  height: 100%;
 }
 
 .carmode__btn {
@@ -848,6 +850,7 @@ body.is-carmode .app-footer {
 
   .carmode__top {
     padding: 10px;
+    min-height: 0;
   }
 
   .carmode__logo {
