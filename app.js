@@ -17,7 +17,7 @@ const LS_AUTOSTART_KEY = "webRadioStation:autoStartOnLaunch:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.1.6";
+const APP_VERSION = "1.1.7";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -81,7 +81,9 @@ const els = {
   carMode: document.getElementById("carMode"),
   carModeLogo: document.getElementById("carModeLogo"),
   carNowTitle: document.getElementById("carNowTitle"),
-  carNowFooterTitle: document.getElementById("carNowFooterTitle"),
+  carFooterStatus: document.getElementById("carFooterStatus"),
+  carFooterCheck: document.getElementById("carFooterCheck"),
+  carFooterError: document.getElementById("carFooterError"),
   carStationIcon: document.getElementById("carStationIcon"),
   carFavBtn: document.getElementById("carFavBtn"),
   carPrevBtn: document.getElementById("carPrevBtn"),
@@ -698,10 +700,15 @@ function updateTabLabels() {
 
 function setPlayerState(text) {
   els.playerState.textContent = text;
+  if (els.carFooterStatus) els.carFooterStatus.textContent = String(text || "—");
+  updateCarModePlayPauseButton();
 }
 
 function setPlayerError(text) {
   els.playerError.textContent = text;
+  const raw = String(text || "").trim();
+  const carMsg = raw && raw !== "—" ? "Bağlantı sorunu oluştu!" : "—";
+  if (els.carFooterError) els.carFooterError.textContent = carMsg;
 }
 
 function popupMessage(text) {
@@ -980,6 +987,7 @@ function setStreamCheck(text, kind = "neutral") {
   if (kind === "ok") els.streamCheck.style.color = "rgba(87, 227, 163, 0.95)";
   else if (kind === "bad") els.streamCheck.style.color = "rgba(255, 107, 107, 0.95)";
   else els.streamCheck.style.color = "";
+  if (els.carFooterCheck) els.carFooterCheck.textContent = String(text || "—");
 }
 
 function abbreviateUrl(url) {
@@ -1814,6 +1822,14 @@ function setCarMode(enabled) {
     setSettingsOpen(false);
   }
   updateCarModeNowPlaying();
+  if (enabled) {
+    if (els.carFooterStatus) els.carFooterStatus.textContent = els.playerState?.textContent || "—";
+    if (els.carFooterCheck) els.carFooterCheck.textContent = els.streamCheck?.textContent || "—";
+    if (els.carFooterError) {
+      const raw = String(els.playerError?.textContent || "").trim();
+      els.carFooterError.textContent = raw && raw !== "—" ? "Bağlantı sorunu oluştu!" : "—";
+    }
+  }
   queueSyncCarModeIcons();
 }
 
@@ -1838,6 +1854,14 @@ function syncCarModeIcons() {
   els.carStationIcon.style.height = `${Math.round(rect.height)}px`;
 }
 
+function updateCarModePlayPauseButton() {
+  if (!els.carPlayBtn || !els.audio) return;
+  const isPlaying = !els.audio.paused;
+  els.carPlayBtn.classList.toggle("iconbtn--pause", isPlaying);
+  els.carPlayBtn.classList.toggle("iconbtn--play", !isPlaying);
+  els.carPlayBtn.setAttribute("aria-label", isPlaying ? "Duraklat" : "Başlat");
+}
+
 function maybeAutoStart() {
   if (autoStartAttempted) return;
   if (localStorage.getItem(LS_AUTOSTART_KEY) !== "1") return;
@@ -1853,7 +1877,6 @@ function updateCarModeNowPlaying() {
   const st = getActiveStation();
   const name = st?.name || "—";
   if (els.carNowTitle) els.carNowTitle.textContent = name;
-  if (els.carNowFooterTitle) els.carNowFooterTitle.textContent = name;
   if (els.carStationIcon) {
     const src = st ? stationIconSrc(st) : "";
     if (src) {
@@ -1865,6 +1888,7 @@ function updateCarModeNowPlaying() {
     }
   }
   queueSyncCarModeIcons();
+  updateCarModePlayPauseButton();
   if (els.carFavBtn) {
     const favs = getFavoritesSet();
     const isFav = Boolean(activeStationKey && favs.has(activeStationKey));
@@ -1961,7 +1985,14 @@ function wireEvents() {
   els.carPrevBtn?.addEventListener("click", () => prevStation({ initiatedByUser: true }));
   els.carNextBtn?.addEventListener("click", () => nextStation({ initiatedByUser: true }));
   els.carRandomBtn?.addEventListener("click", () => randomStation({ initiatedByUser: true }));
-  els.carPlayBtn?.addEventListener("click", () => play({ initiatedByUser: true }));
+  els.carPlayBtn?.addEventListener("click", () => {
+    if (!els.audio) return;
+    if (els.audio.paused) {
+      void play({ initiatedByUser: true });
+    } else {
+      pause();
+    }
+  });
   els.carFavBtn?.addEventListener("click", () => {
     if (!activeStationKey) return;
     // Same behavior as main page favorite button.

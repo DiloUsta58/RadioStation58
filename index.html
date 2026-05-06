@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="appIcon/Radio.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="appIcon/FavIcon-Radio.32.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="appIcon/Radio.512.png" />
-    <link rel="stylesheet" href="styles.css?v=20260506_0245" />
+    <link rel="stylesheet" href="styles.css?v=20260506_0300" />
   </head>
   <body>
     <header class="topbar">
@@ -42,7 +42,8 @@
         <div class="carmode__topGrid" aria-label="Car Mode Header">
           <div class="carmode__topRow carmode__topRow--icons" aria-label="Icons">
           <button id="carExitBtn" class="carmode__logoBtn" type="button" aria-label="Geri">
-            <img id="carModeLogo" class="carmode__logo" src="controls/car_mod_green.png" alt="Car Mode" />
+<img id="carModeLogo" class="carmode__logo" src="controls/car_mod_green.png" alt="Car Mode" />
+            <span class="carmode__backHint" aria-hidden="true">⇦ Geri (Araç modu kapat)</span>
           </button>
           <img id="carStationIcon" class="carmode__stationIcon is-hidden" alt="Kanal" />
         </div>
@@ -55,15 +56,24 @@
 
       <div class="carmode__controls" aria-label="Kontroller">
         <div class="carmode__row">
-          <button id="carPrevBtn" class="iconbtn iconbtn--prev carmode__btn" type="button" aria-label="Zurück"></button>
-          <button id="carPlayBtn" class="iconbtn iconbtn--play carmode__btn" type="button" aria-label="Başlat"></button>
-          <button id="carNextBtn" class="iconbtn iconbtn--next carmode__btn" type="button" aria-label="Vor"></button>
+          <button id="carPrevBtn" class="iconbtn iconbtn--prev carmode__btn" type="button" aria-label="Zurück">Geri</button>
+          <button id="carPlayBtn" class="iconbtn iconbtn--pause carmode__btn" type="button" aria-label="Duraklat"></button>
+          <button id="carNextBtn" class="iconbtn iconbtn--next carmode__btn" type="button" aria-label="Vor">İleri</button>
         </div>
         <button id="carRandomBtn" class="iconbtn iconbtn--random carmode__btn carmode__btn--wide" type="button" aria-label="Rastgele"></button>
       </div>
 
-      <footer class="carmode__footer" aria-label="Şu an">
-        <div id="carNowFooterTitle" class="carmode__footerTitle">—</div>
+      <footer class="carmode__footer" aria-label="Durum">
+        <div class="carmode__footerRow">
+          <span class="carmode__footerKey">Durum:</span>
+          <span id="carFooterStatus" class="carmode__footerVal">—</span>
+          <span class="carmode__footerSep">|</span>
+          <span class="carmode__footerKey">Kontrol:</span>
+          <span id="carFooterCheck" class="carmode__footerVal">—</span>
+          <span class="carmode__footerSep">|</span>
+          <span class="carmode__footerKey">Hata:</span>
+          <span id="carFooterError" class="carmode__footerVal">—</span>
+        </div>
       </footer>
     </section>
 
@@ -334,10 +344,10 @@
       </div>
       <div class="app-footer__right">
         <span id="updateStatus" class="update-status is-hidden"></span>
-        <span>© DiloUsta58 2026 • WebRadyo • v1.1.6</span>
+        <span>© DiloUsta58 2026 • WebRadyo • v1.1.7</span>
       </div>
     </footer>
 
-    <script src="app.js?v=20260506_0245"></script>
+    <script src="app.js?v=20260506_0300"></script>
   </body>
 </html>
