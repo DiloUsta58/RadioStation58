@@ -354,6 +354,58 @@ code {
   display: none;
 }
 
+.ytmodal {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background: rgba(0, 0, 0, 0.65);
+  display: grid;
+  place-items: center;
+  padding: 14px;
+}
+
+.ytmodal__box {
+  width: min(980px, 96vw);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: #151517;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.ytmodal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ytmodal__title {
+  font-weight: 900;
+  letter-spacing: 0.3px;
+}
+
+.ytmodal__body {
+  padding: 10px 12px 12px 12px;
+}
+
+.ytmodal__frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 12px;
+  background: #000;
+}
+
+.ytmodal__hint {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 700;
+}
+
 .video-player {
   width: 100%;
   aspect-ratio: 16 / 9;

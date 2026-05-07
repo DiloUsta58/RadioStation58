@@ -17,7 +17,7 @@ const LS_AUTOSTART_KEY = "webRadioStation:autoStartOnLaunch:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.1.8";
+const APP_VERSION = "1.1.9";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -77,6 +77,9 @@ const els = {
   audio: document.getElementById("audio"),
   youtubeFrame: document.getElementById("youtubeFrame"),
   citySelect: document.getElementById("button"),
+  youtubePopup: document.getElementById("youtubePopup"),
+  youtubePopupFrame: document.getElementById("youtubePopupFrame"),
+  youtubePopupClose: document.getElementById("youtubePopupClose"),
 
   carMode: document.getElementById("carMode"),
   carModeLogo: document.getElementById("carModeLogo"),
@@ -488,6 +491,21 @@ function stopYoutubePlayer() {
   els.youtubeFrame.classList.add("is-hidden");
 }
 
+function closeYoutubePopup() {
+  if (!els.youtubePopup || !els.youtubePopupFrame) return;
+  els.youtubePopupFrame.src = "about:blank";
+  els.youtubePopup.classList.add("is-hidden");
+}
+
+function openYoutubePopup(url) {
+  if (!els.youtubePopup || !els.youtubePopupFrame) return false;
+  const embed = youtubeEmbedUrl(url, true);
+  if (!embed) return false;
+  els.youtubePopup.classList.remove("is-hidden");
+  if (els.youtubePopupFrame.src !== embed) els.youtubePopupFrame.src = embed;
+  return true;
+}
+
 function postYoutubeCommand(command) {
   if (!els.youtubeFrame?.contentWindow) return;
   const payload = JSON.stringify({ event: "command", func: command, args: [] });
@@ -520,9 +538,9 @@ function openYoutubeInNewTab(url) {
 function startYoutubePlayer(url, { initiatedByUser } = { initiatedByUser: false }) {
   if (!els.youtubeFrame) return false;
   // Mobile browsers (especially iOS Safari) often block iframe audio autoplay.
-  // Prefer opening YouTube in a new tab when initiated by user.
+  // Prefer opening YouTube in an in-app popup when initiated by user.
   if (!isAndroidApp() && initiatedByUser && (isIOSBrowser() || isMobileBrowser())) {
-    return openYoutubeInNewTab(url);
+    return openYoutubePopup(url);
   }
 
   const embed = youtubeEmbedUrl(url, true);
@@ -1572,6 +1590,7 @@ function pause() {
     postYoutubeCommand("pauseVideo");
     // Mobile fallback may be running in a new tab, so also hide the iframe.
     stopYoutubePlayer();
+    closeYoutubePopup();
   }
   els.audio.pause();
   setPlayerState("Duraklatıldı");
@@ -1585,6 +1604,7 @@ function pause() {
 function stop() {
   if (recording) stopRecording();
   stopYoutubePlayer();
+  closeYoutubePopup();
   els.audio.pause();
   els.audio.removeAttribute("src");
   els.audio.load();
@@ -1942,6 +1962,11 @@ function wireEvents() {
       setMenuOpen(false);
       setSettingsOpen(false);
     }
+  });
+
+  els.youtubePopupClose?.addEventListener("click", () => closeYoutubePopup());
+  els.youtubePopup?.addEventListener("click", (event) => {
+    if (event.target === els.youtubePopup) closeYoutubePopup();
   });
   els.settingsMenuBtn?.addEventListener("click", () => setSettingsOpen(true));
   els.carmodBtn?.addEventListener("click", () => {

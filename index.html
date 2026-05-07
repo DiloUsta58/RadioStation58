@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="appIcon/Radio.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="appIcon/FavIcon-Radio.32.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="appIcon/Radio.512.png" />
-    <link rel="stylesheet" href="styles.css?v=20260507_0005" />
+    <link rel="stylesheet" href="styles.css?v=20260507_0015" />
   </head>
   <body>
     <header class="topbar">
@@ -261,6 +261,25 @@
       </section>
     </main>
 
+    <div id="youtubePopup" class="ytmodal is-hidden" role="dialog" aria-modal="true" aria-label="YouTube oynatıcı">
+      <div class="ytmodal__box">
+        <div class="ytmodal__head">
+          <div class="ytmodal__title">YouTube</div>
+          <button id="youtubePopupClose" class="btn btn--ghost" type="button" aria-label="Kapat">Kapat</button>
+        </div>
+        <div class="ytmodal__body">
+          <iframe
+            id="youtubePopupFrame"
+            class="ytmodal__frame"
+            title="YouTube popup"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            playsinline
+            allowfullscreen></iframe>
+          <div class="ytmodal__hint">Ses için oynatıcıya bir kez dokun.</div>
+        </div>
+      </div>
+    </div>
+
     <button id="adminBtn" class="adminfab" type="button" title="Yönetim (Ctrl+F9)" aria-label="Yönetim">Yönetim</button>
     <div id="adminPanel" class="adminpanel is-hidden" role="dialog" aria-modal="true" aria-label="Yönetim paneli">
       <div class="adminpanel__head">
@@ -335,10 +354,10 @@
       </div>
       <div class="app-footer__right">
         <span id="updateStatus" class="update-status is-hidden"></span>
-        <span>© DiloUsta58 2026 • WebRadyo • v1.1.8</span>
+        <span>© DiloUsta58 2026 • WebRadyo • v1.1.9</span>
       </div>
     </footer>
 
-    <script src="app.js?v=20260507_0005"></script>
+    <script src="app.js?v=20260507_0015"></script>
   </body>
 </html>
