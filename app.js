@@ -17,7 +17,7 @@ const LS_AUTOSTART_KEY = "webRadioStation:autoStartOnLaunch:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.3.0";
+const APP_VERSION = "1.3.2";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -1482,13 +1482,25 @@ function renderList() {
     .join("");
 }
 
-function scrollActiveIntoView(behavior = "smooth") {
-  const el = els.stationList.querySelector?.(".item.is-active");
+function scrollActiveIntoView(behavior = "auto") {
+  const list = els.stationList;
+  if (!list) return;
+  const el = list.querySelector?.(".item.is-active");
   if (!el) return;
+
+  // Keep the active item as the top-most visible row (topIndex behavior),
+  // and jump instead of animating for better performance.
+  const listRect = list.getBoundingClientRect();
+  const elRect = el.getBoundingClientRect();
+  const padTop = Number.parseFloat(getComputedStyle(list).paddingTop || "0") || 0;
+  let targetTop = list.scrollTop + (elRect.top - listRect.top) - padTop;
+  const maxTop = Math.max(0, list.scrollHeight - list.clientHeight);
+  targetTop = Math.max(0, Math.min(maxTop, targetTop));
+
   try {
-    el.scrollIntoView({ block: "nearest", behavior });
+    list.scrollTo({ top: targetTop, behavior });
   } catch {
-    el.scrollIntoView();
+    list.scrollTop = targetTop;
   }
 }
 
@@ -1519,7 +1531,7 @@ function setViewMode(mode, { restore } = { restore: false }) {
       renderList();
     }
   }
-  scrollActiveIntoView(restore ? "auto" : "smooth");
+  scrollActiveIntoView("auto");
   scheduleUiSave();
 }
 
@@ -1603,7 +1615,7 @@ function selectStation(key) {
   applyActiveToPlayer();
   renderList();
   updateCarModeNowPlaying();
-  scrollActiveIntoView();
+  scrollActiveIntoView("auto");
   setPlayerError("—");
   scheduleUiSave();
 }
@@ -2003,6 +2015,9 @@ function setCarMode(enabled) {
     }
   }
   queueSyncCarModeIcons();
+  if (!enabled) {
+    requestAnimationFrame(() => scrollActiveIntoView("auto"));
+  }
 }
 
 let carModeSyncQueued = false;

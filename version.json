@@ -1,6 +1,6 @@
 {
-  "version": "1.3.0",
+  "version": "1.3.2",
   "releaseDate": "07.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "Car Mod: footer status wired (Durum/Kontrol/Hata)"
+  "changelog": "Car Mod: on exit keep active station selected + topIndex"
 }
