@@ -17,7 +17,7 @@ const LS_AUTOSTART_KEY = "webRadioStation:autoStartOnLaunch:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.1.7";
+const APP_VERSION = "1.1.8";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -476,6 +476,7 @@ function youtubeEmbedUrl(url, autoplay = true) {
     autoplay: autoplay ? "1" : "0",
     playsinline: "1",
     enablejsapi: "1",
+    origin: location.origin,
     rel: "0",
   });
   return `https://www.youtube.com/embed/${encodeURIComponent(id)}?${params.toString()}`;
@@ -493,8 +494,37 @@ function postYoutubeCommand(command) {
   els.youtubeFrame.contentWindow.postMessage(payload, "https://www.youtube.com");
 }
 
-function startYoutubePlayer(url) {
+function isIOSBrowser() {
+  const ua = navigator.userAgent || "";
+  return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+function isMobileBrowser() {
+  return window.matchMedia?.("(pointer: coarse)")?.matches || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+}
+
+function openYoutubeInNewTab(url) {
+  try {
+    const watchUrl = (() => {
+      const id = getYoutubeVideoId(url);
+      return id ? `https://www.youtube.com/watch?v=${encodeURIComponent(id)}` : url;
+    })();
+    window.open(watchUrl, "_blank", "noopener,noreferrer");
+    popupMessage("YouTube: Yeni sekmede başlatıldı. Ses için lütfen oradan oynatın.");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function startYoutubePlayer(url, { initiatedByUser } = { initiatedByUser: false }) {
   if (!els.youtubeFrame) return false;
+  // Mobile browsers (especially iOS Safari) often block iframe audio autoplay.
+  // Prefer opening YouTube in a new tab when initiated by user.
+  if (!isAndroidApp() && initiatedByUser && (isIOSBrowser() || isMobileBrowser())) {
+    return openYoutubeInNewTab(url);
+  }
+
   const embed = youtubeEmbedUrl(url, true);
   if (!embed) return false;
   els.audio.pause();
@@ -1493,7 +1523,7 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
   setPlayerState("Bağlanıyor...");
   setPlayerError("—");
   if (isYoutubeUrl(urlForThisPlay)) {
-    if (startYoutubePlayer(urlForThisPlay)) {
+    if (startYoutubePlayer(urlForThisPlay, { initiatedByUser })) {
       setPlayerState("Çalıyor");
       setStreamCheck("YouTube", "neutral");
       setPlayOkToggle(false);
@@ -1540,6 +1570,8 @@ function pause() {
   if (recording) stopRecording();
   if (isYoutubeUrl(getActiveStreamUrl())) {
     postYoutubeCommand("pauseVideo");
+    // Mobile fallback may be running in a new tab, so also hide the iframe.
+    stopYoutubePlayer();
   }
   els.audio.pause();
   setPlayerState("Duraklatıldı");

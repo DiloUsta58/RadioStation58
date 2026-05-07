@@ -1,6 +1,6 @@
 {
-  "version": "1.1.7",
+  "version": "1.1.8",
   "releaseDate": "06.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "Car Mod: pause toggle + status footer + back hint"
+  "changelog": "YouTube: mobile browser fallback (open new tab)"
 }
