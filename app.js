@@ -17,7 +17,7 @@ const LS_AUTOSTART_KEY = "webRadioStation:autoStartOnLaunch:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.1.9";
+const APP_VERSION = "1.2.0";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -537,6 +537,17 @@ function openYoutubeInNewTab(url) {
 
 function startYoutubePlayer(url, { initiatedByUser } = { initiatedByUser: false }) {
   if (!els.youtubeFrame) return false;
+  if (isAndroidApp() && initiatedByUser) {
+    const id = getYoutubeVideoId(url);
+    const watchUrl = id ? `https://www.youtube.com/watch?v=${encodeURIComponent(id)}&playsinline=1` : url;
+    try {
+      window.AndroidAudio?.openYoutubePopup?.(watchUrl);
+      popupMessage("YouTube: Popup açıldı. Ses için oynatıcıya dokun.");
+      return true;
+    } catch {
+      // fallback to iframe embed
+    }
+  }
   // Mobile browsers (especially iOS Safari) often block iframe audio autoplay.
   // Prefer opening YouTube in an in-app popup when initiated by user.
   if (!isAndroidApp() && initiatedByUser && (isIOSBrowser() || isMobileBrowser())) {
