@@ -24,6 +24,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "WebRadioAmanda";
+  src: url("fonts/amanda.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -281,6 +289,24 @@ code {
   color: #ef6b73;
 }
 
+.quick-time.is-connecting {
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font);
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0.2px;
+  font-size: calc(var(--time-font-size, 18px) - 3px);
+}
+
+.quick-time.is-timeout {
+  color: rgba(255, 107, 107, 0.9);
+  font-family: var(--font);
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0.2px;
+  font-size: calc(var(--time-font-size, 18px) - 3px);
+}
+
 .list-quick-controls .compact-controls {
   justify-content: flex-start;
 }
@@ -479,6 +505,16 @@ code {
   color: var(--muted);
   font-size: 13px;
   border-bottom: 1px solid var(--border);
+}
+
+.meta__status {
+  font-family: "WebRadioAmanda", var(--font);
+  letter-spacing: 0.2px;
+  color: var(--text);
+}
+
+.meta__count {
+  white-space: nowrap;
 }
 
 .list {
@@ -874,6 +910,10 @@ code {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.carmode__footerVal.is-ok {
+  color: rgba(87, 227, 163, 0.95);
 }
 
 .carmode__footerSep {

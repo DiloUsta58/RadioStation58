@@ -8,7 +8,7 @@
     <link rel="icon" type="image/x-icon" href="appIcon/Radio.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="appIcon/FavIcon-Radio.32.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="appIcon/Radio.512.png" />
-    <link rel="stylesheet" href="styles.css?v=20260507_0035" />
+    <link rel="stylesheet" href="styles.css?v=20260507_2225" />
   </head>
   <body>
     <header class="topbar">
@@ -36,13 +36,16 @@
           <span class="control-label">Araç modu</span>          
       </div>
     </header>
-
+<!-- =========================
+  Araç modu paneli
+========================== -->
     <section id="carMode" class="carmode is-hidden" aria-label="Araç modu">
       <div class="carmode__top" aria-label="Car Mode">
         <div class="carmode__topGrid" aria-label="Car Mode Header">
           <div class="carmode__topRow carmode__topRow--icons" aria-label="Icons">
           <button id="carExitBtn" class="carmode__logoBtn" type="button" aria-label="Geri">
             <img id="carModeLogo" class="carmode__logo" src="controls/car_mod_green.png" alt="Car Mode" />
+            <span class="carmode__backHint" aria-hidden="true">⇦ Geri (Araç modu kapat)</span>
           </button>
           <img id="carStationIcon" class="carmode__stationIcon is-hidden" alt="Kanal" />
         </div>
@@ -52,21 +55,34 @@
           </div>
         </div>
       </div>
-
+<!-- =========================
+  Kontroller
+========================== -->
       <div class="carmode__controls" aria-label="Kontroller">
         <div class="carmode__row">
-          <button id="carPrevBtn" class="iconbtn iconbtn--prev carmode__btn" type="button" aria-label="Zurück">Geri</button>
-          <button id="carPlayBtn" class="iconbtn iconbtn--play carmode__btn" type="button" aria-label="Başlat">Başlat</button>
-          <button id="carNextBtn" class="iconbtn iconbtn--next carmode__btn" type="button" aria-label="Vor">İleri</button>
+          <button id="carPrevBtn" class="iconbtn iconbtn--prev carmode__btn" type="button" aria-label="Zurück"></button>
+          <button id="carPlayBtn" class="iconbtn iconbtn--play carmode__btn" type="button" aria-label="Başlat"></button>
+          <button id="carNextBtn" class="iconbtn iconbtn--next carmode__btn" type="button" aria-label="Vor"></button>
         </div>
         <button id="carRandomBtn" class="iconbtn iconbtn--random carmode__btn carmode__btn--wide" type="button" aria-label="Rastgele"></button>
       </div>
 
-      <footer class="carmode__footer" aria-label="Şu an">
-        <div id="carNowFooterTitle" class="carmode__footerTitle">—</div>
+      <footer class="carmode__footer" aria-label="Durum">
+        <div class="carmode__footerRow">
+          <span class="carmode__footerKey">Durum:</span>
+          <span id="carFooterStatus" class="carmode__footerVal">—</span>
+          <span class="carmode__footerSep">|</span>
+          <span class="carmode__footerKey">Kontrol:</span>
+          <span id="carFooterCheck" class="carmode__footerVal">—</span>
+          <span class="carmode__footerSep">|</span>
+          <span class="carmode__footerKey">Hata:</span>
+          <span id="carFooterError" class="carmode__footerVal">—</span>
+        </div>
       </footer>
     </section>
-
+<!-- =========================
+  Ana içerik ve kanal listesi
+========================== -->
     <main class="layout">
       <section class="panel panel--list" aria-label="Kanal listesi">
         <div class="list-quick-controls">
@@ -100,7 +116,9 @@
             </div>
           </div>
         </div>
-
+<!-- =========================
+  Görünüm sekmeleri ve arama çubuğu
+========================== -->
         <div class="panel__toolbar">
           <div class="segmented" role="tablist" aria-label="Görünüm">
             <button id="tabAll" class="segmented__btn is-active" type="button" role="tab" aria-selected="true">Tümü</button>
@@ -108,7 +126,9 @@
           </div>
           <input id="searchInput" class="input" type="search" placeholder="Ara..." autocomplete="off" />
         </div>
-
+<!-- =========================
+  Şehir seçimi
+========================== -->
         <div aria-label="cities" class="input select" align="center">
           <nav class="city-select">Şehir Seçebilirsiniz: 
             <select name="il" id="button" aria-label="cities" class="input select">
@@ -189,16 +209,19 @@
           </nav>
         </div>    
         
-
+<!-- =========================
+  Zaman göstergesi ve durum metni
+========================== -->
         <div class="quick-time" id="quickTime" aria-live="polite">00:00:00</div>
-        <div class="meta">
-          <div id="statusText" class="meta__status">Kanal listesi yükleniyor...</div>
-          <div id="countText" class="meta__count"></div>
-        </div>
 
+<!-- =========================
+  Kanal listesi
+========================== -->
         <div id="stationList" class="list" role="list"></div>
       </section>
-
+<!-- =========================
+  Oynatıcı paneli
+========================== -->
       <section id="playerPanel" class="panel panel--player is-collapsed" aria-label="Oynatıcı">
         <div class="panel__collapseHead">
           <button id="playerToggleBtn" class="collapse-btn" type="button" aria-expanded="false" aria-controls="playerBody">
@@ -222,7 +245,9 @@
               </button>
             </div>
           </div>
-
+<!-- =========================
+  Oynatma kontrolleri
+========================== -->
           <div class="controls" aria-label="Oynatma kontrolü">
             <button id="playBtn" class="iconbtn iconbtn--play" type="button" disabled aria-label="Oynat" title="Oynat"></button>
             <button id="prevBtn" class="iconbtn iconbtn--prev" type="button" disabled aria-label="Önceki kanal" title="Önceki kanal"></button>
@@ -231,24 +256,32 @@
             <button id="nextBtn" class="iconbtn iconbtn--next" type="button" disabled aria-label="Sonraki kanal" title="Sonraki kanal"></button>
             <button id="randomBtn" class="iconbtn iconbtn--random" type="button" disabled aria-label="Rastgele" title="Rastgele"></button>
           </div>
-
+<!-- =========================
+  Akış seçimi ve ses kontrolü
+========================== -->
           <div class="row">
             <label class="label" for="streamSelect">Stream</label>
             <select id="streamSelect" class="select" disabled></select>
           </div>
-
+<!-- =========================
+  Ses kontrolü
+========================== -->
           <div class="row">
             <label class="label" for="volumeRange">Ses</label>
             <input id="volumeRange" class="range" type="range" min="0" max="1" step="0.01" value="0.8" />
             <div id="volumeText" class="muted">80%</div>
           </div>
-
+<!-- =========================
+  Oynatıcı durumu
+========================== -->
           <div class="log" aria-label="Oynatıcı durumu">
             <div class="log__row"><span class="muted">Durum:</span> <span id="playerState">—</span></div>
             <div class="log__row"><span class="muted">Kontrol:</span> <span id="streamCheck">—</span></div>
             <div class="log__row"><span class="muted">Hata:</span> <span id="playerError">—</span></div>
           </div>
-
+<!-- =========================
+  YouTube oynatıcı
+========================== -->
         </div>
         <audio id="audio" crossorigin="anonymous"></audio>
         <iframe
@@ -260,7 +293,9 @@
           allowfullscreen></iframe>
       </section>
     </main>
-
+<!-- =========================
+  YouTube popup
+========================== -->
     <div id="youtubePopup" class="ytmodal is-hidden" role="dialog" aria-modal="true" aria-label="YouTube oynatıcı">
       <div class="ytmodal__box">
         <div class="ytmodal__head">
@@ -279,7 +314,9 @@
         </div>
       </div>
     </div>
-
+<!-- =========================
+  Yönetim paneli
+========================== -->
     <button id="adminBtn" class="adminfab" type="button" title="Yönetim (Ctrl+F9)" aria-label="Yönetim">Yönetim</button>
     <div id="adminPanel" class="adminpanel is-hidden" role="dialog" aria-modal="true" aria-label="Yönetim paneli">
       <div class="adminpanel__head">
@@ -311,7 +348,9 @@
         </div>
       </div>
     </div>
-
+<!-- =========================
+  Ayarlar paneli
+========================== -->
     <section id="settingsPanel" class="settingspanel is-hidden" role="dialog" aria-modal="true" aria-label="Ayarlar">
       <div class="settingspanel__box">
         <div class="settingspanel__head">
@@ -344,6 +383,14 @@
       </div>
     </section>
 
+<!-- =========================
+  Alt bilgi
+========================== -->
+        <div class="meta">
+          <div id="statusText" class="meta__status">Kanal listesi yükleniyor...</div>
+          <div id="countText" class="meta__count"></div>
+        </div>
+
     <footer class="app-footer">
       <div class="app-footer__left">
         <span class="app-footer__item" id="footerState">Hazır</span>
@@ -354,10 +401,12 @@
       </div>
       <div class="app-footer__right">
         <span id="updateStatus" class="update-status is-hidden"></span>
-        <span>© DiloUsta58 2026 • WebRadyo • v1.2.0</span>
+        <span>© DiloUsta58 2026 • WebRadyo • v1.3.0</span>
       </div>
     </footer>
-
-    <script src="app.js?v=20260507_0035"></script>
+<!-- =========================
+  Ana JavaScript dosyası
+========================== -->
+    <script src="app.js?v=20260507_2225"></script>
   </body>
 </html>

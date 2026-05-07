@@ -17,7 +17,7 @@ const LS_AUTOSTART_KEY = "webRadioStation:autoStartOnLaunch:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.2.0";
+const APP_VERSION = "1.3.0";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -132,6 +132,12 @@ let selectionToken = 0;
 
 let savedViewportContent = null;
 let autoStartAttempted = false;
+let quickTimeConnecting = false;
+let connectionTimeoutTimer = 0;
+let connectionTimeoutToken = 0;
+let connectionTimeoutStationKey = null;
+let manualPauseRequestedAt = 0;
+const MANUAL_PAUSE_GRACE_MS = 1200;
 
 function setCarModeZoomLocked(locked) {
   const meta = document.querySelector('meta[name="viewport"]');
@@ -590,6 +596,9 @@ async function assetExists(url) {
     }
     const head = await fetch(url, { method: "HEAD", cache: "no-store" });
     if (head.ok) return true;
+    // If the server clearly says "not found" (or other client error), don't retry with GET,
+    // otherwise we'd produce duplicate 404 noise in the console.
+    if (head.status >= 400 && head.status < 500) return false;
   } catch {
     // ignore
   }
@@ -607,7 +616,10 @@ function cityListCandidates(cityKey) {
   const enc = encodeURIComponent(key);
   const list = [`${CITY_LIST_DIR}/${enc}.lst`];
   // Common Windows filename accident: trailing space before extension (e.g. "bilecik .lst")
-  list.push(`${CITY_LIST_DIR}/${encodeURIComponent(key + " ")}.lst`);
+  // Only try this variant for local file-based runs where such filenames are more likely.
+  if (location.protocol === "file:" || isAndroidApp()) {
+    list.push(`${CITY_LIST_DIR}/${encodeURIComponent(key + " ")}.lst`);
+  }
   return list;
 }
 
@@ -759,8 +771,46 @@ function updateTabLabels() {
 
 function setPlayerState(text) {
   els.playerState.textContent = text;
-  if (els.carFooterStatus) els.carFooterStatus.textContent = String(text || "—");
+  if (els.carFooterStatus) {
+    const raw = String(text || "—");
+    const isPlaying = raw === "Çalıyor";
+    els.carFooterStatus.textContent = isPlaying ? "Çalıyor ..." : raw;
+    els.carFooterStatus.classList.toggle("is-ok", isPlaying);
+  }
+  if (els.footerNow) {
+    const raw = String(text || "—");
+    let label = "—";
+    let color = "";
+    if (raw === "Çalıyor") {
+      label = "Çalıyor ...";
+      color = "rgba(87, 227, 163, 0.95)";
+    } else if (/^Bağlanıyor/i.test(raw)) {
+      label = "Bağlantı kuruluyor ...";
+      color = "rgba(255, 255, 255, 0.75)";
+    } else if (/Tamponlanıyor|Veri bekleniyor/i.test(raw)) {
+      label = raw;
+      color = "rgba(208, 166, 59, 0.95)";
+    } else if (/Hata/i.test(raw)) {
+      label = "Bağlantı sorunu oluştu!";
+      color = "rgba(255, 107, 107, 0.95)";
+    } else if (/Duraklatıldı/i.test(raw)) {
+      label = raw;
+      color = "rgba(255, 255, 255, 0.75)";
+    } else if (/Durduruldu|Bitti/i.test(raw)) {
+      label = "—";
+      color = "";
+    }
+
+    els.footerNow.textContent = label;
+    els.footerNow.style.color = color;
+  }
   updateCarModePlayPauseButton();
+}
+
+function showStationNameInStatus() {
+  const st = getActiveStation();
+  if (!st?.name) return;
+  setStatus(st.name);
 }
 
 function setPlayerError(text) {
@@ -906,10 +956,8 @@ function formatDuration(ms) {
   return `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
 }
 
-function runtimeLabel(ms, stationKey = activeStationKey) {
-  const stationName = stations.find((s) => s.key === stationKey)?.name || "";
-  const time = formatDuration(ms);
-  return stationName ? `${time} - ${stationName}` : time;
+function runtimeLabel(ms) {
+  return formatDuration(ms);
 }
 
 function sanitizeFilePart(value) {
@@ -955,7 +1003,7 @@ function setRecordingUi(active, message = "") {
 
 function updateRecordingTime() {
   if (!recording) return;
-  const text = runtimeLabel(Date.now() - recordingStartedAt, recordingStationKey);
+  const text = runtimeLabel(Date.now() - recordingStartedAt);
   if (els.quickTime) els.quickTime.textContent = text;
 }
 
@@ -967,15 +1015,68 @@ function updatePlaybackStationTime() {
 function updateMainRuntime() {
   if (!els.quickTime) return;
   if (recording) {
-    els.quickTime.textContent = runtimeLabel(Date.now() - recordingStartedAt, recordingStationKey);
+    els.quickTime.textContent = runtimeLabel(Date.now() - recordingStartedAt);
     els.quickTime.classList.add("is-recording");
   } else if (playbackStartedAt) {
-    els.quickTime.textContent = runtimeLabel(Date.now() - playbackStartedAt, playbackStationKey);
+    quickTimeConnecting = false;
+    els.quickTime.textContent = runtimeLabel(Date.now() - playbackStartedAt);
     els.quickTime.classList.remove("is-recording");
+    els.quickTime.classList.remove("is-connecting");
+    els.quickTime.classList.remove("is-timeout");
   } else {
-    els.quickTime.textContent = "00:00:00";
+    if (!quickTimeConnecting) {
+      const st = getActiveStation();
+      els.quickTime.textContent = st?.name || "—";
+    }
     els.quickTime.classList.remove("is-recording");
+    if (!quickTimeConnecting) els.quickTime.classList.remove("is-connecting");
+    if (!quickTimeConnecting) els.quickTime.classList.remove("is-timeout");
   }
+}
+
+function setQuickTimeConnectingText() {
+  if (!els.quickTime || recording) return;
+  quickTimeConnecting = true;
+  els.quickTime.textContent = "Bağlantı kuruluyor ...";
+  els.quickTime.classList.remove("is-recording");
+  els.quickTime.classList.add("is-connecting");
+  els.quickTime.classList.remove("is-timeout");
+}
+
+function setQuickTimeTimeoutText() {
+  if (!els.quickTime || recording) return;
+  quickTimeConnecting = true;
+  els.quickTime.textContent = "Bağlantı kurulamıyor ...";
+  els.quickTime.classList.remove("is-recording");
+  els.quickTime.classList.remove("is-connecting");
+  els.quickTime.classList.add("is-timeout");
+}
+
+function stopConnectionTimeout() {
+  if (connectionTimeoutTimer) {
+    window.clearTimeout(connectionTimeoutTimer);
+    connectionTimeoutTimer = 0;
+  }
+  connectionTimeoutStationKey = null;
+}
+
+function startConnectionTimeout({ tokenAtStart }) {
+  stopConnectionTimeout();
+  connectionTimeoutToken = tokenAtStart;
+  connectionTimeoutStationKey = activeStationKey;
+  if (!connectionTimeoutStationKey) return;
+  if (isYoutubeUrl(getActiveStreamUrl())) return;
+  connectionTimeoutTimer = window.setTimeout(() => {
+    if (selectionToken !== connectionTimeoutToken) return;
+    if (activeStationKey !== connectionTimeoutStationKey) return;
+    if (!els.audio || !els.audio.paused) return; // already playing
+    setQuickTimeTimeoutText();
+    setTimeout(() => {
+      if (selectionToken !== connectionTimeoutToken) return;
+      nextStation({ initiatedByUser: false });
+      void play({ initiatedByUser: false });
+    }, 400);
+  }, 5000);
 }
 
 function updateRecordButtonState() {
@@ -1289,7 +1390,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   }
 
   els.nowTitle.textContent = st.name;
-  if (els.footerNow) els.footerNow.textContent = st.name;
+  // footerNow intentionally not set to station name (otherwise station name appears twice with statusText)
   els.favToggleBtn.disabled = false;
   els.favToggleBtn.textContent = favs.has(st.key) ? "★ Favori" : "☆ Favori";
 
@@ -1546,6 +1647,9 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
   const st = getActiveStation();
   if (!st) return;
   if (initiatedByUser) lastPlaybackRequestAt = Date.now();
+  setStatus("Sender wechsel");
+  setQuickTimeConnectingText();
+  startConnectionTimeout({ tokenAtStart });
   setAudioSourceForActiveStation();
   const urlForThisPlay = getActiveStreamUrl();
 
@@ -1559,7 +1663,9 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
       notifyNativePlayback(true);
       updateRecordButtonState();
       startPlaybackTimer();
+      showStationNameInStatus();
     } else {
+      stopConnectionTimeout();
       setPlayerState("Durduruldu");
       setPlayerError("YouTube bağlantısı açılamadı.");
     }
@@ -1595,7 +1701,7 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
   }
 }
 
-function pause() {
+function pause({ initiatedByUser = false } = {}) {
   if (recording) stopRecording();
   if (isYoutubeUrl(getActiveStreamUrl())) {
     postYoutubeCommand("pauseVideo");
@@ -1603,6 +1709,8 @@ function pause() {
     stopYoutubePlayer();
     closeYoutubePopup();
   }
+  stopConnectionTimeout();
+  if (initiatedByUser) manualPauseRequestedAt = Date.now();
   els.audio.pause();
   setPlayerState("Duraklatıldı");
   setPlayOkToggle(false);
@@ -1616,6 +1724,7 @@ function stop() {
   if (recording) stopRecording();
   stopYoutubePlayer();
   closeYoutubePopup();
+  stopConnectionTimeout();
   els.audio.pause();
   els.audio.removeAttribute("src");
   els.audio.load();
@@ -2035,13 +2144,13 @@ function wireEvents() {
 
   els.favToggleBtn.addEventListener("click", () => toggleFavorite());
   els.playBtn.addEventListener("click", () => play({ initiatedByUser: true }));
-  els.pauseBtn.addEventListener("click", () => pause());
+  els.pauseBtn.addEventListener("click", () => pause({ initiatedByUser: true }));
   els.stopBtn.addEventListener("click", () => stop());
   els.prevBtn.addEventListener("click", () => prevStation({ initiatedByUser: true }));
   els.nextBtn.addEventListener("click", () => nextStation({ initiatedByUser: true }));
   els.randomBtn.addEventListener("click", () => randomStation({ initiatedByUser: true }));
   els.compactPlayBtn?.addEventListener("click", () => play({ initiatedByUser: true }));
-  els.compactPauseBtn?.addEventListener("click", () => pause());
+  els.compactPauseBtn?.addEventListener("click", () => pause({ initiatedByUser: true }));
   els.compactPrevBtn?.addEventListener("click", () => prevStation({ initiatedByUser: true }));
   els.compactNextBtn?.addEventListener("click", () => nextStation({ initiatedByUser: true }));
   els.compactRandomBtn?.addEventListener("click", () => randomStation({ initiatedByUser: true }));
@@ -2058,7 +2167,7 @@ function wireEvents() {
     if (els.audio.paused) {
       void play({ initiatedByUser: true });
     } else {
-      pause();
+      pause({ initiatedByUser: true });
     }
   });
   els.carFavBtn?.addEventListener("click", () => {
@@ -2070,6 +2179,7 @@ function wireEvents() {
   els.streamSelect.addEventListener("change", () => {
     if (recording) stopRecording();
     stopPlaybackTimer();
+    stopConnectionTimeout();
     selectionToken++;
     const wasPlaying = Boolean(!els.audio.paused);
     setAudioSourceForActiveStation();
@@ -2078,15 +2188,18 @@ function wireEvents() {
   els.volumeRange.addEventListener("input", () => setVolume(els.volumeRange.value));
 
   els.audio.addEventListener("playing", () => {
+    stopConnectionTimeout();
     setPlayerState("Çalıyor");
     notifyNativePlayback(true);
     updateRecordButtonState();
     updateCarModeNowPlaying();
+    showStationNameInStatus();
     if (!playbackStartedAt || playbackStationKey !== activeStationKey) {
       startPlaybackTimer();
     }
   });
   els.audio.addEventListener("pause", () => {
+    stopConnectionTimeout();
     setPlayerState("Duraklatıldı");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
@@ -2094,10 +2207,21 @@ function wireEvents() {
     updateCarModeNowPlaying();
     stopNowPlayingPoll();
     if (!recording) stopPlaybackTimer();
+
+    // Auto-skip when the stream pauses unexpectedly (common on broken streams).
+    const recentlyManual = Date.now() - manualPauseRequestedAt < MANUAL_PAUSE_GRACE_MS;
+    if (!recentlyManual && !recording) {
+      setQuickTimeTimeoutText();
+      setTimeout(() => {
+        nextStation({ initiatedByUser: false });
+        void play({ initiatedByUser: false });
+      }, 350);
+    }
   });
   els.audio.addEventListener("waiting", () => setPlayerState("Tamponlanıyor..."));
   els.audio.addEventListener("stalled", () => setPlayerState("Veri bekleniyor..."));
   els.audio.addEventListener("ended", () => {
+    stopConnectionTimeout();
     setPlayerState("Bitti");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
@@ -2105,6 +2229,7 @@ function wireEvents() {
     stopPlaybackTimer();
   });
   els.audio.addEventListener("error", () => {
+    stopConnectionTimeout();
     const tokenAtError = selectionToken;
     const mediaError = els.audio.error;
     setPlayerState("Hata");
