@@ -83,8 +83,12 @@ async function networkFirst(request) {
     if (res && res.ok) cache.put(request, res.clone());
     return res;
   } catch {
-    const cached = await cache.match(request);
-    return cached || (await cache.match("./index.html")) || (await cache.match(OFFLINE_URL));
+    // When offline, always show the dedicated offline page for navigations.
+    // Use ignoreSearch so `index.html?v=...` still matches cached entries.
+    const offline = await cache.match(OFFLINE_URL, { ignoreSearch: true });
+    if (offline) return offline;
+    const cached = await cache.match(request, { ignoreSearch: true });
+    return cached || (await cache.match("./index.html", { ignoreSearch: true }));
   }
 }
 
