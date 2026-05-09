@@ -1,6 +1,6 @@
 {
-  "version": "1.3.5",
+  "version": "1.3.7",
   "releaseDate": "09.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "UI: themed PWA install button"
+  "changelog": "UI: dark theme select dropdown"
 }

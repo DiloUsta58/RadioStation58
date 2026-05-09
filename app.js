@@ -14,10 +14,11 @@ const LS_DIAGNOSTICS_KEY = "webRadioStation:diagnosticsEnabled:v1";
 const LS_STATION_FONT_SIZE_KEY = "webRadioStation:stationFontSize:v1";
 const LS_TIME_FONT_SIZE_KEY = "webRadioStation:timeFontSize:v1";
 const LS_AUTOSTART_KEY = "webRadioStation:autoStartOnLaunch:v1";
+const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.3.5";
+const APP_VERSION = "1.3.7";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -36,6 +37,7 @@ const els = {
   timeFontSizeRange: document.getElementById("timeFontSizeRange"),
   timeFontSizeValue: document.getElementById("timeFontSizeValue"),
   autoStartToggle: document.getElementById("autoStartToggle"),
+  updateIntervalSelect: document.getElementById("updateIntervalSelect"),
   fontResetBtn: document.getElementById("fontResetBtn"),
   reloadBtn: document.getElementById("reloadBtn"),
   playerPanel: document.getElementById("playerPanel"),
@@ -138,6 +140,43 @@ let connectionTimeoutToken = 0;
 let connectionTimeoutStationKey = null;
 let manualPauseRequestedAt = 0;
 const MANUAL_PAUSE_GRACE_MS = 1200;
+
+let updatePollTimer = 0;
+
+function getUpdateIntervalMin() {
+  const raw = localStorage.getItem(LS_UPDATE_INTERVAL_MIN_KEY);
+  const n = Number.parseInt(String(raw ?? "0"), 10);
+  return Number.isFinite(n) ? Math.max(0, n) : 0;
+}
+
+function setUpdateIntervalMin(min) {
+  const value = Math.max(0, Number.parseInt(String(min || 0), 10) || 0);
+  localStorage.setItem(LS_UPDATE_INTERVAL_MIN_KEY, String(value));
+  if (els.updateIntervalSelect) els.updateIntervalSelect.value = String(value);
+  rescheduleUpdatePoll();
+}
+
+function isRadioPlaying() {
+  if (!els.audio) return false;
+  if (!els.audio.paused && els.audio.src) return true;
+  return false;
+}
+
+function stopUpdatePoll() {
+  if (updatePollTimer) {
+    window.clearInterval(updatePollTimer);
+    updatePollTimer = 0;
+  }
+}
+
+function rescheduleUpdatePoll() {
+  stopUpdatePoll();
+  if (!isAndroidApp()) return;
+  const min = getUpdateIntervalMin();
+  if (!min) return;
+  if (!isRadioPlaying()) return; // only while playing
+  updatePollTimer = window.setInterval(() => void checkAndroidUpdateVersion(), min * 60_000);
+}
 
 function setCarModeZoomLocked(locked) {
   const meta = document.querySelector('meta[name="viewport"]');
@@ -2118,6 +2157,11 @@ function wireEvents() {
   els.autoStartToggle?.addEventListener("change", () => {
     localStorage.setItem(LS_AUTOSTART_KEY, els.autoStartToggle.checked ? "1" : "0");
   });
+  els.updateIntervalSelect?.addEventListener("change", () => {
+    setUpdateIntervalMin(els.updateIntervalSelect.value);
+    // If user enables it while already playing, run once immediately.
+    if (isAndroidApp() && isRadioPlaying() && getUpdateIntervalMin() > 0) void checkAndroidUpdateVersion();
+  });
   els.reloadBtn.addEventListener("click", () => loadStations({ bustCache: true }));
   els.playerToggleBtn?.addEventListener("click", () => {
     setPlayerCollapsed(!els.playerPanel?.classList.contains("is-collapsed"));
@@ -2209,6 +2253,7 @@ function wireEvents() {
     updateRecordButtonState();
     updateCarModeNowPlaying();
     showStationNameInStatus();
+    rescheduleUpdatePoll();
     if (!playbackStartedAt || playbackStationKey !== activeStationKey) {
       startPlaybackTimer();
     }
@@ -2222,6 +2267,7 @@ function wireEvents() {
     updateCarModeNowPlaying();
     stopNowPlayingPoll();
     if (!recording) stopPlaybackTimer();
+    rescheduleUpdatePoll();
 
     // Auto-skip when the stream pauses unexpectedly (common on broken streams).
     const recentlyManual = Date.now() - manualPauseRequestedAt < MANUAL_PAUSE_GRACE_MS;
@@ -2242,6 +2288,7 @@ function wireEvents() {
     notifyNativePlayback(false);
     updateRecordButtonState();
     stopPlaybackTimer();
+    rescheduleUpdatePoll();
   });
   els.audio.addEventListener("error", () => {
     stopConnectionTimeout();
@@ -2254,6 +2301,7 @@ function wireEvents() {
     setPlayerError(mediaError ? `MediaError ${mediaError.code}` : "Bilinmeyen hata");
     stopNowPlayingPoll();
     stopPlaybackTimer();
+    rescheduleUpdatePoll();
 
     const failingUrl = els.audio.currentSrc || els.audio.src || getActiveStreamUrl();
     const keyForUrl = findStationKeyForUrl(failingUrl) ?? activeStationKey;
@@ -2319,6 +2367,10 @@ async function init() {
   if (els.autoStartToggle) {
     els.autoStartToggle.checked = localStorage.getItem(LS_AUTOSTART_KEY) === "1";
   }
+  if (els.updateIntervalSelect) {
+    const min = getUpdateIntervalMin();
+    els.updateIntervalSelect.value = String(min);
+  }
   streamDiagnosticsEnabled = localStorage.getItem(LS_DIAGNOSTICS_KEY) === "1";
   const ui = getUiState();
   setPlayerCollapsed(true, { persist: false });
@@ -2344,6 +2396,7 @@ async function init() {
   setAdminVisible(false);
   setAdminOpen(false);
   void checkAndroidUpdateVersion();
+  rescheduleUpdatePoll();
   scheduleUiSave();
 }
 

@@ -1553,6 +1553,29 @@ body.is-carmode .app-footer {
   accent-color: var(--accent);
 }
 
+.setting-select {
+  min-width: 120px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-weight: 800;
+  color-scheme: dark;
+}
+
+/* Best-effort theming for native <select> dropdowns (browser support varies). */
+.setting-select option {
+  background: #151517;
+  color: var(--text);
+}
+
+.setting-select:focus {
+  outline: none;
+  border-color: rgba(208, 166, 59, 0.6);
+  box-shadow: 0 0 0 3px rgba(208, 166, 59, 0.15);
+}
+
 .setting-actions {
   display: flex;
   justify-content: flex-end;
