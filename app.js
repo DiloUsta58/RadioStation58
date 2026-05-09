@@ -18,7 +18,7 @@ const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.3.8";
+const APP_VERSION = "1.3.9";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -917,13 +917,15 @@ function setUpdateStatus(text = "", available = false) {
   els.updateStatus.classList.toggle("is-update-available", available);
 }
 
-function showAndroidUpdatePrompt(apkUrl) {
+function showAndroidUpdatePrompt(apkUrl, serverVersion) {
   document.querySelector(".update-notice")?.remove();
   const box = document.createElement("div");
   box.className = "update-notice";
+  const safeVersion = String(serverVersion || "").trim();
+  const heading = safeVersion ? `Güncelleme mevcut v${safeVersion}!` : "Güncelleme mevcut!";
   box.innerHTML = `
     <div class="update-box" role="dialog" aria-modal="true" aria-label="Güncelleme mevcut">
-      <h3>Güncelleme mevcut!</h3>
+      <h3>${heading}</h3>
       <p>İndirilsin mi?</p>
       <div class="update-actions">
         <button id="updateYesBtn" type="button">Evet</button>
@@ -961,7 +963,7 @@ async function checkAndroidUpdateVersion() {
 
     const apkUrl = data.apkUrl || APK_DOWNLOAD_URL;
     setUpdateStatus(`Güncelleme mevcut v${serverVersion}`, true);
-    showAndroidUpdatePrompt(apkUrl);
+    showAndroidUpdatePrompt(apkUrl, serverVersion);
   } catch {
     setUpdateStatus("");
   }
