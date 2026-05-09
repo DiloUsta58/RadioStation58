@@ -1,6 +1,6 @@
 {
-  "version": "1.4.0",
+  "version": "1.4.1",
   "releaseDate": "09.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "Update: banner + popup show new version number"
+  "changelog": "APK: menu download works (intercept + download handler)"
 }
