@@ -732,6 +732,14 @@ code {
   background: #3a3424;
 }
 
+.installbtn {
+  width: 100%;
+  justify-content: center;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 900;
+}
+
 .btn--ghost {
   background: #313131;
 }

@@ -17,7 +17,7 @@ const LS_AUTOSTART_KEY = "webRadioStation:autoStartOnLaunch:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.3.3";
+const APP_VERSION = "1.3.5";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -921,7 +921,7 @@ async function checkAndroidUpdateVersion() {
     if (compareVersions(serverVersion, APP_VERSION) <= 0) return;
 
     const apkUrl = data.apkUrl || APK_DOWNLOAD_URL;
-    setUpdateStatus("Güncelleme mevcut!", true);
+    setUpdateStatus(`Güncelleme mevcut v${serverVersion}`, true);
     showAndroidUpdatePrompt(apkUrl);
   } catch {
     setUpdateStatus("");

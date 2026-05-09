@@ -1,6 +1,6 @@
 {
-  "version": "1.3.3",
+  "version": "1.3.5",
   "releaseDate": "09.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "PWA: improved SW caching + update behavior"
+  "changelog": "UI: themed PWA install button"
 }
