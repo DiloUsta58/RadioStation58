@@ -8,7 +8,7 @@
     <meta name="description" content="Çeşitli türlerde Türkiye'nin dört bir yanından radyo kanallarını dinleyebileceğiniz ücretsiz web radyo uygulaması. Favorilerinizi kaydedin, kanalları filtreleyin ve kolayca erişin.">
   
     <!-- ✅ PWA CORE -->
-    <link rel="manifest" href="./manifest.json?v=1.3.9">
+    <link rel="manifest" href="./manifest.json?v=1.4.0">
     <meta name="theme-color" content="#252525" />
 
   <!-- ✅ iOS PWA -->
@@ -434,7 +434,7 @@
 ========================== -->
         <script>
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js?v=1.3.9', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
+            navigator.serviceWorker.register('sw.js?v=1.4.0', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
               .then(() => console.log("Service Worker registriert"))
               .catch(err => console.log("Fehler:", err));
           }

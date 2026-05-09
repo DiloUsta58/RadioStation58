@@ -952,14 +952,17 @@ function showAndroidUpdatePrompt(apkUrl, serverVersion) {
 
 async function checkAndroidUpdateVersion() {
   if (!isAndroidApp()) return;
-  setUpdateStatus("");
+  setUpdateStatus("Güncelleme kontrol ediliyor ...", false);
   try {
     const res = await fetch(VERSION_JSON_URL, { cache: "no-store" });
     if (!res.ok) throw new Error("version.json nicht erreichbar");
     const data = await res.json();
     const serverVersion = data.version;
     if (!serverVersion) throw new Error("version fehlt");
-    if (compareVersions(serverVersion, APP_VERSION) <= 0) return;
+    if (compareVersions(serverVersion, APP_VERSION) <= 0) {
+      window.setTimeout(() => setUpdateStatus(""), 900);
+      return;
+    }
 
     const apkUrl = data.apkUrl || APK_DOWNLOAD_URL;
     setUpdateStatus(`Güncelleme mevcut v${serverVersion}`, true);
@@ -967,6 +970,26 @@ async function checkAndroidUpdateVersion() {
   } catch {
     setUpdateStatus("");
   }
+}
+
+function checkAndroidUpdateVersionOnStart() {
+  if (isAndroidApp()) {
+    void checkAndroidUpdateVersion();
+    return;
+  }
+  // On some WebView setups the JS bridge can appear slightly after initial JS execution.
+  let tries = 0;
+  const maxTries = 20; // ~2s
+  const tick = () => {
+    tries++;
+    if (isAndroidApp()) {
+      void checkAndroidUpdateVersion();
+      return;
+    }
+    if (tries >= maxTries) return;
+    window.setTimeout(tick, 100);
+  };
+  window.setTimeout(tick, 0);
 }
 
 let playOkFlip = false;
@@ -2397,7 +2420,7 @@ async function init() {
   void checkCurrentStream({ fastOnly: true });
   setAdminVisible(false);
   setAdminOpen(false);
-  void checkAndroidUpdateVersion();
+  checkAndroidUpdateVersionOnStart();
   rescheduleUpdatePoll();
   scheduleUiSave();
 }
