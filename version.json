@@ -1,6 +1,6 @@
 {
-  "version": "1.4.4",
-  "releaseDate": "09.05.2026",
+  "version": "1.4.5",
+  "releaseDate": "10.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "UI: StreamTitle shown in main + car mode"
+  "changelog": "APK: native ICY StreamTitle + genre"
 }
