@@ -1,0 +1,310 @@
+[
+  {
+    "value": "Adana",
+    "label": "Adana"
+  },
+  {
+    "value": "Adapazari-sakarya",
+    "label": "Adapazari-sakarya"
+  },
+  {
+    "value": "Adıyaman",
+    "label": "Adıyaman"
+  },
+  {
+    "value": "Afyon",
+    "label": "Afyon"
+  },
+  {
+    "value": "Afyonkarahisar",
+    "label": "Afyonkarahisar"
+  },
+  {
+    "value": "Ağrı",
+    "label": "Ağrı"
+  },
+  {
+    "value": "Aksaray",
+    "label": "Aksaray"
+  },
+  {
+    "value": "Amasaya",
+    "label": "Amasaya"
+  },
+  {
+    "value": "Amasya",
+    "label": "Amasya"
+  },
+  {
+    "value": "Ankara",
+    "label": "Ankara"
+  },
+  {
+    "value": "Antakya-hatay",
+    "label": "Antakya-hatay"
+  },
+  {
+    "value": "Antalya",
+    "label": "Antalya"
+  },
+  {
+    "value": "Artvin",
+    "label": "Artvin"
+  },
+  {
+    "value": "Aydin",
+    "label": "Aydin"
+  },
+  {
+    "value": "Aydın",
+    "label": "Aydın"
+  },
+  {
+    "value": "Balıkesir",
+    "label": "Balıkesir"
+  },
+  {
+    "value": "Bartin",
+    "label": "Bartin"
+  },
+  {
+    "value": "Bartın",
+    "label": "Bartın"
+  },
+  {
+    "value": "Batman",
+    "label": "Batman"
+  },
+  {
+    "value": "Bayburt",
+    "label": "Bayburt"
+  },
+  {
+    "value": "Bilecik fm",
+    "label": "Bilecik fm"
+  },
+  {
+    "value": "Bilecik",
+    "label": "Bilecik"
+  },
+  {
+    "value": "Bingöl",
+    "label": "Bingöl"
+  },
+  {
+    "value": "Bitlis",
+    "label": "Bitlis"
+  },
+  {
+    "value": "Bolu",
+    "label": "Bolu"
+  },
+  {
+    "value": "Bursa",
+    "label": "Bursa"
+  },
+  {
+    "value": "Çanakkale",
+    "label": "Çanakkale"
+  },
+  {
+    "value": "Çorum",
+    "label": "Çorum"
+  },
+  {
+    "value": "Denizli",
+    "label": "Denizli"
+  },
+  {
+    "value": "Diyarbakır",
+    "label": "Diyarbakır"
+  },
+  {
+    "value": "Düzce",
+    "label": "Düzce"
+  },
+  {
+    "value": "Edirne",
+    "label": "Edirne"
+  },
+  {
+    "value": "Elazığ",
+    "label": "Elazığ"
+  },
+  {
+    "value": "Erzincan",
+    "label": "Erzincan"
+  },
+  {
+    "value": "Erzurum",
+    "label": "Erzurum"
+  },
+  {
+    "value": "Eskişehir",
+    "label": "Eskişehir"
+  },
+  {
+    "value": "Gaziantep",
+    "label": "Gaziantep"
+  },
+  {
+    "value": "Giresun",
+    "label": "Giresun"
+  },
+  {
+    "value": "Istanbul",
+    "label": "Istanbul"
+  },
+  {
+    "value": "Izmir",
+    "label": "Izmir"
+  },
+  {
+    "value": "Izmit",
+    "label": "Izmit"
+  },
+  {
+    "value": "ığdır",
+    "label": "ığdır"
+  },
+  {
+    "value": "ısparta",
+    "label": "ısparta"
+  },
+  {
+    "value": "Kahramanmaraş",
+    "label": "Kahramanmaraş"
+  },
+  {
+    "value": "Karabük",
+    "label": "Karabük"
+  },
+  {
+    "value": "Karaman",
+    "label": "Karaman"
+  },
+  {
+    "value": "Kars",
+    "label": "Kars"
+  },
+  {
+    "value": "Kastamonu",
+    "label": "Kastamonu"
+  },
+  {
+    "value": "Kayseri",
+    "label": "Kayseri"
+  },
+  {
+    "value": "Kırıkkale",
+    "label": "Kırıkkale"
+  },
+  {
+    "value": "Kırşehir",
+    "label": "Kırşehir"
+  },
+  {
+    "value": "Konya",
+    "label": "Konya"
+  },
+  {
+    "value": "Kütahya",
+    "label": "Kütahya"
+  },
+  {
+    "value": "Malatya",
+    "label": "Malatya"
+  },
+  {
+    "value": "Manisa",
+    "label": "Manisa"
+  },
+  {
+    "value": "Mardin",
+    "label": "Mardin"
+  },
+  {
+    "value": "Mersin",
+    "label": "Mersin"
+  },
+  {
+    "value": "Muğla",
+    "label": "Muğla"
+  },
+  {
+    "value": "Nevşehir",
+    "label": "Nevşehir"
+  },
+  {
+    "value": "Niğde",
+    "label": "Niğde"
+  },
+  {
+    "value": "Ordu",
+    "label": "Ordu"
+  },
+  {
+    "value": "Osmaniye",
+    "label": "Osmaniye"
+  },
+  {
+    "value": "Rize",
+    "label": "Rize"
+  },
+  {
+    "value": "Samsun",
+    "label": "Samsun"
+  },
+  {
+    "value": "Sanliurfa",
+    "label": "Sanliurfa"
+  },
+  {
+    "value": "Sinop",
+    "label": "Sinop"
+  },
+  {
+    "value": "Sivas",
+    "label": "Sivas"
+  },
+  {
+    "value": "Şırnak",
+    "label": "Şırnak"
+  },
+  {
+    "value": "Tekirdağ",
+    "label": "Tekirdağ"
+  },
+  {
+    "value": "Tokat",
+    "label": "Tokat"
+  },
+  {
+    "value": "Trabzon",
+    "label": "Trabzon"
+  },
+  {
+    "value": "Tunceli",
+    "label": "Tunceli"
+  },
+  {
+    "value": "Uşak",
+    "label": "Uşak"
+  },
+  {
+    "value": "Van",
+    "label": "Van"
+  },
+  {
+    "value": "Yalova",
+    "label": "Yalova"
+  },
+  {
+    "value": "Yozgat",
+    "label": "Yozgat"
+  },
+  {
+    "value": "Zonguldak",
+    "label": "Zonguldak"
+  }
+]
