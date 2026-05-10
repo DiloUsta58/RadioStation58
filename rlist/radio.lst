@@ -1,7 +1,11 @@
+# WebRadyo dışa aktarım
+# Oluşturuldu: 2026-05-10T23:25:02.988Z
+# Görünüm: all
+# Arama: 
+
 103.6 Radyo Light = https://yayin.radiolight.net:8005/live | icon/RadoLight.png
 24 Radyo = https://radyo24.radyotvonline.net/radyo24?/;stream.mp3 | icon/24-radyo.jpg
 24 Radyo = https://radyo24.radyotvonline.net/radyo24?/; | icon/24-radyo.jpg
-Metropol FM - 90'lar = https://moondigitalmaster.radyotvonline.net/90lar/playlist.m3u8 | icon/metropolfm8090lar.png
 91.5 Radyo Frekans = https://radyofrekans.ozelip.com.tr:8334/stream? | icon/radyo-frekans.jpg
 A HABER RADYO = https://trkvz-radyolar.ercdn.net/ahaberradyo/playlist.m3u8 | icon/a_haber_radyo.jpeg
 A NEWS RADYO = https://trkvz-radyolar.ercdn.net/anewsradyo/playlist.m3u8 | icon/a_news_radyo.jpeg
@@ -35,7 +39,7 @@ Akçay Best FM = https://cast.akcaybestfm.com.tr/listen/akcay_bestfm/radio? | ic
 Akdeniz FM 105.7 = https://host10.onlineradyotv.net/8012/stream?/;stream.mp3 | icon/akdeniz-fm-adana.jpg
 Akgül FM = https://sssx.radyosfer.com/akgulfm/stream?/;stream.mp3 | icon/akgul-fm.jpg
 Akgül FM = https://sssx.radyosfer.com/akgulfm/stream?/; | icon/akgul-fm.jpg
-AKRA FM = https://cdn3.akradyo.net/akracanli2/_definst_/livestream_aac/playlist.m3u8  | icon/akra-fm.avif
+AKRA FM = https://cdn3.akradyo.net/akracanli2/_definst_/livestream_aac/playlist.m3u8 | icon/akra-fm.avif
 Aksa FM? = https://live.aksafm.com.tr/aksafm?/;stream.mp3 | icon/aksa-fm.jpg
 Aksa FM? = https://live.aksafm.com.tr/aksafm?/; | icon/aksa-fm.jpg
 Aksaray Ar Radyo = https://radyo.yayindakiler.com:4036/stream?/;stream.mp3 | icon/ar-radyo.jpg
@@ -81,7 +85,7 @@ Aydın Radyo Flaş = https://radyo.yayindakiler.com:4096/stream?/;stream.mp3 | i
 Aydın Radyo Mega = https://sssx.radyosfer.com/radyomegafm105/stream?/;stream.mp3 | icon/radyo-mega-aydin.jpg
 Baba Radyo 105.6 = https://officialbabaradyo.radyotvonline.net/babaofficial?/;stream.mp3 | icon/babaradyo-100x100.jpg
 Baba Radyo 105.6 = https://officialbabaradyo.radyotvonline.net/babaofficial?/; | icon/babaradyo-100x100.jpg
-BABYLAND = https://moondigitaledge.radyotvonline.net/babyland/playlist.m3u8	 | icon/babylandFM.png
+BABYLAND = https://moondigitaledge.radyotvonline.net/babyland/playlist.m3u8 | icon/babylandFM.png
 Bafra Barış FM = https://barisfm.ozelip.com:9588/stream/;stream.mp3 | icon/radyo-baris-bafra.jpg
 Balıkesir Genç Fm = https://yayin1.canlitv.fun/radyo/gencfm/chunklist_w1657331682.m3u8 | icon/genc-fm-balikesir.jpg
 Banaz Dost FM = https://sssx.radyosfer.com/banazdostfm/stream?/;stream.mp3 | icon/banaz-dost-fm.jpg
@@ -284,7 +288,7 @@ Gözde FM = https://gozdefm.80.yayin.com.tr/; | icon/gozde-fm.jpg
 Gurbetçi FM = https://live.radyositesihazir.com/8062/stream?/;stream.mp3 | icon/gurbetci-fm.jpg
 Gurbetçi FM = https://live.radyositesihazir.com/8062/stream?/; | icon/gurbetci-fm.jpg
 Gurdek FM = https://anadolu.liderhost.com.tr/8112/; | icon/gurdek-fm.jpg
-Gurdek FM = https://anadolu.liderhost.com.tr:10940/;| icon/gurdek-fm.jpg
+Gurdek FM = https://anadolu.liderhost.com.tr:10940/; | icon/gurdek-fm.jpg
 Gün FM Afyon = https://ssl120.radyotelekom.com.tr/8130/; | icon/gun-fm.jpg
 Haber Türk Radyo = https://haberturkradyo.radyotvonline.net/haberturkradyo?/;stream.mp3 | icon/haber-turk-radyo.jpg
 Haber Türk Radyo = https://haberturkradyo.radyotvonline.net/haberturkradyo?/; | icon/haber-turk-radyo.jpg
@@ -332,7 +336,7 @@ Imaj Pop = https://stream.netradyom.com/listen/imajpop/radio.mp3 | icon/imaj-pop
 İzmir Kordon FM = https://radyo.medyahost.com.tr/8050/stream? | icon/kordon-fm.jpg
 İzmir Radyo Can = https://radyo.yayindakiler.com:3124/stream? | icon/can-radyo-izmir.jpg
 JAZZLAND = https://moondigitaledge.radyotvonline.net/jazzland/playlist.m3u8 | icon/JAZZLAND.png
-JOY TURK = https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_TURK_SC?/;	| icon/joyturk.png
+JOY TURK = https://playerservices.streamtheworld.com/api/livestream-redirect/JOY_TURK_SC?/; | icon/joyturk.png
 JOYTURK ROCK = https://playerservices.streamtheworld.com/api/livestream-redirect/JOYTURK_ROCK_SC?/; | icon/joy-turk-rock.png
 Kadırga FM = https://sslyayin.radyoyayini.com/8144/stream?/;stream.mp3 | icon/kadirga-fm.jpg
 Kadırga FM = https://sslyayin.radyoyayini.com/8144/stream?/; | icon/kadirga-fm.jpg
@@ -442,7 +446,6 @@ Mardin Radyo Zergan = https://sslyayin.netyayin.net/radyozergan/stream?/;stream.
 Mardin Radyo Zergan = https://sslyayin.netyayin.net/radyozergan/stream?/; | icon/radyo-zergan.jpg
 Mavi FM Türkiye 99.1 = https://sssx.radyosfer.com/mavifmturkiye/stream? | icon/mavi-fm-turkiye.jpg
 Mavi Gece FM = https://ip169.ozelip.com:10998/; | icon/mavi-fm-gece.png
-Mziden Bir Demet = https://moondigitalmaster.radyotvonline.net/mazidenbirdemet/playlist.m3u8 | icon/mazİden_bİr_demet.jpg
 Mega Radyo İskenderun = https://megaradyoiskenderun.ozelip.com/8024/stream | icon/radyo-mega-iskenderun.jpg
 MELENKOLİK HOME = https://moondigitalmaster.radyotvonline.net/melankolikhome/playlist.m3u8 | icon/melenkolİk_home.jpg
 Melodi FM = https://radyomelodi.80.yayin.com.tr/; | icon/melodi-fm.png
@@ -458,6 +461,7 @@ Mesaj Fm = https://yayin1.canlitv.fun:8010/stream?/;stream.mp3 | icon/mesaj-fm.j
 Mesaj Fm = https://yayin1.canlitv.fun:8010/stream?/; | icon/mesaj-fm.jpg
 Meşk Fm 95.5 = https://stream.radyolarburada.com:8130/stream?/;stream.mp3 | icon/mesk-fm.jpg
 METRO FM = https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FM_SC?/; | icon/metro_fm.jpg
+Metropol FM - 90'lar = https://moondigitalmaster.radyotvonline.net/90lar/playlist.m3u8 | icon/metropolfm8090lar.png
 Mezopotamya Radyo = https://anadolu.liderhost.com.tr:10965/stream? | icon/mezopotamya-radyo.jpg
 Mezopotamya Radyo = https://anadolu.liderhost.com.tr:10965/; | icon/mezopotamya-radyo.jpg
 Moral Fm = https://stream-281.zeno.fm/0cfiqwdkobavv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIwY2ZpcXdka29iYXZ2IiwiaG9zdCI6InN0cmVhbS0yODEuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6ImFhWkM3X3liUXQtSF9peHJGbkVUYXciLCJpYXQiOjE3Nzc4OTE3ODksImV4cCI6MTc3Nzg5MTg0OX0.WyUS-wY4MGEgyLaJD1EZuoGJj1EXqxfXbCixR7SFV0w | icon/radyo-moral-fm.jpg
@@ -468,6 +472,7 @@ Mutlu FM = https://radyodinle1.turkhosted.com/yayin?uri=mutlufm.canliyayinda.com
 Mutlu FM = https://radyodinle1.turkhosted.com/yayin?uri=mutlufm.canliyayinda.com:2828/stream?/&tkn=tfi5jrHSilZsWNCV81Ufvg&tms=1778054812 | icon/mutlu-fm.jpg
 Mutlu FM = https://radyo.yayin.com.tr:2828//; | icon/mutlu-fm.jpg
 MÜZEYYEN = https://moondigitaledge.radyotvonline.net/muzeyyen/playlist.m3u8 | icon/müzeyyen.jpg
+Mziden Bir Demet = https://moondigitalmaster.radyotvonline.net/mazidenbirdemet/playlist.m3u8 | icon/mazİden_bİr_demet.jpg
 NAZİLLİ RADYO ÖZDEN = https://wowza1.radyotvonline.com/shoutcast/radyoozden.stream/playlist.m3u8 | icon/nazİllİ_radyo_özden.jpg
 NEBİ FM = https://anadolu.liderhost.com.tr:10901/;
 NEŞTER RADYO = https://sslyayin.netyayin.net:10929//; | icon/neşter_radyo.jpg
@@ -584,7 +589,7 @@ RADYO ARABESK = https://yayin.radyoarabesk.com.tr:8000/stream | icon/radyo_arabe
 RADYO ARGUVAN = https://radyo1.radyo-dinle.tc:7041/stream?type=http&nocache=23 | icon/radyo_arguvan.jpeg
 Radyo Arnavutköy = https://radyo.yayin.com.tr:4206/stream?/;stream.mp3 | icon/radyo-arnavutkoy.jpg
 Radyo Arnavutköy = https://radyo.yayin.com.tr:4206/stream?/; | icon/radyo-arnavutkoy.jpg
-Radyo Arnavutköy = https://arnavut2.80.yayin.com.tr/;
+Radyo Arnavutköy = https://arnavut2.80.yayin.com.tr/; | icon/radyo-arnavutkoy.jpg
 Radyo AS FM = https://radyo.yayin.com.tr:4098/stream?/;stream.mp3 | icon/as-fm-aydin.jpg
 RADYO AYVALIK = https://radyo1.radyo-dinle.tc:7002/; | icon/radyo_ayvalik.jpeg
 Radyo Azelya = https://sssx.radyosfer.com/radyoazelya/stream?/;stream.mp3 | icon/radyo-azelya.jpg
@@ -610,10 +615,12 @@ Radyo Desibel = https://www.radyodesibel.com/stream.php/; | icon/radyo-desibel.j
 Radyo Deva = https://radyo.yayindakiler.com:3040/stream?/;stream.mp3 | icon/radyo-deva.jpg
 Radyo Dilara Isparta = https://sssx.radyosfer.com/radyodilara/stream?/;stream.mp3 | icon/radyo-dilara.jpg
 Radyo Dilara Isparta = https://sssx.radyosfer.com/radyodilara/stream?/; | icon/radyo-dilara.jpg
+Radyo DOGUBEYAZIT = https://radyo1.radyo-dinle.tc/8156/stream
 Radyo Doğubayazıt = https://radyo1.radyo-dinle.tc/8156/stream | icon/radyo-dogubayazit.jpg
 RADYO DORUK = https://yayin5.radyohizmeti.com/8034/;stream | icon/radyo_doruk.jpeg
 RADYO DUBLE = https://anadolu.liderhost.com.tr:10894/;
 Radyo Durak = https://radyo.yayindakiler.com:8018/stream?/;stream.mp3 | icon/radyo-durak.jpg
+Radyo Durak AYDIN = https://radyohost.ugnhosting.com/8010/stream
 Radyo Efebey = https://radyo.radyoimza.com:8016/stream/;stream.mp3 | icon/radyo-efebey.jpg
 RADYO EFLATUN = https://radyo1.radyo-dinle.tc:7037/;
 Radyo Ekin = https://yayin.turkhosted.com:6006/stream?/;stream.mp3 | icon/radyo-ekin-fm.jpg
@@ -633,6 +640,7 @@ Radyo Feza = https://yayin.radyofeza.com/8002/stream?/;stream.mp3 | icon/radyo-f
 Radyo Feza = https://yayin.radyofeza.com/8002/stream?/; | icon/radyo-feza-dinle-100x100.jpg
 Radyo Fıtrat = https://radyofitrat.radyotvonline.net/radyofitrat?/;stream.mp3 | icon/radyo-fitrat.jpg
 Radyo Fıtrat = https://radyofitrat.radyotvonline.net/radyofitrat?/; | icon/radyo-fitrat.jpg
+Radyo FLAS = http://yayin2.yayindakiler.com:4096/;
 RADYO GEDİK = https://radyo-t.gedik.edu.tr/stream.mp3?ver=19976 | icon/radyo_gedİk.jpeg
 Radyo Genç Ses = https://sssx.radyosfer.com/gencsesfm/stream?/;stream.mp3 | icon/radyo-gencses.jpg
 Radyo Genç Ses = https://sssx.radyosfer.com/gencsesfm/stream?/; | icon/radyo-gencses.jpg
@@ -652,6 +660,7 @@ Radyo Gün = https://free.rcast.net/66786 | icon/gun-radyo-corum.jpg
 Radyo Gün = https://stream.rcast.net/66786? | icon/gun-radyo-corum.jpg
 Radyo Gün = https://stream3.rcast.net/66786 | icon/gun-radyo-corum.jpg
 Radyo Gündem = https://icecast.netmedya.net/radyogundem? | icon/radyo-gundem.jpg
+Radyo Güven = https://radyo.yayin.com.tr:4098/stream?/;stream.mp3
 Radyo Harman FM = https://free.rcast.net/200259?/;stream.mp3 | icon/radyo-harman-fm.jpg
 Radyo Hayat = https://wowza1.radyotvonline.com/shoutcast/radyohayat.stream/chunklist_w1164838831.m3u8 | icon/radyo-hayat.jpg
 Radyo Hayat = https://wowza1.radyotvonline.com/shoutcast/radyohayat.stream/chunklist_w1803821786.m3u8 | icon/radyo-hayat.jpg
