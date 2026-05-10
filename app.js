@@ -694,6 +694,51 @@ async function filterMissingCityOptions() {
   }
 }
 
+async function loadCityOptionsDynamic() {
+  if (!els.citySelect) return;
+
+  /** @type {{value: string, label: string}[]} */
+  let items = [];
+  const isLocalAsset = location.protocol === "file:" || isAndroidApp();
+
+  // Prefer PHP directory listing when served via XAMPP/HTTP.
+  if (!isLocalAsset) {
+    try {
+      const res = await fetch("api/list-city-lists.php", { cache: "no-store" });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data && data.ok && Array.isArray(data.items)) items = data.items;
+    } catch {
+      // ignore
+    }
+  }
+
+  // Fallback for APK/file:// runs: use a generated index.json shipped with assets.
+  if (!items.length) {
+    try {
+      const res = await fetch(`${CITY_LIST_DIR}/index.json`, { cache: "no-store" });
+      const data = await res.json().catch(() => null);
+      if (res.ok && Array.isArray(data)) items = data;
+    } catch {
+      // ignore
+    }
+  }
+
+  // Always keep the special "Hepsi" option.
+  els.citySelect.innerHTML = '<option value="" selected="selected">Hepsi</option>';
+  for (const entry of items) {
+    const value = String(entry?.value || "").trim();
+    if (!value) continue;
+    const label = String(entry?.label || value).trim() || value;
+    const opt = document.createElement("option");
+    opt.value = value;
+    opt.textContent = label;
+    els.citySelect.appendChild(opt);
+  }
+
+  // Remove missing files (requested) and restore saved selection if possible.
+  await filterMissingCityOptions();
+}
+
 async function applyCitySelection(cityKey, { persist } = { persist: true }) {
   const key = String(cityKey || "").trim();
   if (!key) {
@@ -2500,7 +2545,7 @@ function wireEvents() {
 
 async function init() {
   wireEvents();
-  await filterMissingCityOptions();
+  await loadCityOptionsDynamic();
   const savedCity = String(localStorage.getItem(LS_CITY_KEY) || "").trim();
   if (els.citySelect && savedCity) {
     const has = Array.from(els.citySelect.options).some((o) => String(o.value || "").trim() === savedCity);
