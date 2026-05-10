@@ -2195,8 +2195,6 @@ function updateCarModePlayPauseButton() {
   const isPlaying = !els.audio.paused;
   els.carPlayBtn.classList.toggle("iconbtn--pause", isPlaying);
   els.carPlayBtn.classList.toggle("iconbtn--play", !isPlaying);
-  els.carPlayBtn.setAttribute("aria-label", isPlaying ? "Durdur" : "Başlat");
-  if (els.carPlayLabel) els.carPlayLabel.textContent = isPlaying ? "Durdur" : "Başlat";
 }
 
 function updateMainPlayPauseButton() {
