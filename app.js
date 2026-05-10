@@ -18,7 +18,7 @@ const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.4.5";
+const APP_VERSION = "1.4.6";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -54,13 +54,12 @@ const els = {
   nowStreamChip: document.getElementById("nowStreamChip"),
   favToggleBtn: document.getElementById("favToggleBtn"),
   playBtn: document.getElementById("playBtn"),
-  pauseBtn: document.getElementById("pauseBtn"),
   stopBtn: document.getElementById("stopBtn"),
   prevBtn: document.getElementById("prevBtn"),
   nextBtn: document.getElementById("nextBtn"),
   randomBtn: document.getElementById("randomBtn"),
   compactPlayBtn: document.getElementById("compactPlayBtn"),
-  compactPauseBtn: document.getElementById("compactPauseBtn"),
+  compactPlayLabel: document.getElementById("compactPlayLabel"),
   compactPrevBtn: document.getElementById("compactPrevBtn"),
   compactNextBtn: document.getElementById("compactNextBtn"),
   compactRandomBtn: document.getElementById("compactRandomBtn"),
@@ -97,6 +96,7 @@ const els = {
   carFavBtn: document.getElementById("carFavBtn"),
   carPrevBtn: document.getElementById("carPrevBtn"),
   carPlayBtn: document.getElementById("carPlayBtn"),
+  carPlayLabel: document.getElementById("carPlayLabel"),
   carNextBtn: document.getElementById("carNextBtn"),
   carRandomBtn: document.getElementById("carRandomBtn"),
   carExitBtn: document.getElementById("carExitBtn"),
@@ -848,6 +848,8 @@ function setPlayerState(text) {
     els.footerNow.style.color = color;
   }
   updateCarModePlayPauseButton();
+  updateMainPlayPauseButton();
+  updateCompactPlayPauseButton();
 }
 
 function showStationNameInStatus() {
@@ -1506,13 +1508,11 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
     els.streamSelect.disabled = true;
     els.favToggleBtn.disabled = true;
     els.playBtn.disabled = true;
-    els.pauseBtn.disabled = true;
     els.stopBtn.disabled = true;
     els.prevBtn.disabled = getFilteredStations().length === 0;
     els.nextBtn.disabled = getFilteredStations().length === 0;
     els.randomBtn.disabled = getFilteredStations().length === 0;
     if (els.compactPlayBtn) els.compactPlayBtn.disabled = true;
-    if (els.compactPauseBtn) els.compactPauseBtn.disabled = true;
     if (els.compactPrevBtn) els.compactPrevBtn.disabled = getFilteredStations().length === 0;
     if (els.compactNextBtn) els.compactNextBtn.disabled = getFilteredStations().length === 0;
     if (els.compactRandomBtn) els.compactRandomBtn.disabled = getFilteredStations().length === 0;
@@ -1551,13 +1551,11 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   updateCarModeNowPlaying();
 
   els.playBtn.disabled = false;
-  els.pauseBtn.disabled = false;
   els.stopBtn.disabled = false;
   els.prevBtn.disabled = getFilteredStations().length === 0;
   els.nextBtn.disabled = getFilteredStations().length === 0;
   els.randomBtn.disabled = getFilteredStations().length === 0;
   if (els.compactPlayBtn) els.compactPlayBtn.disabled = false;
-  if (els.compactPauseBtn) els.compactPauseBtn.disabled = false;
   if (els.compactPrevBtn) els.compactPrevBtn.disabled = getFilteredStations().length === 0;
   if (els.compactNextBtn) els.compactNextBtn.disabled = getFilteredStations().length === 0;
   if (els.compactRandomBtn) els.compactRandomBtn.disabled = getFilteredStations().length === 0;
@@ -2007,9 +2005,27 @@ function toggleFavoriteByKey(stationKey) {
   if (favs.has(stationKey)) favs.delete(stationKey);
   else favs.add(stationKey);
   setFavoritesSet(favs);
-  applyActiveToPlayer();
+  // Do not call applyActiveToPlayer() here: it resets now-playing metadata (StreamTitle)
+  // even though playback continues. We only need to refresh favorite UI + list.
+  updateFavoriteButtons();
   renderList();
   updateTabLabels();
+}
+
+function updateFavoriteButtons() {
+  const st = getActiveStation();
+  const favs = getFavoritesSet();
+  const isFav = Boolean(st && favs.has(st.key));
+
+  if (els.favToggleBtn) {
+    els.favToggleBtn.disabled = !st;
+    els.favToggleBtn.textContent = st ? (isFav ? "★ Favori" : "☆ Favori") : "☆ Favori";
+  }
+
+  if (els.carFavBtn) {
+    els.carFavBtn.textContent = isFav ? "★" : "☆";
+    els.carFavBtn.disabled = !st;
+  }
 }
 
 function nextStation({ initiatedByUser } = { initiatedByUser: true }) {
@@ -2179,7 +2195,33 @@ function updateCarModePlayPauseButton() {
   const isPlaying = !els.audio.paused;
   els.carPlayBtn.classList.toggle("iconbtn--pause", isPlaying);
   els.carPlayBtn.classList.toggle("iconbtn--play", !isPlaying);
-  els.carPlayBtn.setAttribute("aria-label", isPlaying ? "Duraklat" : "Başlat");
+  els.carPlayBtn.setAttribute("aria-label", isPlaying ? "Durdur" : "Başlat");
+  if (els.carPlayLabel) els.carPlayLabel.textContent = isPlaying ? "Durdur" : "Başlat";
+}
+
+function updateMainPlayPauseButton() {
+  if (!els.playBtn || !els.audio) return;
+  const state = String(els.playerState?.textContent || "").trim();
+  const isYouTube = isYoutubeUrl(getActiveStreamUrl());
+  // For YouTube playback the <audio> element is not playing, so rely on playerState.
+  const isPlaying = isYouTube ? state === "Çalıyor" : !els.audio.paused;
+  els.playBtn.classList.toggle("iconbtn--pause", isPlaying);
+  els.playBtn.classList.toggle("iconbtn--play", !isPlaying);
+  els.playBtn.setAttribute("aria-label", isPlaying ? "Durdur" : "Başlat");
+  els.playBtn.setAttribute("title", isPlaying ? "Durdur" : "Başlat");
+}
+
+function updateCompactPlayPauseButton() {
+  if (!els.compactPlayBtn || !els.audio) return;
+  const state = String(els.playerState?.textContent || "").trim();
+  const isYouTube = isYoutubeUrl(getActiveStreamUrl());
+  const isPlaying = isYouTube ? state === "Çalıyor" : !els.audio.paused;
+
+  els.compactPlayBtn.classList.toggle("iconbtn--pause", isPlaying);
+  els.compactPlayBtn.classList.toggle("iconbtn--play", !isPlaying);
+  els.compactPlayBtn.setAttribute("aria-label", isPlaying ? "Durdur" : "Başlat");
+  els.compactPlayBtn.setAttribute("title", isPlaying ? "Durdur" : "Başlat");
+  if (els.compactPlayLabel) els.compactPlayLabel.textContent = isPlaying ? "Durdur" : "Başlat";
 }
 
 function maybeAutoStart() {
@@ -2296,14 +2338,26 @@ function wireEvents() {
   });
 
   els.favToggleBtn.addEventListener("click", () => toggleFavorite());
-  els.playBtn.addEventListener("click", () => play({ initiatedByUser: true }));
-  els.pauseBtn.addEventListener("click", () => pause({ initiatedByUser: true }));
+  els.playBtn.addEventListener("click", () => {
+    if (!els.audio) return;
+    if (els.audio.paused) {
+      void play({ initiatedByUser: true });
+    } else {
+      pause({ initiatedByUser: true });
+    }
+  });
   els.stopBtn.addEventListener("click", () => stop());
   els.prevBtn.addEventListener("click", () => prevStation({ initiatedByUser: true }));
   els.nextBtn.addEventListener("click", () => nextStation({ initiatedByUser: true }));
   els.randomBtn.addEventListener("click", () => randomStation({ initiatedByUser: true }));
-  els.compactPlayBtn?.addEventListener("click", () => play({ initiatedByUser: true }));
-  els.compactPauseBtn?.addEventListener("click", () => pause({ initiatedByUser: true }));
+  els.compactPlayBtn?.addEventListener("click", () => {
+    if (!els.audio) return;
+    if (els.audio.paused) {
+      void play({ initiatedByUser: true });
+    } else {
+      pause({ initiatedByUser: true });
+    }
+  });
   els.compactPrevBtn?.addEventListener("click", () => prevStation({ initiatedByUser: true }));
   els.compactNextBtn?.addEventListener("click", () => nextStation({ initiatedByUser: true }));
   els.compactRandomBtn?.addEventListener("click", () => randomStation({ initiatedByUser: true }));
@@ -2346,6 +2400,7 @@ function wireEvents() {
     notifyNativePlayback(true);
     updateRecordButtonState();
     updateCarModeNowPlaying();
+    updateCompactPlayPauseButton();
     showStationNameInStatus();
     rescheduleUpdatePoll();
     if (!playbackStartedAt || playbackStationKey !== activeStationKey) {
@@ -2359,6 +2414,7 @@ function wireEvents() {
     notifyNativePlayback(false);
     updateRecordButtonState();
     updateCarModeNowPlaying();
+    updateCompactPlayPauseButton();
     stopNowPlayingPoll();
     if (!recording) stopPlaybackTimer();
     rescheduleUpdatePoll();

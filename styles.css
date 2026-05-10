@@ -1025,6 +1025,21 @@ code {
   gap: 14px;
 }
 
+.carmode__labelRow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.carmode__label {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.82);
+}
+
 .carmode__btn {
   width: 100% !important;
   height: clamp(86px, 18vh, 160px) !important;
@@ -1196,9 +1211,17 @@ body.is-carmode .app-footer {
   background-image: url("controls/play_yellow.png") !important;
 }
 
+/* When play button is toggled to pause state, prefer yellow pause icon (not play_yellow). */
+#playBtn.iconbtn--pause.is-okalt {
+  background-image: url("controls/pause_yellow.png") !important;
+}
+
 /* Pause */
 .iconbtn--pause { background-image: url("controls/pause_blue.png") !important; }
 .iconbtn--pause:disabled { background-image: url("controls/pause_red.png") !important; }
+
+/* Car mode: show a yellow pause icon when playing */
+.carmode .iconbtn--pause { background-image: url("controls/pause_yellow.png") !important; }
 
 /* Next */
 .iconbtn--next { background-image: url("controls/next_blue.png") !important; }
@@ -1236,7 +1259,6 @@ body.is-carmode .app-footer {
 #reloadBtn,
 #carmodBtn,
 #compactPlayBtn,
-#compactPauseBtn,
 #compactPrevBtn,
 #compactNextBtn,
 #compactRandomBtn,
@@ -1259,7 +1281,6 @@ body.is-carmode .app-footer {
   #randomBtn,
   #reloadBtn,
   #compactPlayBtn,
-  #compactPauseBtn,
   #compactPrevBtn,
   #compactNextBtn,
   #compactRandomBtn,
@@ -1271,26 +1292,26 @@ body.is-carmode .app-footer {
 }
 
 #playBtn { background-image: url("controls/play_blue.png"); }
-#pauseBtn { background-image: url("controls/pause_blue.png"); }
+#playBtn.iconbtn--pause { background-image: url("controls/pause_blue.png") !important; }
 #nextBtn { background-image: url("controls/next_blue.png"); }
 #prevBtn { background-image: url("controls/prev_blue.png"); }
 #randomBtn { background-image: url("controls/random_blue.png"); }
 #reloadBtn { background-image: url("controls/refresh_blue.png"); }
 #compactPlayBtn { background-image: url("controls/play_blue.png"); }
-#compactPauseBtn { background-image: url("controls/pause_blue.png"); }
+#compactPlayBtn.iconbtn--pause { background-image: url("controls/pause_yellow.png") !important; }
 #compactPrevBtn { background-image: url("controls/prev_blue.png"); }
 #compactNextBtn { background-image: url("controls/next_blue.png"); }
 #compactRandomBtn { background-image: url("controls/random_blue.png"); }
 #compactRecordBtn { background-image: url("controls/rec_blue.png"); }
 
 #playBtn:disabled { background-image: url("controls/play_red.png"); }
-#pauseBtn:disabled { background-image: url("controls/pause_red.png"); }
+#playBtn.iconbtn--pause:disabled { background-image: url("controls/pause_red.png") !important; }
 #nextBtn:disabled { background-image: url("controls/next_red.png"); }
 #prevBtn:disabled { background-image: url("controls/prev_red.png"); }
 #randomBtn:disabled { background-image: url("controls/random_red.png"); }
 #reloadBtn:disabled { background-image: url("controls/refresh_red.png"); }
 #compactPlayBtn:disabled { background-image: url("controls/play_red.png"); }
-#compactPauseBtn:disabled { background-image: url("controls/pause_red.png"); }
+#compactPlayBtn.iconbtn--pause:disabled { background-image: url("controls/pause_red.png") !important; }
 #compactPrevBtn:disabled { background-image: url("controls/prev_red.png"); }
 #compactNextBtn:disabled { background-image: url("controls/next_red.png"); }
 #compactRandomBtn:disabled { background-image: url("controls/random_red.png"); }
@@ -1315,7 +1336,6 @@ body.is-carmode .app-footer {
   }
 
   #compactPlayBtn,
-  #compactPauseBtn,
   #compactPrevBtn,
   #compactNextBtn,
   #compactRandomBtn,

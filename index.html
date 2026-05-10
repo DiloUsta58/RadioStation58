@@ -8,7 +8,7 @@
     <meta name="description" content="Çeşitli türlerde Türkiye'nin dört bir yanından radyo kanallarını dinleyebileceğiniz ücretsiz web radyo uygulaması. Favorilerinizi kaydedin, kanalları filtreleyin ve kolayca erişin.">
   
     <!-- ✅ PWA CORE -->
-    <link rel="manifest" href="./manifest.json?v=1.4.5">
+    <link rel="manifest" href="./manifest.json?v=1.4.6">
     <meta name="theme-color" content="#252525" />
 
   <!-- ✅ iOS PWA -->
@@ -76,6 +76,11 @@
           <button id="carPlayBtn" class="iconbtn iconbtn--play carmode__btn" type="button" aria-label="Başlat"></button>
           <button id="carNextBtn" class="iconbtn iconbtn--next carmode__btn" type="button" aria-label="Vor"></button>
         </div>
+        <div class="carmode__labelRow" aria-hidden="true">
+          <span></span>
+          <span id="carPlayLabel" class="carmode__label">Başlat</span>
+          <span></span>
+        </div>
         <button id="carRandomBtn" class="iconbtn iconbtn--random carmode__btn carmode__btn--wide" type="button" aria-label="Rastgele"></button>
       </div>
 
@@ -105,11 +110,7 @@
             </div>
             <div class="control-item">
               <button id="compactPlayBtn" class="iconbtn iconbtn--play" type="button" aria-label="Başlat" title="Başlat"></button>
-              <span class="control-label">Başlat</span>
-            </div>
-            <div class="control-item">
-              <button id="compactPauseBtn" class="iconbtn iconbtn--pause" type="button" aria-label="Durdur" title="Durdur"></button>
-              <span class="control-label">Durdur</span>
+              <span id="compactPlayLabel" class="control-label">Başlat</span>
             </div>
             <div class="control-item">
               <button id="compactNextBtn" class="iconbtn iconbtn--next" type="button" aria-label="İleri" title="İleri"></button>
@@ -269,7 +270,6 @@
           <div class="controls" aria-label="Oynatma kontrolü">
             <button id="playBtn" class="iconbtn iconbtn--play" type="button" disabled aria-label="Oynat" title="Oynat"></button>
             <button id="prevBtn" class="iconbtn iconbtn--prev" type="button" disabled aria-label="Önceki kanal" title="Önceki kanal"></button>
-            <button id="pauseBtn" class="iconbtn iconbtn--pause" type="button" disabled aria-label="Pause" title="Pause"></button>
             <button id="stopBtn" class="btn" type="button" disabled>Stop</button>
             <button id="nextBtn" class="iconbtn iconbtn--next" type="button" disabled aria-label="Sonraki kanal" title="Sonraki kanal"></button>
             <button id="randomBtn" class="iconbtn iconbtn--random" type="button" disabled aria-label="Rastgele" title="Rastgele"></button>
@@ -430,7 +430,7 @@
       </div>
       <div class="app-footer__right">
         <span id="updateStatus" class="update-status is-hidden"></span>
-        <span>© Dilaver Bölükbaşı 2026 • WebRadyo v1.4.5</span>
+        <span>© Dilaver Bölükbaşı 2026 • WebRadyo v1.4.6</span>
       </div>
     </footer>
 <!-- =========================
@@ -442,7 +442,7 @@
 ========================== -->
         <script>
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js?v=1.4.5', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
+            navigator.serviceWorker.register('sw.js?v=1.4.6', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
               .then(() => console.log("Service Worker registriert"))
               .catch(err => console.log("Fehler:", err));
           }
