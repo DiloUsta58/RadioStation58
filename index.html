@@ -360,13 +360,13 @@
 <!-- =========================
   Ana JavaScript dosyası
 ========================== -->
-    <script src="app.js?v=20260509_0255"></script>
+    <script src="app.js?v=20260511_0139"></script>
 <!-- =========================
   PWA Service Worker ve kurulum işlemleri
 ========================== -->
         <script>
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js?v=1.4.6', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
+            navigator.serviceWorker.register('sw.js?v=1.4.7', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
               .then(() => console.log("Service Worker registriert"))
               .catch(err => console.log("Fehler:", err));
           }
