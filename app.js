@@ -872,15 +872,15 @@ function setPlayerState(text) {
     if (raw === "Çalıyor") {
       label = "Çalıyor ...";
       color = "rgba(87, 227, 163, 0.95)";
-    } else if (/^Bağlanıyor/i.test(raw)) {
+    } else if (/Bağlanıyor/i.test(raw)) {
       label = "Bağlantı kuruluyor ...";
-      color = "rgba(255, 255, 255, 0.75)";
-    } else if (/Tamponlanıyor|Veri bekleniyor/i.test(raw)) {
+      color = "rgba(236, 220, 5, 0.79)";
+    } else if (/Bağlanıyor|Veri bekleniyor/i.test(raw)) {
       label = raw;
       color = "rgba(208, 166, 59, 0.95)";
     } else if (/Hata/i.test(raw)) {
       label = "Bağlantı sorunu oluştu!";
-      color = "rgba(255, 107, 107, 0.95)";
+      color = "rgba(186, 6, 6, 0.95)";
     } else if (/Duraklatıldı/i.test(raw)) {
       label = raw;
       color = "rgba(255, 255, 255, 0.75)";
@@ -2472,7 +2472,7 @@ function wireEvents() {
       }, 350);
     }
   });
-  els.audio.addEventListener("waiting", () => setPlayerState("Tamponlanıyor..."));
+  els.audio.addEventListener("waiting", () => setPlayerState("Bağlanıyor..."));
   els.audio.addEventListener("stalled", () => setPlayerState("Veri bekleniyor..."));
   els.audio.addEventListener("ended", () => {
     stopConnectionTimeout();
