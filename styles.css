@@ -72,7 +72,7 @@ code {
   color: var(--muted);
   font-weight: 700;
   font-size: 0.95rem;
-  text-transform: uppercase;
+  text-transform: capitalize; /* Show genre in normal case */
 }
 
 .icy-genre.is-hidden {
@@ -82,7 +82,7 @@ code {
 .icy-genre span {
   color: rgba(87, 227, 163, 0.95);
   font-weight: 800;
-  text-transform: uppercase;
+  text-transform: capitalize; /* Show genre in normal case */
 }
 
 .streamtitle {

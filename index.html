@@ -37,6 +37,8 @@
         <div id="brandTitle" class="brand__title">Radio Dinle - 58</div>
         <div id="brandSubtitle" class="brand__subtitle">Web radyo • Favoriler • Kanal listesi <code></code></div>
       </div>
+
+
         <div class="control-item">
           <button id="reloadBtn" class="iconbtn iconbtn--refresh" type="button" title="Kanal listesini yenile" aria-label="Yenile"></button>
           <span class="control-label">Yenile</span>
@@ -79,7 +81,9 @@
         <div class="carmode__labelRow" aria-hidden="true"></div>
         <button id="carRandomBtn" class="iconbtn iconbtn--random carmode__btn carmode__btn--wide" type="button" aria-label="Rastgele"></button>
       </div>
-
+<!-- =========================
+  Durum göstergesi
+========================== -->
       <footer class="carmode__footer" aria-label="Durum">
         <div class="carmode__footerRow">
           <span class="carmode__footerKey">Durum:</span>
@@ -117,16 +121,17 @@
               <span class="control-label">Karıştır</span>
             </div>
             <div class="compact-actions">
-
               <div class="control-item">
                 <button id="compactRecordBtn" class="iconbtn iconbtn--record" type="button" aria-label="Kayıt" title="Kayıt başlat" disabled></button>
                 <span class="control-label">Kayıt</span>
               </div>
             </div>
           </div>
+          <div id="streamTitle" class="streamtitle is-hidden" aria-label="StreamTitle"></div>
+          <div class="icy-genre is-hidden" id="icyGenreRow" aria-label="Kategori">Yayın türü: <span id="icy-genre"></span></div>
         </div>
 
-        <div id="streamTitle" class="streamtitle is-hidden" aria-label="StreamTitle"></div>
+
 <!-- =========================
   Görünüm sekmeleri ve arama çubuğu
 ========================== -->
@@ -146,17 +151,12 @@
               <option value="" selected="selected">Hepsi</option>
             </select>
           </nav>
-
-          <div class="icy-genre is-hidden" id="icyGenreRow" aria-label="Kategori">
-            Kategori: <span id="icy-genre"></span>
-          </div>
         </div>    
         
 <!-- =========================
   Zaman göstergesi ve durum metni
 ========================== -->
         <div class="quick-time" id="quickTime" aria-live="polite">00:00:00</div>
-
 <!-- =========================
   Kanal listesi
 ========================== -->
