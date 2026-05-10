@@ -66,6 +66,42 @@ code {
   gap: 12px;
 }
 
+.icy-genre {
+  margin-top: 10px;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+}
+
+.icy-genre.is-hidden {
+  display: none;
+}
+
+.icy-genre span {
+  color: rgba(87, 227, 163, 0.95);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.streamtitle {
+  margin-top: 10px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.streamtitle--car {
+  margin: 12px auto 0;
+  max-width: 96vw;
+}
+
 .menu-wrap {
   position: relative;
   z-index: 80;
@@ -910,6 +946,7 @@ code {
   color: rgba(255, 255, 255, 0.9);
 }
 
+
 .carmode__footerKey {
   color: rgba(255, 255, 255, 0.65);
   font-weight: 800;
@@ -923,6 +960,7 @@ code {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 
 .carmode__footerVal.is-ok {
   color: rgba(87, 227, 163, 0.95);

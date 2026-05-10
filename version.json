@@ -1,6 +1,6 @@
 {
-  "version": "1.4.2",
+  "version": "1.4.4",
   "releaseDate": "09.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "APK: toast/download text encoding fixed"
+  "changelog": "UI: StreamTitle shown in main + car mode"
 }

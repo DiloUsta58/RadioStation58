@@ -8,7 +8,7 @@
     <meta name="description" content="Çeşitli türlerde Türkiye'nin dört bir yanından radyo kanallarını dinleyebileceğiniz ücretsiz web radyo uygulaması. Favorilerinizi kaydedin, kanalları filtreleyin ve kolayca erişin.">
   
     <!-- ✅ PWA CORE -->
-    <link rel="manifest" href="./manifest.json?v=1.4.2">
+    <link rel="manifest" href="./manifest.json?v=1.4.4">
     <meta name="theme-color" content="#252525" />
 
   <!-- ✅ iOS PWA -->
@@ -65,6 +65,8 @@
           </div>
         </div>
       </div>
+
+      <div id="carStreamTitle" class="streamtitle streamtitle--car is-hidden" aria-label="StreamTitle"></div>
 <!-- =========================
   Kontroller
 ========================== -->
@@ -126,6 +128,8 @@
             </div>
           </div>
         </div>
+
+        <div id="streamTitle" class="streamtitle is-hidden" aria-label="StreamTitle"></div>
 <!-- =========================
   Görünüm sekmeleri ve arama çubuğu
 ========================== -->
@@ -217,6 +221,10 @@
               <option value="zonguldak">Zonguldak</option>
             </select>
           </nav>
+
+          <div class="icy-genre is-hidden" id="icyGenreRow" aria-label="Kategori">
+            Kategori: <span id="icy-genre"></span>
+          </div>
         </div>    
         
 <!-- =========================
@@ -422,7 +430,7 @@
       </div>
       <div class="app-footer__right">
         <span id="updateStatus" class="update-status is-hidden"></span>
-        <span>© Dilaver Bölükbaşı 2026 • WebRadyo v1.4.2</span>
+        <span>© Dilaver Bölükbaşı 2026 • WebRadyo v1.4.4</span>
       </div>
     </footer>
 <!-- =========================
@@ -434,7 +442,7 @@
 ========================== -->
         <script>
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js?v=1.4.2', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
+            navigator.serviceWorker.register('sw.js?v=1.4.4', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
               .then(() => console.log("Service Worker registriert"))
               .catch(err => console.log("Fehler:", err));
           }

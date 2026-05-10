@@ -18,7 +18,7 @@ const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.4.2";
+const APP_VERSION = "1.4.4";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -82,6 +82,8 @@ const els = {
   youtubePopup: document.getElementById("youtubePopup"),
   youtubePopupFrame: document.getElementById("youtubePopupFrame"),
   youtubePopupClose: document.getElementById("youtubePopupClose"),
+  icyGenre: document.getElementById("icy-genre"),
+  icyGenreRow: document.getElementById("icyGenreRow"),
 
   carMode: document.getElementById("carMode"),
   carModeLogo: document.getElementById("carModeLogo"),
@@ -89,6 +91,8 @@ const els = {
   carFooterStatus: document.getElementById("carFooterStatus"),
   carFooterCheck: document.getElementById("carFooterCheck"),
   carFooterError: document.getElementById("carFooterError"),
+  streamTitle: document.getElementById("streamTitle"),
+  carStreamTitle: document.getElementById("carStreamTitle"),
   carStationIcon: document.getElementById("carStationIcon"),
   carFavBtn: document.getElementById("carFavBtn"),
   carPrevBtn: document.getElementById("carPrevBtn"),
@@ -1230,8 +1234,67 @@ function stationIconSrc(station) {
 }
 
 function setNowMeta(text) {
-  els.nowMeta.textContent = text || "—";
+  const value = String(text || "").trim();
+  els.nowMeta.textContent = value || "—";
+  setStreamTitle(value);
 }
+
+function setStreamTitle(value) {
+  const text = String(value || "").trim();
+  const has = Boolean(text) && text !== "—";
+  if (els.streamTitle) els.streamTitle.textContent = has ? text : "";
+  if (els.carStreamTitle) els.carStreamTitle.textContent = has ? text : "";
+  els.streamTitle?.classList.toggle("is-hidden", !has);
+  els.carStreamTitle?.classList.toggle("is-hidden", !has);
+}
+
+function setIcyGenre(value) {
+  if (!els.icyGenre) return;
+  const raw = (typeof value === "string") ? value.trim() : "";
+  const has = Boolean(raw);
+  els.icyGenre.textContent = has ? raw : "";
+  els.icyGenreRow?.classList.toggle("is-hidden", !has);
+}
+
+let androidIcySeq = 0;
+const androidIcyPending = new Map();
+
+function fetchIcyMetadataAndroid(url) {
+  return new Promise((resolve) => {
+    const requestId = `icy_${Date.now()}_${androidIcySeq++}`;
+    const timeoutId = window.setTimeout(() => {
+      androidIcyPending.delete(requestId);
+      resolve(null);
+    }, 6500);
+
+    androidIcyPending.set(requestId, (payload) => {
+      window.clearTimeout(timeoutId);
+      androidIcyPending.delete(requestId);
+      resolve(payload || null);
+    });
+
+    try {
+      window.AndroidAudio.fetchIcyMeta(String(url || ""), requestId);
+    } catch {
+      window.clearTimeout(timeoutId);
+      androidIcyPending.delete(requestId);
+      resolve(null);
+    }
+  });
+}
+
+window.onAndroidIcyMeta = function onAndroidIcyMeta(payload) {
+  try {
+    const data = (typeof payload === "string") ? JSON.parse(payload) : payload;
+    const requestId = data && typeof data.requestId === "string" ? data.requestId : "";
+    if (!requestId) return;
+    const cb = androidIcyPending.get(requestId);
+    if (!cb) return;
+    cb(data);
+  } catch {
+    // ignore
+  }
+};
 
 async function fetchIcyMetadata(url) {
   if (metaAbortController) metaAbortController.abort();
@@ -1239,6 +1302,10 @@ async function fetchIcyMetadata(url) {
 
   const timeoutId = setTimeout(() => metaAbortController?.abort(), 6000);
   try {
+    if (isAndroidApp() && location.protocol === "file:" && typeof window.AndroidAudio?.fetchIcyMeta === "function") {
+      const native = await fetchIcyMetadataAndroid(url);
+      if (native) return native;
+    }
     const res = await fetch(ICY_META_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1259,17 +1326,17 @@ async function refreshNowPlaying() {
   const url = getActiveStreamUrl();
   if (!url) {
     setNowMeta("—");
+    setIcyGenre("");
     return;
   }
 
-  // ICY metadata generally only works for MP3/AAC streams; HLS won't expose it this way.
-  if (/\.m3u8(\?|#|$)/i.test(url)) {
-    setNowMeta("—");
-    return;
-  }
+  // NOTE: StreamTitle parsing generally only works for MP3/AAC streams (ICY metaint).
+  // But some servers still expose useful ICY headers like `icy-genre` even for HLS playlists.
 
   const data = await fetchIcyMetadata(url);
   const title = (data && typeof data.streamTitle === "string") ? data.streamTitle.trim() : "";
+  const genre = (data && typeof data.icyGenre === "string") ? data.icyGenre.trim() : "";
+  setIcyGenre(genre || "");
   if (title && title !== lastMetaTitle) {
     lastMetaTitle = title;
     setNowMeta(title);
@@ -1293,6 +1360,8 @@ function startNowPlayingPoll() {
   stopNowPlayingPoll();
   lastMetaTitle = "";
   setNowMeta("—");
+  // Hide genre while switching; show only when available.
+  setIcyGenre("");
   void refreshNowPlaying();
   metaTimer = setInterval(() => void refreshNowPlaying(), 15000);
 }
