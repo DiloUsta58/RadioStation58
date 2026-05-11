@@ -3,6 +3,7 @@
 const RADIO_LIST_URL = "rlist/radio.lst";
 const CITY_LIST_DIR = "ŞehirlerRadio";
 const LS_FAV_KEY = "webRadioStation:favorites:v1";
+const LS_FAV_URL_KEY = "webRadioStation:favoritesByUrl:v1";
 const LS_STREAM_PREF_KEY = "webRadioStation:streamIndexByStation:v1";
 const LS_VOLUME_KEY = "webRadioStation:volume:v1";
 const LS_BLOCKED_URLS_KEY = "webRadioStation:blockedUrls:v1";
@@ -18,7 +19,7 @@ const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.4.7";
+const APP_VERSION = "1.4.8";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -250,14 +251,51 @@ function safeJsonParse(value, fallback) {
   }
 }
 
-function getFavoritesSet() {
+function getFavoriteKeysSet() {
   const raw = localStorage.getItem(LS_FAV_KEY);
   const arr = Array.isArray(safeJsonParse(raw, [])) ? safeJsonParse(raw, []) : [];
   return new Set(arr.filter((x) => typeof x === "string"));
 }
 
-function setFavoritesSet(set) {
+function setFavoriteKeysSet(set) {
   localStorage.setItem(LS_FAV_KEY, JSON.stringify([...set]));
+}
+
+function getFavoriteUrlsSet() {
+  const raw = localStorage.getItem(LS_FAV_URL_KEY);
+  const arr = Array.isArray(safeJsonParse(raw, [])) ? safeJsonParse(raw, []) : [];
+  const set = new Set(arr.filter((x) => typeof x === "string").map((x) => x.trim()).filter(Boolean));
+
+  // Backward compatibility: if legacy favorites exist, merge those that match current stations.
+  const legacy = getFavoriteKeysSet();
+  if (legacy.size) {
+    for (const key of legacy) {
+      const st = stations.find((s) => s.key === key);
+      if (!st) continue;
+      for (const u of st.streams) {
+        const url = String(u || "").trim();
+        if (url) set.add(url);
+      }
+    }
+  }
+
+  return set;
+}
+
+function setFavoriteUrlsSet(set) {
+  localStorage.setItem(LS_FAV_URL_KEY, JSON.stringify([...set]));
+}
+
+function stationIsFavorite(station, favUrls = null) {
+  const st = station;
+  if (!st || !Array.isArray(st.streams) || st.streams.length === 0) return false;
+  const urls = favUrls || getFavoriteUrlsSet();
+  return st.streams.some((u) => urls.has(String(u || "").trim()));
+}
+
+function countFavoritesInCurrentList() {
+  const favUrls = getFavoriteUrlsSet();
+  return stations.filter((s) => stationIsFavorite(s, favUrls)).length;
 }
 
 function getBlockedUrlsSet() {
@@ -723,12 +761,31 @@ async function loadCityOptionsDynamic() {
     }
   }
 
+  // Ensure alphabetical sorting (Turkish locale when available).
+  const collator = (() => {
+    try {
+      return new Intl.Collator("tr", { sensitivity: "base", numeric: true });
+    } catch {
+      return null;
+    }
+  })();
+  items = items
+    .map((entry) => {
+      const value = String(entry?.value || "").trim();
+      const label = String(entry?.label || value).trim() || value;
+      return { value, label };
+    })
+    .filter((x) => x.value)
+    .sort((a, b) => {
+      if (collator) return collator.compare(a.label, b.label);
+      return a.label.localeCompare(b.label);
+    });
+
   // Always keep the special "Hepsi" option.
   els.citySelect.innerHTML = '<option value="" selected="selected">Hepsi</option>';
   for (const entry of items) {
-    const value = String(entry?.value || "").trim();
-    if (!value) continue;
-    const label = String(entry?.label || value).trim() || value;
+    const value = entry.value;
+    const label = entry.label;
     const opt = document.createElement("option");
     opt.value = value;
     opt.textContent = label;
@@ -758,6 +815,13 @@ async function applyCitySelection(cityKey, { persist } = { persist: true }) {
 
 async function onCitySelectionChanged() {
   if (!els.citySelect) return;
+
+  // Preserve currently playing/selected stream so UI stays consistent when switching lists.
+  const preserveUrl = getActiveStreamUrl();
+  const preserveWasPlaying = !els.audio.paused || (String(els.playerState?.textContent || "").trim() === "Çalıyor");
+  const preserveStreamTitle = String(els.streamTitle?.textContent || "").trim();
+  const preserveGenre = String(els.icyGenre?.textContent || "").trim();
+
   const raw = String(els.citySelect.value || "");
   const key = raw.trim();
   await applyCitySelection(key, { persist: true });
@@ -779,7 +843,49 @@ async function onCitySelectionChanged() {
   viewMode = "all";
   setViewMode("all", { restore: true });
   await loadStations({ bustCache: true });
+
+  // Try to restore selection by stream URL in the new list (Hepsi <-> city lists).
+  if (preserveUrl) {
+    const restored = restoreActiveStationByStreamUrl(preserveUrl);
+    if (restored && preserveWasPlaying) {
+      // Keep metadata visible if we had it before.
+      if (preserveStreamTitle) setStreamTitle(preserveStreamTitle);
+      if (preserveGenre) setIcyGenre(preserveGenre);
+    }
+  }
   scheduleListHeightUpdate();
+}
+
+function restoreActiveStationByStreamUrl(url) {
+  const target = String(url || "").trim();
+  if (!target) return false;
+
+  const match = stations
+    .map((st) => ({ st, idx: st.streams.findIndex((u) => String(u || "").trim() === target) }))
+    .find((x) => x.idx >= 0);
+
+  if (!match) return false;
+
+  activeStationKey = match.st.key;
+  // Render player UI for the new list entry.
+  applyActiveToPlayer({ skipCheck: true });
+
+  // Ensure the exact currently-playing URL is selected in streamSelect (does not change playback).
+  try {
+    els.streamSelect.value = String(match.idx);
+    setStreamPref(match.st.key, match.idx);
+    els.nowStreamChip.textContent = abbreviateUrl(target);
+    els.nowStreamChip.title = target;
+    els.nowLogo.src = stationIconSrc(match.st);
+    updateCarModeNowPlaying();
+  } catch {
+    // ignore
+  }
+
+  renderList();
+  scrollActiveIntoView("auto");
+  scheduleUiSave();
+  return true;
 }
 
 function makeStationKey(name) {
@@ -852,9 +958,8 @@ function setCount(text) {
 }
 
 function updateTabLabels() {
-  const favs = getFavoritesSet();
   els.tabAll.textContent = `Tümü (${stations.length})`;
-  els.tabFav.textContent = `Favoriler (${favs.size})`;
+  els.tabFav.textContent = `Favoriler (${countFavoritesInCurrentList()})`;
 }
 
 function setPlayerState(text) {
@@ -1541,7 +1646,7 @@ async function checkCurrentStream({ fastOnly } = { fastOnly: false }) {
 
 function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   const st = getActiveStation();
-  const favs = getFavoritesSet();
+  const favUrls = getFavoriteUrlsSet();
 
   if (!st) {
     els.nowTitle.textContent = "—";
@@ -1570,7 +1675,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
   els.nowTitle.textContent = st.name;
   // footerNow intentionally not set to station name (otherwise station name appears twice with statusText)
   els.favToggleBtn.disabled = false;
-  els.favToggleBtn.textContent = favs.has(st.key) ? "★ Favori" : "☆ Favori";
+  els.favToggleBtn.textContent = stationIsFavorite(st, favUrls) ? "★ Favori" : "☆ Favori";
 
   els.streamSelect.disabled = st.streams.length <= 1;
   const blocked = getBlockedUrlsSet();
@@ -1611,7 +1716,7 @@ function applyActiveToPlayer({ skipCheck } = { skipCheck: false }) {
 }
 
 function renderList() {
-  const favs = getFavoritesSet();
+  const favUrls = getFavoriteUrlsSet();
   let list = getFilteredStations();
 
   if (stations.length > 0 && list.length === 0) {
@@ -1631,7 +1736,7 @@ function renderList() {
   els.stationList.innerHTML = list
     .map((s, idx) => {
       const isActive = s.key === activeStationKey;
-      const isFav = favs.has(s.key);
+      const isFav = stationIsFavorite(s, favUrls);
       const issue = streamDiagnosticsEnabled ? stationIssue.get(s.key) : null;
       const isTimeout = issue === "timeout" || issue === "unsupported";
       const hasYoutube = s.streams.some((url) => isYoutubeUrl(url));
@@ -1712,11 +1817,11 @@ function setViewMode(mode, { restore } = { restore: false }) {
 }
 
 function getFilteredStations() {
-  const favs = getFavoritesSet();
+  const favUrls = getFavoriteUrlsSet();
   const q = els.searchInput.value.trim().toLowerCase();
 
   let list = stations;
-  if (viewMode === "fav") list = list.filter((s) => favs.has(s.key));
+  if (viewMode === "fav") list = list.filter((s) => stationIsFavorite(s, favUrls));
   if (q) list = list.filter((s) => s.name.toLowerCase().includes(q));
   return list;
 }
@@ -2046,10 +2151,21 @@ function toggleFavorite() {
 }
 
 function toggleFavoriteByKey(stationKey) {
-  const favs = getFavoritesSet();
-  if (favs.has(stationKey)) favs.delete(stationKey);
-  else favs.add(stationKey);
-  setFavoritesSet(favs);
+  const st = stations.find((s) => s.key === stationKey) ?? null;
+  if (!st) return;
+
+  const favUrls = getFavoriteUrlsSet();
+  const hasAny = stationIsFavorite(st, favUrls);
+
+  if (hasAny) {
+    for (const u of st.streams) favUrls.delete(String(u || "").trim());
+  } else {
+    for (const u of st.streams) {
+      const url = String(u || "").trim();
+      if (url) favUrls.add(url);
+    }
+  }
+  setFavoriteUrlsSet(favUrls);
   // Do not call applyActiveToPlayer() here: it resets now-playing metadata (StreamTitle)
   // even though playback continues. We only need to refresh favorite UI + list.
   updateFavoriteButtons();
@@ -2059,8 +2175,8 @@ function toggleFavoriteByKey(stationKey) {
 
 function updateFavoriteButtons() {
   const st = getActiveStation();
-  const favs = getFavoritesSet();
-  const isFav = Boolean(st && favs.has(st.key));
+  const favUrls = getFavoriteUrlsSet();
+  const isFav = Boolean(st && stationIsFavorite(st, favUrls));
 
   if (els.favToggleBtn) {
     els.favToggleBtn.disabled = !st;
@@ -2295,8 +2411,8 @@ function updateCarModeNowPlaying() {
   queueSyncCarModeIcons();
   updateCarModePlayPauseButton();
   if (els.carFavBtn) {
-    const favs = getFavoritesSet();
-    const isFav = Boolean(activeStationKey && favs.has(activeStationKey));
+    const favUrls = getFavoriteUrlsSet();
+    const isFav = Boolean(st && stationIsFavorite(st, favUrls));
     els.carFavBtn.textContent = isFav ? "★" : "☆";
     els.carFavBtn.disabled = !activeStationKey;
   }

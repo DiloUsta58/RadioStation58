@@ -1,7 +1,7 @@
 {
   "name": "Radio Dinle - 58",
   "short_name": "Radio Dinle - 58",
-  "start_url": "./index.html?v=1.4.7",
+  "start_url": "./index.html?v=1.4.8",
   "display": "standalone",
   "background_color": "#071021",
   "theme_color": "#252525",
