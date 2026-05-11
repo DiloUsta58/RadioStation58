@@ -123,6 +123,7 @@ let viewMode = "all";
 
 /** @type {string} */
 let activeListUrl = RADIO_LIST_URL;
+let lastPlayingUrl = "";
 
 /** @type {Map<string, "timeout" | "unsupported">} */
 const stationIssue = new Map();
@@ -219,6 +220,7 @@ let recordingChunks = [];
 let playbackStartedAt = 0;
 let playbackTimer = 0;
 let playbackStationKey = null;
+let playbackUrl = "";
 
 /**
  * Cache for quick stream checks so we don't probe the same URL repeatedly.
@@ -817,10 +819,11 @@ async function onCitySelectionChanged() {
   if (!els.citySelect) return;
 
   // Preserve currently playing/selected stream so UI stays consistent when switching lists.
-  const preserveUrl = getActiveStreamUrl();
+  const preserveUrl = String(getActiveStreamUrl() || lastPlayingUrl || els.audio?.src || "").trim();
   const preserveWasPlaying = !els.audio.paused || (String(els.playerState?.textContent || "").trim() === "Çalıyor");
   const preserveStreamTitle = String(els.streamTitle?.textContent || "").trim();
   const preserveGenre = String(els.icyGenre?.textContent || "").trim();
+  const preserveStatus = String(els.statusText?.textContent || "").trim();
 
   const raw = String(els.citySelect.value || "");
   const key = raw.trim();
@@ -842,7 +845,7 @@ async function onCitySelectionChanged() {
   els.searchInput.value = "";
   viewMode = "all";
   setViewMode("all", { restore: true });
-  await loadStations({ bustCache: true });
+  await loadStations({ bustCache: true, keepActiveNull: preserveWasPlaying });
 
   // Try to restore selection by stream URL in the new list (Hepsi <-> city lists).
   if (preserveUrl) {
@@ -851,6 +854,11 @@ async function onCitySelectionChanged() {
       // Keep metadata visible if we had it before.
       if (preserveStreamTitle) setStreamTitle(preserveStreamTitle);
       if (preserveGenre) setIcyGenre(preserveGenre);
+    }
+    if (!restored && preserveWasPlaying) {
+      // Keep showing the currently playing station name instead of "list loaded" status.
+      if (preserveStatus) setStatus(preserveStatus);
+      else showStationNameInStatus();
     }
   }
   scheduleListHeightUpdate();
@@ -948,6 +956,7 @@ function setStatus(text, isError = false) {
     els.footerState.textContent = text || "—";
     els.footerState.style.color = isError ? "rgba(255, 107, 107, 0.95)" : "";
   }
+  if (!isError) ensureStatusShowsNowPlaying();
 }
 
 function setCount(text) {
@@ -1006,6 +1015,19 @@ function showStationNameInStatus() {
   const st = getActiveStation();
   if (!st?.name) return;
   setStatus(st.name);
+}
+
+function ensureStatusShowsNowPlaying() {
+  // If media is currently playing, the status/footer should prefer the station name
+  // instead of transient messages like "Kanal listesi yüklendi." or "Sender wechsel".
+  const playing = isRadioPlaying() || String(els.playerState?.textContent || "").trim() === "Çalıyor";
+  if (!playing) return;
+  // Defer to allow any immediate UI updates to settle first.
+  window.setTimeout(() => {
+    const stillPlaying = isRadioPlaying() || String(els.playerState?.textContent || "").trim() === "Çalıyor";
+    if (!stillPlaying) return;
+    showStationNameInStatus();
+  }, 120);
 }
 
 function setPlayerError(text) {
@@ -1314,6 +1336,7 @@ function startPlaybackTimer() {
   stopPlaybackTimer();
   playbackStartedAt = Date.now();
   playbackStationKey = activeStationKey;
+  playbackUrl = String(getActiveStreamUrl() || lastPlayingUrl || els.audio?.src || "").trim();
   renderList();
   updatePlaybackStationTime();
   playbackTimer = window.setInterval(updatePlaybackStationTime, 1000);
@@ -1327,6 +1350,7 @@ function stopPlaybackTimer({ keepElapsed = false } = {}) {
   if (!keepElapsed) {
     playbackStartedAt = 0;
     playbackStationKey = null;
+    playbackUrl = "";
     updateMainRuntime();
   }
 }
@@ -1394,17 +1418,23 @@ function setNowMeta(text) {
 function setStreamTitle(value) {
   const text = String(value || "").trim();
   const has = Boolean(text) && text !== "—";
-  if (els.streamTitle) els.streamTitle.textContent = has ? text : "";
-  if (els.carStreamTitle) els.carStreamTitle.textContent = has ? text : "";
-  els.streamTitle?.classList.toggle("is-hidden", !has);
-  els.carStreamTitle?.classList.toggle("is-hidden", !has);
+  const stationName = getActiveStation()?.name || "";
+  const fallback = stationName && stationName !== "—" ? stationName : "";
+  const showText = has ? text : fallback;
+  const visible = Boolean(showText);
+
+  if (els.streamTitle) els.streamTitle.textContent = visible ? showText : "";
+  if (els.carStreamTitle) els.carStreamTitle.textContent = visible ? showText : "";
+  els.streamTitle?.classList.toggle("is-hidden", !visible);
+  els.carStreamTitle?.classList.toggle("is-hidden", !visible);
 }
 
 function setIcyGenre(value) {
   if (!els.icyGenre) return;
   const raw = (typeof value === "string") ? value.trim() : "";
-  const has = Boolean(raw);
-  els.icyGenre.textContent = has ? raw : "";
+  const normalized = raw && raw.toLowerCase() === "various" ? "Karışık" : raw;
+  const has = Boolean(normalized);
+  els.icyGenre.textContent = has ? normalized : "";
   els.icyGenreRow?.classList.toggle("is-hidden", !has);
 }
 
@@ -1843,7 +1873,7 @@ function loadTextAsset(url) {
   });
 }
 
-async function loadStations({ bustCache } = { bustCache: false }) {
+async function loadStations({ bustCache, keepActiveNull } = { bustCache: false, keepActiveNull: false }) {
   const listUrl = currentListUrl();
   setStatus(`${currentListLabel()} yükleniyor...`);
   setPlayerError("—");
@@ -1874,13 +1904,18 @@ async function loadStations({ bustCache } = { bustCache: false }) {
   updateTabLabels();
 
   if (stations.length > 0 && !activeStationKey) {
-    activeStationKey = stations[0].key;
+    if (!keepActiveNull) activeStationKey = stations[0].key;
   } else if (activeStationKey && !stations.some((s) => s.key === activeStationKey)) {
     activeStationKey = stations[0]?.key ?? null;
   }
 
   applyActiveToPlayer();
   renderList();
+
+  // If something is currently playing, prefer showing the station name in the status/footer
+  // instead of the generic "list loaded" message.
+  const playing = isRadioPlaying() || String(els.playerState?.textContent || "").trim() === "Çalıyor";
+  if (playing) showStationNameInStatus();
 }
 
 function selectStation(key) {
@@ -1911,6 +1946,7 @@ function setAudioSourceForActiveStation() {
 
   const url = st.streams[idx];
   setStreamPref(st.key, idx);
+  lastPlayingUrl = String(url || "").trim();
 
   els.nowStreamChip.textContent = abbreviateUrl(url);
   els.nowStreamChip.title = url;
@@ -1945,6 +1981,7 @@ async function play({ initiatedByUser } = { initiatedByUser: false }) {
   startConnectionTimeout({ tokenAtStart });
   setAudioSourceForActiveStation();
   const urlForThisPlay = getActiveStreamUrl();
+  lastPlayingUrl = String(urlForThisPlay || "").trim();
 
   setPlayerState("Bağlanıyor...");
   setPlayerError("—");
@@ -2562,7 +2599,8 @@ function wireEvents() {
     updateCompactPlayPauseButton();
     showStationNameInStatus();
     rescheduleUpdatePoll();
-    if (!playbackStartedAt || playbackStationKey !== activeStationKey) {
+    const currentUrl = String(getActiveStreamUrl() || lastPlayingUrl || els.audio?.src || "").trim();
+    if (!playbackStartedAt || (currentUrl && playbackUrl !== currentUrl)) {
       startPlaybackTimer();
     }
   });
