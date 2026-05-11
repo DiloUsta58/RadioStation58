@@ -8,7 +8,7 @@
     <meta name="description" content="Çeşitli türlerde Türkiye'nin dört bir yanından radyo kanallarını dinleyebileceğiniz ücretsiz web radyo uygulaması. Favorilerinizi kaydedin, kanalları filtreleyin ve kolayca erişin.">
   
     <!-- ✅ PWA CORE -->
-    <link rel="manifest" href="./manifest.json?v=1.4.11">
+    <link rel="manifest" href="./manifest.json?v=1.4.14">
     <meta name="theme-color" content="#252525" />
 
   <!-- ✅ iOS PWA -->
@@ -354,7 +354,7 @@
       </div>
       <div class="app-footer__right">
         <span id="updateStatus" class="update-status is-hidden"></span>
-        <span>© Dilaver Bölükbaşı • Günceleme: 11.05.2026 • WebRadyo v1.4.11</span>
+        <span>© Dilaver Bölükbaşı • Günceleme: 11.05.2026 • WebRadyo v1.4.14</span>
       </div>
     </footer>
 <!-- =========================
@@ -366,7 +366,7 @@
 ========================== -->
         <script>
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js?v=1.4.11', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
+            navigator.serviceWorker.register('sw.js?v=1.4.14', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
               .then(() => console.log("Service Worker registriert"))
               .catch(err => console.log("Fehler:", err));
           }

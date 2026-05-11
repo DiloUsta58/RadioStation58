@@ -19,7 +19,7 @@ const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.4.11";
+const APP_VERSION = "1.4.14";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -252,6 +252,32 @@ function safeJsonParse(value, fallback) {
   } catch {
     return fallback;
   }
+}
+
+function formatCityLabel(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return raw;
+
+  // Normalize separators for display (keep original `value` for lookups).
+  const parts = raw.split(/[-_]/g).filter(Boolean);
+  const words = parts.flatMap((p) => p.split(/\s+/g).filter(Boolean));
+
+  const out = words.map((w) => {
+    const word = String(w || "").trim();
+    if (!word) return "";
+    // Keep common abbreviations uppercase.
+    if (word.length <= 3 && word === word.toUpperCase()) return word;
+    if (word.toLowerCase() === "fm") return "FM";
+    if (word.toLowerCase() === "tv") return "TV";
+
+    const lower = word.toLocaleLowerCase("tr");
+    const first = lower.charAt(0).toLocaleUpperCase("tr");
+    return first + lower.slice(1);
+  });
+
+  // Rebuild using original hyphen separators when present, otherwise spaces.
+  const sep = raw.includes("-") ? " - " : " ";
+  return out.join(sep).replace(/\s+/g, " ").trim();
 }
 
 function getFavoriteKeysSet() {
@@ -672,23 +698,13 @@ function updateModeUi() {
   }
 }
 
-function assetUrl(url) {
-  const raw = String(url || "").trim();
-  if (!raw) return raw;
-  // On file:// (APK WebView) non-ASCII path segments need explicit encoding,
-  // otherwise fetch/XHR may fail (e.g. "ŞehirlerRadio").
-  if (location.protocol === "file:" || isAndroidApp()) return encodeURI(raw);
-  return raw;
-}
-
 async function assetExists(url) {
-  const finalUrl = assetUrl(url);
   try {
     if (location.protocol === "file:") {
-      await loadTextAsset(finalUrl);
+      await loadTextAsset(url);
       return true;
     }
-    const head = await fetch(finalUrl, { method: "HEAD", cache: "no-store" });
+    const head = await fetch(url, { method: "HEAD", cache: "no-store" });
     if (head.ok) return true;
     // If the server clearly says "not found" (or other client error), don't retry with GET,
     // otherwise we'd produce duplicate 404 noise in the console.
@@ -697,7 +713,7 @@ async function assetExists(url) {
     // ignore
   }
   try {
-    const res = await fetch(finalUrl, { cache: "no-store" });
+    const res = await fetch(url, { cache: "no-store" });
     return res.ok;
   } catch {
     return false;
@@ -771,7 +787,7 @@ async function loadCityOptionsDynamic() {
         const data = safeJsonParse(raw, null);
         if (Array.isArray(data)) items = data;
       } else {
-        const res = await fetch(assetUrl(`${CITY_LIST_DIR}/index.json`), { cache: "no-store" });
+        const res = await fetch(`${CITY_LIST_DIR}/index.json`, { cache: "no-store" });
         const data = await res.json().catch(() => null);
         if (res.ok && Array.isArray(data)) items = data;
       }
@@ -791,7 +807,7 @@ async function loadCityOptionsDynamic() {
   items = items
     .map((entry) => {
       const value = String(entry?.value || "").trim();
-      const label = String(entry?.label || value).trim() || value;
+      const label = formatCityLabel(String(entry?.label || value).trim() || value);
       return { value, label };
     })
     .filter((x) => x.value)
@@ -813,6 +829,12 @@ async function loadCityOptionsDynamic() {
 
   // Remove missing files (requested) and restore saved selection if possible.
   await filterMissingCityOptions();
+
+  // If dynamic load failed (still only "Hepsi"), fall back to keeping the current selection.
+  // (This prevents an empty dropdown on some WebView setups.)
+  if (els.citySelect.options.length <= 1) {
+    // no-op: keep "Hepsi" only
+  }
 }
 
 async function applyCitySelection(cityKey, { persist } = { persist: true }) {
@@ -1875,9 +1897,8 @@ function getFilteredStations() {
 
 function loadTextAsset(url) {
   return new Promise((resolve, reject) => {
-    const finalUrl = assetUrl(url);
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", finalUrl, true);
+    xhr.open("GET", url, true);
     xhr.overrideMimeType?.("text/plain; charset=utf-8");
     xhr.onload = () => {
       if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 0) {
