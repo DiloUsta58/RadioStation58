@@ -19,7 +19,7 @@ const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.4.8";
+const APP_VERSION = "1.4.11";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -247,7 +247,8 @@ const ICON_PLACEHOLDER = `data:image/svg+xml,${encodeURIComponent(
 
 function safeJsonParse(value, fallback) {
   try {
-    return JSON.parse(value);
+    const text = String(value ?? "").replace(/^\uFEFF/, "");
+    return JSON.parse(text);
   } catch {
     return fallback;
   }
@@ -671,13 +672,23 @@ function updateModeUi() {
   }
 }
 
+function assetUrl(url) {
+  const raw = String(url || "").trim();
+  if (!raw) return raw;
+  // On file:// (APK WebView) non-ASCII path segments need explicit encoding,
+  // otherwise fetch/XHR may fail (e.g. "ŞehirlerRadio").
+  if (location.protocol === "file:" || isAndroidApp()) return encodeURI(raw);
+  return raw;
+}
+
 async function assetExists(url) {
+  const finalUrl = assetUrl(url);
   try {
     if (location.protocol === "file:") {
-      await loadTextAsset(url);
+      await loadTextAsset(finalUrl);
       return true;
     }
-    const head = await fetch(url, { method: "HEAD", cache: "no-store" });
+    const head = await fetch(finalUrl, { method: "HEAD", cache: "no-store" });
     if (head.ok) return true;
     // If the server clearly says "not found" (or other client error), don't retry with GET,
     // otherwise we'd produce duplicate 404 noise in the console.
@@ -686,7 +697,7 @@ async function assetExists(url) {
     // ignore
   }
   try {
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(finalUrl, { cache: "no-store" });
     return res.ok;
   } catch {
     return false;
@@ -755,9 +766,15 @@ async function loadCityOptionsDynamic() {
   // Fallback for APK/file:// runs: use a generated index.json shipped with assets.
   if (!items.length) {
     try {
-      const res = await fetch(`${CITY_LIST_DIR}/index.json`, { cache: "no-store" });
-      const data = await res.json().catch(() => null);
-      if (res.ok && Array.isArray(data)) items = data;
+      if (isLocalAsset) {
+        const raw = await loadTextAsset(`${CITY_LIST_DIR}/index.json`);
+        const data = safeJsonParse(raw, null);
+        if (Array.isArray(data)) items = data;
+      } else {
+        const res = await fetch(assetUrl(`${CITY_LIST_DIR}/index.json`), { cache: "no-store" });
+        const data = await res.json().catch(() => null);
+        if (res.ok && Array.isArray(data)) items = data;
+      }
     } catch {
       // ignore
     }
@@ -1858,8 +1875,9 @@ function getFilteredStations() {
 
 function loadTextAsset(url) {
   return new Promise((resolve, reject) => {
+    const finalUrl = assetUrl(url);
     const xhr = new XMLHttpRequest();
-    xhr.open("GET", url, true);
+    xhr.open("GET", finalUrl, true);
     xhr.overrideMimeType?.("text/plain; charset=utf-8");
     xhr.onload = () => {
       if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 0) {

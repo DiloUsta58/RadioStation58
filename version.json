@@ -1,6 +1,6 @@
 {
-  "version": "1.4.8",
+  "version": "1.4.11",
   "releaseDate": "11.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "UI: city list sorted alphabetically"
+  "changelog": "APK: city list loads from index.json via XHR"
 }
