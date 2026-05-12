@@ -19,7 +19,7 @@ const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.4.14";
+const APP_VERSION = "1.4.15";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -1048,6 +1048,7 @@ function setPlayerState(text) {
   updateCarModePlayPauseButton();
   updateMainPlayPauseButton();
   updateCompactPlayPauseButton();
+  updateMediaSessionPlaybackState();
 }
 
 function showStationNameInStatus() {
@@ -1220,6 +1221,10 @@ function setPlayOkToggle(isOn) {
 function notifyNativePlayback(playing) {
   try {
     window.AndroidAudio?.setPlaying(Boolean(playing));
+    const stName = getActiveStation()?.name || "";
+    if (typeof window.AndroidAudio?.setNowPlaying === "function") {
+      window.AndroidAudio.setNowPlaying(stName, Boolean(playing));
+    }
   } catch {
     // Android bridge is available only inside the APK WebView.
   }
@@ -1466,6 +1471,7 @@ function setStreamTitle(value) {
   if (els.carStreamTitle) els.carStreamTitle.textContent = visible ? showText : "";
   els.streamTitle?.classList.toggle("is-hidden", !visible);
   els.carStreamTitle?.classList.toggle("is-hidden", !visible);
+  updateMediaSessionMetadata();
 }
 
 function setIcyGenre(value) {
@@ -1991,6 +1997,7 @@ function setAudioSourceForActiveStation() {
   els.nowStreamChip.title = url;
   els.nowLogo.src = stationIconSrc(st);
   updateCarModeNowPlaying();
+  updateMediaSessionMetadata();
 
   if (isYoutubeUrl(url)) {
     els.audio.pause();
@@ -2008,6 +2015,44 @@ function setAudioSourceForActiveStation() {
   }
 
   void checkCurrentStream();
+}
+
+function isMediaPlaying() {
+  const state = String(els.playerState?.textContent || "").trim();
+  const isYouTube = isYoutubeUrl(getActiveStreamUrl());
+  return isYouTube ? state === "Çalıyor" : !els.audio.paused;
+}
+
+function updateMediaSessionPlaybackState() {
+  try {
+    if (!("mediaSession" in navigator)) return;
+    navigator.mediaSession.playbackState = isMediaPlaying() ? "playing" : "paused";
+  } catch {
+    // ignore
+  }
+}
+
+function updateMediaSessionMetadata() {
+  try {
+    if (!("mediaSession" in navigator)) return;
+    if (typeof window.MediaMetadata !== "function") return;
+
+    const st = getActiveStation();
+    const stationName = String(st?.name || "WebRadio").trim() || "WebRadio";
+    const raw = String(els.streamTitle?.textContent || "").trim();
+    const hasTrack = Boolean(raw) && raw !== "—" && raw !== stationName;
+    const title = hasTrack ? raw : stationName;
+    const artist = hasTrack ? stationName : "";
+    const src = st ? stationIconSrc(st) : "";
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title,
+      artist,
+      artwork: src ? [{ src }] : [],
+    });
+  } catch {
+    // ignore
+  }
 }
 
 async function play({ initiatedByUser } = { initiatedByUser: false }) {
@@ -2288,6 +2333,24 @@ function prevStation({ initiatedByUser } = { initiatedByUser: true }) {
   selectStation(list[idx].key);
   void play({ initiatedByUser });
 }
+
+window.__nativeMediaCommand = function __nativeMediaCommand(cmd) {
+  const c = String(cmd || "").trim().toLowerCase();
+  if (!c) return;
+
+  if (c === "next") {
+    nextStation({ initiatedByUser: false });
+    return;
+  }
+  if (c === "prev") {
+    prevStation({ initiatedByUser: false });
+    return;
+  }
+  if (c === "play_pause") {
+    if (isMediaPlaying()) pause({ initiatedByUser: false });
+    else void play({ initiatedByUser: false });
+  }
+};
 
 function randomStation({ initiatedByUser } = { initiatedByUser: true }) {
   const list = getFilteredStations();
@@ -2736,8 +2799,34 @@ function wireEvents() {
   window.addEventListener("pageshow", () => maybeAutoStart(), { passive: true });
 }
 
+function initMediaSessionControls() {
+  try {
+    if (!("mediaSession" in navigator)) return;
+    const ms = navigator.mediaSession;
+    const safe = (action, handler) => {
+      try {
+        ms.setActionHandler(action, handler);
+      } catch {
+        // Some browsers don't support all actions.
+      }
+    };
+
+    safe("play", () => void play({ initiatedByUser: true }));
+    safe("pause", () => pause({ initiatedByUser: true }));
+    safe("stop", () => stop());
+    safe("nexttrack", () => nextStation({ initiatedByUser: true }));
+    safe("previoustrack", () => prevStation({ initiatedByUser: true }));
+
+    updateMediaSessionMetadata();
+    updateMediaSessionPlaybackState();
+  } catch {
+    // ignore
+  }
+}
+
 async function init() {
   wireEvents();
+  initMediaSessionControls();
   await loadCityOptionsDynamic();
   const savedCity = String(localStorage.getItem(LS_CITY_KEY) || "").trim();
   if (els.citySelect && savedCity) {

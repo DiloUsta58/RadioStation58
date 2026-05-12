@@ -1,6 +1,6 @@
 {
-  "version": "1.4.14",
-  "releaseDate": "11.05.2026",
+  "version": "1.4.15",
+  "releaseDate": "12.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "UI: formatted city labels in dropdown"
+  "changelog": "Player: background media controls (Play/Pause/Next/Prev) for APK + Web/PWA"
 }
