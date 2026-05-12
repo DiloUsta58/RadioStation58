@@ -19,7 +19,7 @@ const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.4.15";
+const APP_VERSION = "1.4.17";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -2347,8 +2347,9 @@ window.__nativeMediaCommand = function __nativeMediaCommand(cmd) {
     return;
   }
   if (c === "play_pause") {
-    if (isMediaPlaying()) pause({ initiatedByUser: false });
-    else void play({ initiatedByUser: false });
+    // Treat native media controls as a user action so we don't auto-skip on pause.
+    if (isMediaPlaying()) pause({ initiatedByUser: true });
+    else void play({ initiatedByUser: true });
   }
 };
 

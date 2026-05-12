@@ -1,6 +1,6 @@
 {
-  "version": "1.4.15",
+  "version": "1.4.17",
   "releaseDate": "12.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "Player: background media controls (Play/Pause/Next/Prev) for APK + Web/PWA"
+  "changelog": "Fix: Pause im Hintergrund stoppt wirklich (kein Auto-Next)"
 }
