@@ -67,11 +67,11 @@ code {
 }
 
 .icy-genre {
-  margin-top: 10px;
+  margin-top:0;
   text-align: center;
   color: var(--muted);
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 500;
+  font-size: 0.75rem;
   text-transform: capitalize; /* Show genre in normal case */
 }
 
@@ -80,13 +80,13 @@ code {
 }
 
 .icy-genre span {
-  color: rgba(87, 227, 163, 0.95);
+  color: rgb(255, 255, 255);
   font-weight: 800;
   text-transform: capitalize; /* Show genre in normal case */
 }
 
 .streamtitle {
-  margin-top: 10px;
+  margin-top: 0px;
   text-align: center;
   color: rgba(255, 255, 255, 0.92);
   font-weight: 800;
@@ -703,8 +703,8 @@ code {
 }
 
 .logo--now {
-  width: 34px;
-  height: 34px;
+  width: 72px;
+  height: 72px;
   border-radius: 10px;
 }
 
@@ -1058,6 +1058,17 @@ body.is-carmode .adminpanel,
 body.is-carmode .settingspanel,
 body.is-carmode .app-footer {
   display: none !important;
+}
+
+#button {
+  width: 100%;
+  align-items: right;
+  text-align: center;
+  border-radius: 12px;
+  background: #242424;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 @media (max-width: 520px) {

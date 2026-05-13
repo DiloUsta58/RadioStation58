@@ -8,7 +8,7 @@
     <meta name="description" content="Çeşitli türlerde Türkiye'nin dört bir yanından radyo kanallarını dinleyebileceğiniz ücretsiz web radyo uygulaması. Favorilerinizi kaydedin, kanalları filtreleyin ve kolayca erişin.">
   
     <!-- ✅ PWA CORE -->
-    <link rel="manifest" href="./manifest.json?v=1.4.17">
+    <link rel="manifest" href="./manifest.json?v=1.4.19">
     <meta name="theme-color" content="#252525" />
 
   <!-- ✅ iOS PWA -->
@@ -24,6 +24,7 @@
           <span></span>
           <span></span>
           <span></span>
+          Menü
         </button>
         <nav id="mainMenu" class="main-menu is-hidden" aria-label="Ana menü">
           <a class="main-menu__item" href="https://dilousta58.github.io/RadioStation58/WebRadio-release.apk" download>Telefona (Android) Yükle</a>
@@ -37,8 +38,7 @@
         <div id="brandTitle" class="brand__title">Radio Dinle - 58</div>
         <div id="brandSubtitle" class="brand__subtitle">Web radyo • Favoriler • Kanal listesi <code></code></div>
       </div>
-
-
+      <input id="searchInput" class="input" type="search" placeholder="Ara..." autocomplete="off" />
         <div class="control-item">
           <button id="reloadBtn" class="iconbtn iconbtn--refresh" type="button" title="Kanal listesini yenile" aria-label="Yenile"></button>
           <span class="control-label">Yenile</span>
@@ -48,6 +48,8 @@
           <span class="control-label">Araç modu</span>          
       </div>
     </header>
+    
+            
 <!-- =========================
   Araç modu paneli
 ========================== -->
@@ -119,19 +121,19 @@
             <div class="control-item">
               <button id="compactRandomBtn" class="iconbtn iconbtn--random" type="button" aria-label="Karıştır" title="Karıştır"></button>
               <span class="control-label">Karıştır</span>
-            </div>
+            </div> 
+<!-- =========================
+  Kayıt butonu
+========================== -->
             <div class="compact-actions">
               <div class="control-item">
                 <button id="compactRecordBtn" class="iconbtn iconbtn--record" type="button" aria-label="Kayıt" title="Kayıt başlat" disabled></button>
                 <span class="control-label">Kayıt</span>
               </div>
-            </div>
+            </div> 
+            <img id="nowLogo" class="logo logo--now" alt="" />
           </div>
-          <div id="streamTitle" class="streamtitle is-hidden" aria-label="StreamTitle"></div>
-          <div class="icy-genre is-hidden" id="icyGenreRow" aria-label="Kategori">Yayın türü: <span id="icy-genre"></span></div>
         </div>
-
-
 <!-- =========================
   Görünüm sekmeleri ve arama çubuğu
 ========================== -->
@@ -140,18 +142,16 @@
             <button id="tabAll" class="segmented__btn is-active" type="button" role="tab" aria-selected="true">Tümü</button>
             <button id="tabFav" class="segmented__btn" type="button" role="tab" aria-selected="false">Favoriler</button>
           </div>
-          <input id="searchInput" class="input" type="search" placeholder="Ara..." autocomplete="off" />
-        </div>
 <!-- =========================
   Şehir seçimi
 ========================== -->
-        <div aria-label="cities" class="input select" align="center">
-          <nav class="city-select">Şehir: 
+          <nav class="city-select"> 
             <select name="il" id="button" aria-label="cities" class="input select">
               <option value="" selected="selected">Hepsi</option>
             </select>
           </nav>
-        </div>    
+        </div>
+
         
 <!-- =========================
   Zaman göstergesi ve durum metni
@@ -175,7 +175,7 @@
           <div class="now">
             <div class="now__label">Şimdi çalıyor</div>
             <div class="now__titleRow">
-              <img id="nowLogo" class="logo logo--now" alt="" />
+                <img id="nowPlayingLogo" class="logo logo--now is-hidden" alt="Kanal logosu" />
               <div class="now__titles">
                 <div id="nowTitle" class="now__title">—</div>
                 <div id="nowMeta" class="now__meta">—</div>
@@ -348,13 +348,16 @@
       <div class="app-footer__left">
         <span class="app-footer__item" id="footerState">Hazır</span>
         <span class="app-footer__sep">|</span>
-        <span class="app-footer__item" id="footerCount">0 Kanal</span>
-        <span class="app-footer__sep">|</span>
         <span class="app-footer__item" id="footerNow">—</span>
+        <span class="app-footer__sep" id="footerSepStream">|</span>
+        <span class="app-footer__item" id="StreamTitle"><div id="streamTitle" class="streamtitle is-hidden" aria-label="StreamTitle"></div></span>
+        <span class="app-footer__sep" id="footerSepGenre">|</span>
+        <span class="app-footer__item" id="Yayın_türü"><div class="icy-genre is-hidden" id="icyGenreRow" aria-label="Kategori"><span id="icy-genre"></span></div></span>
+
       </div>
       <div class="app-footer__right">
         <span id="updateStatus" class="update-status is-hidden"></span>
-        <span>© Dilaver Bölükbaşı • Günceleme: 12.05.2026 • WebRadyo v1.4.17</span>
+        <span>© D. Bölükbaşı • WebRadyo v1.4.19</span>
       </div>
     </footer>
 <!-- =========================
@@ -366,7 +369,7 @@
 ========================== -->
         <script>
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js?v=1.4.17', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
+            navigator.serviceWorker.register('sw.js?v=1.4.19', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
               .then(() => console.log("Service Worker registriert"))
               .catch(err => console.log("Fehler:", err));
           }

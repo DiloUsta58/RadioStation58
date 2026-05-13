@@ -19,7 +19,7 @@ const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.4.17";
+const APP_VERSION = "1.4.19";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -75,6 +75,8 @@ const els = {
   footerState: document.getElementById("footerState"),
   footerCount: document.getElementById("footerCount"),
   footerNow: document.getElementById("footerNow"),
+  footerSepStream: document.getElementById("footerSepStream"),
+  footerSepGenre: document.getElementById("footerSepGenre"),
   updateStatus: document.getElementById("updateStatus"),
   audio: document.getElementById("audio"),
   youtubeFrame: document.getElementById("youtubeFrame"),
@@ -1459,18 +1461,30 @@ function setNowMeta(text) {
   setStreamTitle(value);
 }
 
+function updateFooterOptionalSeps() {
+  const streamVisible = Boolean(els.streamTitle && !els.streamTitle.classList.contains("is-hidden") && String(els.streamTitle.textContent || "").trim());
+  const genreVisible = Boolean(els.icyGenreRow && !els.icyGenreRow.classList.contains("is-hidden") && String(els.icyGenre?.textContent || "").trim());
+
+  if (els.footerSepStream) {
+    // Separator between footerNow and (StreamTitle or Genre).
+    els.footerSepStream.classList.toggle("is-hidden", !(streamVisible || genreVisible));
+  }
+  if (els.footerSepGenre) {
+    // Separator between StreamTitle and Genre (only if both present).
+    els.footerSepGenre.classList.toggle("is-hidden", !(streamVisible && genreVisible));
+  }
+}
+
 function setStreamTitle(value) {
   const text = String(value || "").trim();
   const has = Boolean(text) && text !== "—";
-  const stationName = getActiveStation()?.name || "";
-  const fallback = stationName && stationName !== "—" ? stationName : "";
-  const showText = has ? text : fallback;
-  const visible = Boolean(showText);
+  const visible = has;
 
-  if (els.streamTitle) els.streamTitle.textContent = visible ? showText : "";
-  if (els.carStreamTitle) els.carStreamTitle.textContent = visible ? showText : "";
+  if (els.streamTitle) els.streamTitle.textContent = has ? text : "";
+  if (els.carStreamTitle) els.carStreamTitle.textContent = has ? text : "";
   els.streamTitle?.classList.toggle("is-hidden", !visible);
   els.carStreamTitle?.classList.toggle("is-hidden", !visible);
+  updateFooterOptionalSeps();
   updateMediaSessionMetadata();
 }
 
@@ -1481,6 +1495,7 @@ function setIcyGenre(value) {
   const has = Boolean(normalized);
   els.icyGenre.textContent = has ? normalized : "";
   els.icyGenreRow?.classList.toggle("is-hidden", !has);
+  updateFooterOptionalSeps();
 }
 
 let androidIcySeq = 0;
@@ -2588,6 +2603,40 @@ function wireEvents() {
   });
   els.stationFontSizeRange?.addEventListener("input", () => setStationFontSize(els.stationFontSizeRange.value));
   els.timeFontSizeRange?.addEventListener("input", () => setTimeFontSize(els.timeFontSizeRange.value));
+
+  const moveSettingsFocus = (delta, fromEl) => {
+    const order = [
+      els.stationFontSizeRange,
+      els.timeFontSizeRange,
+      els.autoStartToggle,
+      els.updateIntervalSelect,
+      els.fontResetBtn,
+      els.settingsCloseBtn,
+    ].filter(Boolean);
+    if (!order.length) return;
+    const idx = Math.max(0, order.indexOf(fromEl));
+    const next = order[(idx + delta + order.length) % order.length];
+    next?.focus?.();
+  };
+
+  const wireRangeDpad = (el) => {
+    if (!el) return;
+    el.addEventListener("keydown", (event) => {
+      if (!event) return;
+      if (els.settingsPanel?.classList.contains("is-hidden")) return;
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        moveSettingsFocus(+1, el);
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        moveSettingsFocus(-1, el);
+      }
+    });
+  };
+
+  wireRangeDpad(els.stationFontSizeRange);
+  wireRangeDpad(els.timeFontSizeRange);
+
   els.fontResetBtn?.addEventListener("click", resetFontSettings);
   els.autoStartToggle?.addEventListener("change", () => {
     localStorage.setItem(LS_AUTOSTART_KEY, els.autoStartToggle.checked ? "1" : "0");

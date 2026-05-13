@@ -1,6 +1,6 @@
 {
-  "version": "1.4.17",
-  "releaseDate": "12.05.2026",
+  "version": "1.4.19",
+  "releaseDate": "13.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "Fix: Pause im Hintergrund stoppt wirklich (kein Auto-Next)"
+  "changelog": "Fix: StreamTitle wird nur angezeigt, wenn vorhanden"
 }
