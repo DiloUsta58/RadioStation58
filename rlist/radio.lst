@@ -1,8 +1,3 @@
-# WebRadyo dışa aktarım
-# Oluşturuldu: 2026-05-13T21:53:34.416Z
-# Görünüm: all
-# Arama: 
-
 103.6 Radyo Light = https://yayin.radiolight.net:8005/live | icon/RadoLight.png
 24 Radyo = https://radyo24.radyotvonline.net/radyo24?/;stream.mp3 | icon/24-radyo.jpg
 24 Radyo = https://radyo24.radyotvonline.net/radyo24?/; | icon/24-radyo.jpg
@@ -469,7 +464,7 @@ Meşk Fm 95.5 = https://stream.radyolarburada.com:8130/stream?/;stream.mp3 | ico
 METRO FM = https://playerservices.streamtheworld.com/api/livestream-redirect/METRO_FM_SC?/; | icon/metro_fm.jpg
 Metropol FM - 90'lar = https://moondigitalmaster.radyotvonline.net/90lar/playlist.m3u8 | icon/metropolfm8090lar.png
 Mezopotamya Radyo = https://anadolu.liderhost.com.tr:10965/stream? | icon/mezopotamya-radyo.jpg
-Mezopotamya Radyo = https://anadolu.liderhost.com.tr:10965/; | icon/mezopotamya-radyo.jpg
+Mezopotamya Radyo = https://anadolu.liderhost.com.tr/9404/stream; | icon/mezopotamya-radyo.jpg
 Moral Fm = https://stream-281.zeno.fm/0cfiqwdkobavv?zt=eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiIwY2ZpcXdka29iYXZ2IiwiaG9zdCI6InN0cmVhbS0yODEuemVuby5mbSIsInJ0dGwiOjUsImp0aSI6ImFhWkM3X3liUXQtSF9peHJGbkVUYXciLCJpYXQiOjE3Nzc4OTE3ODksImV4cCI6MTc3Nzg5MTg0OX0.WyUS-wY4MGEgyLaJD1EZuoGJj1EXqxfXbCixR7SFV0w | icon/radyo-moral-fm.jpg
 Moral Fm = https://stream-51.zeno.fm/0cfiqwdkobavv?zs=RptTdDEHQ2Wej62cArILjQ/;stream.mp3 | icon/radyo-moral-fm.jpg
 Moral Fm = https://stream-51.zeno.fm/0cfiqwdkobavv?zs=RptTdDEHQ2Wej62cArILjQ/; | icon/radyo-moral-fm.jpg
@@ -752,8 +747,7 @@ Radyo Pötürgeli = https://yayin.radyopoturgeli.com/4444/stream?/;stream.mp3 | 
 Radyo Pötürgeli = https://yayin.radyopoturgeli.com/4444/stream?/; | icon/radyo-poturgeli.jpg
 Radyo Radar = https://live.radyoradar.com/default | icon/radyo-radar.jpg
 RADYO REMIX = https://radyo.yayin.com.tr:5250/playlist.mp3?/;stream.mp3 | icon/radyo-remix.jpg
-Radyo Ritm = https://sssx.radyosfer.com/radyoritm/stream?/;stream.mp3 | icon/radyo-ritm.jpg
-Radyo Ritm = https://sssx.radyosfer.com/radyoritm/stream?/; | icon/radyo-ritm.jpg
+Radyo Ritm 88.8 = https://sslyayin.netyayin.net/erzurumritm | icon/radyo-ritm.jpg
 Radyo Rota = https://sslyayin.radyoyayini.com:7082/;/;stream.mp3 | icon/radyo-rota.jpg
 Radyo Rota = https://sslyayin.radyoyayini.com:7082/;/; | icon/radyo-rota.jpg
 Radyo S Bursa = https://icecast.netmedya.net/radyos? | icon/radyo-s.jpg
@@ -770,7 +764,6 @@ Radyo Ses (KUR'AN-I KERİM - İLAHİ ) = https://radyodinle1.turkhosted.com/yayi
 Radyo Ses Eskişehir = https://radyoses.radyotvonline.net:8095/stream?/;stream.mp3 | icon/radyo-ses-eskisehir.jpg
 Radyo Ses Eskişehir = https://radyoses.radyotvonline.net:8095/stream?/; | icon/radyo-ses-eskisehir.jpg
 Radyo Sevtek FM = https://sevtekfm.ozelip.com/8020/stream? | icon/radyo-sevtek-fm.jpg
-RADYO SEYMEN = https://yayin.radyoseymen.com.tr:1070/stream | icon/radyo-seymen.jpg
 Radyo Sinerji = https://radio.guventechnology.com/9994/stream? | icon/radyo-sinerji.jpg
 Radyo Sis = https://live.radyositesihazir.com:8082/stream?/;stream.mp3 | icon/radyo-sis.jpg
 Radyo Sis = https://live.radyositesihazir.com:8082/stream?/; | icon/radyo-sis.jpg
@@ -874,9 +867,12 @@ Siaray Türk FM = https://criturk.radyotvonline.net/criturk?/;stream.mp3 | icon/
 Siaray Türk FM = https://criturk.radyotvonline.net/criturk?/; | icon/siaray-turk-cri.jpg
 Silivri Metropol FM = https://stream2.rtvtakip.com:7034/stream/;stream.mp3 | icon/silivri-metropol-fm.jpg
 Silivri Metropol FM = https://stream2.rtvtakip.com:7034/stream/; | icon/silivri-metropol-fm.jpg
-Sivas FM = https://radyodinle1.turkhosted.com/yayin?uri=yayin1.canliyayin.org:8180/&tkn=-YDQn6YpC1FDDOsEmxEfnw&tms=1778037913 | icon/sivas-fm.jpg
+Sivas FM = https://yayin2.canliyayin.org:8180/;stream.nsv| icon/sivas-fm.jpg
 Sivas FM = https://yayin2.canliyayin.org:10960/; | icon/sivas-fm.jpg
+Sivas FM = https://radyodinle1.turkhosted.com/yayin?uri=yayin1.canliyayin.org:8180/&tkn=-YDQn6YpC1FDDOsEmxEfnw&tms=1778037913 | icon/sivas-fm.jpg
 Sivas Radyo Bora = https://radyodinle1.turkhosted.com/yayin?uri=live.radyo.in/9116/stream/&tkn=mUBulTmtDcbAmqpGXtP6zg&tms=1778062644 | icon/radyo-bora.jpg
+Şarkışla FM = https://radyo.yayin.com.tr:5858/stream | icon/Sarkisla-FM.jpg
+Cumhuriyet Üniversitesi Radyo 98.6 FM = https://ip1.ozelip.com/8046/stream | icon/cusivas.png
 SLOW HOME = https://moondigitalmaster.radyotvonline.net/slowhome/playlist.m3u8 | icon/slow_home.jpg
 SLOW TÜRK = https://radyo.duhnet.tv/ak_dtvh_slowturk
 Solmaz FM = https://sssx.radyosfer.com/solmazfm/stream?/;stream.mp3 | icon/solmaz-fm.jpg
@@ -891,6 +887,7 @@ ST Endüstri Radyo = https://endustriradyo.radyotvonline.net/endustriradyo? | ic
 Star Artı FM = https://ritim.80.yayin.com.tr/stream?/;stream.mp3 | icon/star-arti-fm.jpg
 Star Artı FM = https://ritim.80.yayin.com.tr/stream?/; | icon/star-arti-fm.jpg
 Sultan Radyo = https://yayin.turkhosted.com/sultanradyo/stream?/;stream.mp3 | icon/sultan-radyo.jpg
+Sultan Radyo FM 106.0 Kilis = https://kilissul.80.yayin.com.tr//stream | icon/kilis_sultam_FM.jpeg
 Sun Radyo = https://tr2.socialsmart.tv/tepemedya/sunradyo/icecast.audio?/;stream.mp3 | icon/sun-radyo.jpg
 Sunshine FM 104.9 = https://23203.live.streamtheworld.com/4SFMAAC_SC | icon/sunshine_FM.png
 Sunshine Live - Die 90er = https://sunsl.streamabc.net/sunsl-90er-mp3-192-9697679 | icon/Sunshine_live.jpg
