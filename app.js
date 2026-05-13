@@ -149,6 +149,8 @@ let connectionTimeoutStationKey = null;
 let connectionTimeoutAttempts = 0;
 let manualPauseRequestedAt = 0;
 const MANUAL_PAUSE_GRACE_MS = 1200;
+let autoSkipTimer = 0;
+let autoSkipGuardUntil = 0;
 
 let updatePollTimer = 0;
 
@@ -1350,32 +1352,64 @@ function setQuickTimeReconnectText(attempt, maxAttempts) {
   setQuickTimeConnectingText(attempt, maxAttempts);
 }
 
-function stopConnectionTimeout() {
+function stopConnectionTimeout({ preserveAttempts = false } = {}) {
   if (connectionTimeoutTimer) {
     window.clearTimeout(connectionTimeoutTimer);
     connectionTimeoutTimer = 0;
   }
   connectionTimeoutStationKey = null;
-  connectionTimeoutAttempts = 0;
+  if (!preserveAttempts) connectionTimeoutAttempts = 0;
 }
 
 function startReconnectAttempts({ tokenAtStart, stationKey, initialDelayMs = 0 }) {
-  stopConnectionTimeout();
-  connectionTimeoutToken = tokenAtStart;
-  connectionTimeoutStationKey = stationKey;
+  const key = stationKey;
+  const token = tokenAtStart;
+
+  // If a reconnect flow is already running for the same station+token, keep it.
+  if (
+    connectionTimeoutTimer &&
+    connectionTimeoutStationKey === key &&
+    connectionTimeoutToken === token &&
+    connectionTimeoutAttempts > 0
+  ) {
+    return;
+  }
+
+  stopConnectionTimeout({ preserveAttempts: false });
+  connectionTimeoutToken = token;
+  connectionTimeoutStationKey = key;
   if (!connectionTimeoutStationKey) return;
   if (isYoutubeUrl(getActiveStreamUrl())) return;
 
   const maxAttempts = 3;
-  const attemptDelayMs = 10_000;
+  const attemptDelayMs = 5_000;
+  const attemptPlayTimeoutMs = 4_500;
   connectionTimeoutAttempts = 1;
   setQuickTimeConnectingText(1, maxAttempts);
+
+  const attemptPlayOnce = async () => {
+    try {
+      els.audio.load();
+    } catch {
+      // ignore
+    }
+
+    try {
+      await Promise.race([
+        els.audio.play(),
+        new Promise((_, reject) => window.setTimeout(() => reject(new Error("play_timeout")), attemptPlayTimeoutMs)),
+      ]);
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
   const tryReconnect = async () => {
     if (selectionToken !== connectionTimeoutToken) return;
     if (activeStationKey !== connectionTimeoutStationKey) return;
     if (!els.audio) return;
-    if (!els.audio.paused) return; // already playing
+    // If we're already playing, the "playing" event will stop this reconnect flow.
     if (isYoutubeUrl(getActiveStreamUrl())) return;
 
     // If the user paused recently, don't auto-reconnect.
@@ -1383,22 +1417,12 @@ function startReconnectAttempts({ tokenAtStart, stationKey, initialDelayMs = 0 }
     if (recentlyManual) return;
 
     setQuickTimeReconnectText(connectionTimeoutAttempts, maxAttempts);
-
-    try {
-      els.audio.load();
-      await els.audio.play();
-      return;
-    } catch {
-      // continue below
-    }
+    const ok = await attemptPlayOnce();
+    if (ok) return;
 
     if (connectionTimeoutAttempts >= maxAttempts) {
       setQuickTimeTimeoutText();
-      setTimeout(() => {
-        if (selectionToken !== connectionTimeoutToken) return;
-        nextStation({ initiatedByUser: false });
-        void play({ initiatedByUser: false });
-      }, 350);
+      scheduleAutoSkip("reconnect_failed", { token: connectionTimeoutToken });
       return;
     }
 
@@ -1409,8 +1433,28 @@ function startReconnectAttempts({ tokenAtStart, stationKey, initialDelayMs = 0 }
   connectionTimeoutTimer = window.setTimeout(() => void tryReconnect(), Math.max(0, initialDelayMs));
 }
 
+function scheduleAutoSkip(reason, { token } = {}) {
+  const now = Date.now();
+  if (now < autoSkipGuardUntil) return;
+  autoSkipGuardUntil = now + 1200; // prevent multi-skip bursts
+
+  if (autoSkipTimer) {
+    window.clearTimeout(autoSkipTimer);
+    autoSkipTimer = 0;
+  }
+
+  const guardToken = typeof token === "number" ? token : selectionToken;
+  autoSkipTimer = window.setTimeout(() => {
+    autoSkipTimer = 0;
+    if (typeof guardToken === "number" && selectionToken !== guardToken) return;
+    nextStation({ initiatedByUser: false });
+    void play({ initiatedByUser: false });
+  }, 350);
+}
+
 function startConnectionTimeout({ tokenAtStart }) {
-  startReconnectAttempts({ tokenAtStart, stationKey: activeStationKey, initialDelayMs: 10_000 });
+  // Start immediately; each reconnect attempt is time-boxed.
+  startReconnectAttempts({ tokenAtStart, stationKey: activeStationKey, initialDelayMs: 0 });
 }
 
 function updateRecordButtonState() {
@@ -1553,7 +1597,7 @@ function fetchIcyMetadataAndroid(url) {
     const timeoutId = window.setTimeout(() => {
       androidIcyPending.delete(requestId);
       resolve(null);
-    }, 6500);
+    }, 5000);
 
     androidIcyPending.set(requestId, (payload) => {
       window.clearTimeout(timeoutId);
@@ -2803,7 +2847,7 @@ function wireEvents() {
     }
   });
   els.audio.addEventListener("pause", () => {
-    stopConnectionTimeout();
+    // Don't cancel an ongoing reconnect timer here; pause may be caused by connection loss.
     setPlayerState("Duraklatıldı");
     setPlayOkToggle(false);
     notifyNativePlayback(false);
@@ -2832,7 +2876,23 @@ function wireEvents() {
     rescheduleUpdatePoll();
   });
   els.audio.addEventListener("error", () => {
-    stopConnectionTimeout();
+    const mediaErrorCode = els.audio?.error?.code || 0;
+    const recentlyManual = Date.now() - manualPauseRequestedAt < MANUAL_PAUSE_GRACE_MS;
+    const inReconnectFlow = Boolean(
+      connectionTimeoutStationKey &&
+        activeStationKey === connectionTimeoutStationKey &&
+        selectionToken === connectionTimeoutToken &&
+        connectionTimeoutAttempts > 0
+    );
+
+    // For transient stream errors, try reconnect first (3x/10s). This also applies to
+    // MEDIA_ERR_SRC_NOT_SUPPORTED (4), because some devices report it prematurely.
+    if (!recentlyManual && !recording && !isYoutubeUrl(getActiveStreamUrl())) {
+      if (!inReconnectFlow) startReconnectAttempts({ tokenAtStart: selectionToken, stationKey: activeStationKey, initialDelayMs: 0 });
+      return;
+    }
+
+    stopConnectionTimeout({ preserveAttempts: false });
     const tokenAtError = selectionToken;
     const mediaError = els.audio.error;
     setPlayerState("Hata");
@@ -2846,8 +2906,9 @@ function wireEvents() {
 
     const failingUrl = els.audio.currentSrc || els.audio.src || getActiveStreamUrl();
     const keyForUrl = findStationKeyForUrl(failingUrl) ?? activeStationKey;
-    if (streamDiagnosticsEnabled && keyForUrl) stationIssue.set(keyForUrl, "unsupported");
-    markStreamBad(failingUrl, "unsupported");
+    const issueKind = mediaErrorCode === 4 ? "unsupported" : "timeout";
+    if (streamDiagnosticsEnabled && keyForUrl) stationIssue.set(keyForUrl, issueKind);
+    markStreamBad(failingUrl, issueKind);
     if (streamDiagnosticsEnabled) {
       if (activeStationKey === keyForUrl && getActiveStreamUrl() === failingUrl) applyActiveToPlayer({ skipCheck: true });
       renderList();
