@@ -146,6 +146,7 @@ let quickTimeConnecting = false;
 let connectionTimeoutTimer = 0;
 let connectionTimeoutToken = 0;
 let connectionTimeoutStationKey = null;
+let connectionTimeoutAttempts = 0;
 let manualPauseRequestedAt = 0;
 const MANUAL_PAUSE_GRACE_MS = 1200;
 
@@ -1322,10 +1323,15 @@ function updateMainRuntime() {
   }
 }
 
-function setQuickTimeConnectingText() {
+function setQuickTimeConnectingText(attempt = null, maxAttempts = null) {
   if (!els.quickTime || recording) return;
   quickTimeConnecting = true;
-  els.quickTime.textContent = "Bağlantı kuruluyor ...";
+  const a = Number(attempt);
+  const m = Number(maxAttempts);
+  const suffix = Number.isFinite(a) && a > 0
+    ? (Number.isFinite(m) && m > 0 ? ` (${Math.floor(a)}/${Math.floor(m)})` : ` (${Math.floor(a)})`)
+    : "";
+  els.quickTime.textContent = `Bağlantı kuruluyor ...${suffix}`;
   els.quickTime.classList.remove("is-recording");
   els.quickTime.classList.add("is-connecting");
   els.quickTime.classList.remove("is-timeout");
@@ -1340,31 +1346,71 @@ function setQuickTimeTimeoutText() {
   els.quickTime.classList.add("is-timeout");
 }
 
+function setQuickTimeReconnectText(attempt, maxAttempts) {
+  setQuickTimeConnectingText(attempt, maxAttempts);
+}
+
 function stopConnectionTimeout() {
   if (connectionTimeoutTimer) {
     window.clearTimeout(connectionTimeoutTimer);
     connectionTimeoutTimer = 0;
   }
   connectionTimeoutStationKey = null;
+  connectionTimeoutAttempts = 0;
+}
+
+function startReconnectAttempts({ tokenAtStart, stationKey, initialDelayMs = 0 }) {
+  stopConnectionTimeout();
+  connectionTimeoutToken = tokenAtStart;
+  connectionTimeoutStationKey = stationKey;
+  if (!connectionTimeoutStationKey) return;
+  if (isYoutubeUrl(getActiveStreamUrl())) return;
+
+  const maxAttempts = 3;
+  const attemptDelayMs = 10_000;
+  connectionTimeoutAttempts = 1;
+  setQuickTimeConnectingText(1, maxAttempts);
+
+  const tryReconnect = async () => {
+    if (selectionToken !== connectionTimeoutToken) return;
+    if (activeStationKey !== connectionTimeoutStationKey) return;
+    if (!els.audio) return;
+    if (!els.audio.paused) return; // already playing
+    if (isYoutubeUrl(getActiveStreamUrl())) return;
+
+    // If the user paused recently, don't auto-reconnect.
+    const recentlyManual = Date.now() - manualPauseRequestedAt < MANUAL_PAUSE_GRACE_MS;
+    if (recentlyManual) return;
+
+    setQuickTimeReconnectText(connectionTimeoutAttempts, maxAttempts);
+
+    try {
+      els.audio.load();
+      await els.audio.play();
+      return;
+    } catch {
+      // continue below
+    }
+
+    if (connectionTimeoutAttempts >= maxAttempts) {
+      setQuickTimeTimeoutText();
+      setTimeout(() => {
+        if (selectionToken !== connectionTimeoutToken) return;
+        nextStation({ initiatedByUser: false });
+        void play({ initiatedByUser: false });
+      }, 350);
+      return;
+    }
+
+    connectionTimeoutAttempts += 1;
+    connectionTimeoutTimer = window.setTimeout(() => void tryReconnect(), attemptDelayMs);
+  };
+
+  connectionTimeoutTimer = window.setTimeout(() => void tryReconnect(), Math.max(0, initialDelayMs));
 }
 
 function startConnectionTimeout({ tokenAtStart }) {
-  stopConnectionTimeout();
-  connectionTimeoutToken = tokenAtStart;
-  connectionTimeoutStationKey = activeStationKey;
-  if (!connectionTimeoutStationKey) return;
-  if (isYoutubeUrl(getActiveStreamUrl())) return;
-  connectionTimeoutTimer = window.setTimeout(() => {
-    if (selectionToken !== connectionTimeoutToken) return;
-    if (activeStationKey !== connectionTimeoutStationKey) return;
-    if (!els.audio || !els.audio.paused) return; // already playing
-    setQuickTimeTimeoutText();
-    setTimeout(() => {
-      if (selectionToken !== connectionTimeoutToken) return;
-      nextStation({ initiatedByUser: false });
-      void play({ initiatedByUser: false });
-    }, 400);
-  }, 5000);
+  startReconnectAttempts({ tokenAtStart, stationKey: activeStationKey, initialDelayMs: 10_000 });
 }
 
 function updateRecordButtonState() {
@@ -2768,14 +2814,10 @@ function wireEvents() {
     if (!recording) stopPlaybackTimer();
     rescheduleUpdatePoll();
 
-    // Auto-skip when the stream pauses unexpectedly (common on broken streams).
+    // If the stream pauses unexpectedly (connection lost), try reconnect first.
     const recentlyManual = Date.now() - manualPauseRequestedAt < MANUAL_PAUSE_GRACE_MS;
     if (!recentlyManual && !recording) {
-      setQuickTimeTimeoutText();
-      setTimeout(() => {
-        nextStation({ initiatedByUser: false });
-        void play({ initiatedByUser: false });
-      }, 350);
+      startReconnectAttempts({ tokenAtStart: selectionToken, stationKey: activeStationKey, initialDelayMs: 0 });
     }
   });
   els.audio.addEventListener("waiting", () => setPlayerState("Bağlanıyor..."));
