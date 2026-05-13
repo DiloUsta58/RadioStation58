@@ -528,7 +528,7 @@ code {
   border: 1px solid var(--border);
   background: #242424;
   color: var(--text);
-  padding: 10px 12px;
+  padding: 5px 6px;
   border-radius: 999px;
   outline: none;
 }
