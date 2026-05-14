@@ -109,8 +109,8 @@ code {
 }
 
 .menubtn {
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
@@ -127,6 +127,22 @@ code {
   height: 3px;
   border-radius: 999px;
   background: var(--text);
+}
+
+@media (max-width: 520px) {
+  .menubtn {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    gap: 4px;
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .menubtn span {
+    width: 20px;
+    height: 3px;
+  }
 }
 
 .main-menu {
@@ -183,6 +199,19 @@ code {
 .brand {
   min-width: 0;
   flex: 1 1 auto;
+}
+
+.brand__stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.brand__search {
+  margin-top: 6px;
+  width: 100%;
 }
 
 .topbar__right {
@@ -1226,20 +1255,92 @@ body.is-carmode .app-footer {
   .carmode {
     padding: 10px 10px 12px 10px;
     gap: 10px;
+    overflow: hidden;
   }
 
   .carmode__top {
     padding: 10px;
     min-height: 0;
+    flex: 0 0 auto;
   }
+
+  .carmode {
+    --carmode-icon-size: clamp(86px, 26vh, 170px);
+    --carmode-btn-h: clamp(62px, 22vh, 128px);
+    --carmode-btn-ico: clamp(40px, 12vh, 78px);
+  }
+
+  /* Landscape header: 3 columns (back | name+fav | station logo) */
+  .carmode__topGrid {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .carmode__topRow--icons,
+  .carmode__topRow--meta {
+    display: contents;
+  }
+
+  #carExitBtn.carmode__logoBtn {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    padding: 6px 8px 6px 8px;
+  }
+
+  #carStationIcon.carmode__stationIcon {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  #carNowTitle.carmode__title {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: center !important;
+    margin: 0;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  #carFavBtn.carmode__fav--square {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    align-self: center;
+    margin: 0;
+    height: clamp(40px, 8vh, 54px);
+    width: clamp(40px, 8vh, 54px);
+    border-radius: 14px;
+  }
+
+  /* (top rows are flattened via display: contents above) */
 
   .carmode__logo {
-    width: min(220px, 38vw);
+    width: var(--carmode-icon-size);
+    max-width: 48vw;
+    max-height: var(--carmode-icon-size);
+    object-fit: contain;
   }
 
-  .carmode__stationIcon { 
-    max-width: 100%;
-    max-height: 100%;
+  .carmode__backHint {
+    width: 100%;
+    max-width: 48vw;
+    font-size: clamp(10px, 2.2vh, 12px);
+    padding: 4px 8px;
+    border-radius: 12px;
+  }
+
+  .carmode__stationIcon {
+    width: var(--carmode-icon-size);
+    height: var(--carmode-icon-size);
+    max-width: 48vw;
+    max-height: 48vw;
+    justify-self: end;
+    align-self: center;
   }
 
   .carmode__title {
@@ -1253,15 +1354,23 @@ body.is-carmode .app-footer {
 
   .carmode__controls {
     padding: 10px;
+    gap: 10px;
+    flex: 0 0 auto;
+  }
+
+  /* Use the vertical space between main controls and random button */
+  .carmode__labelRow {
+    display: none;
+    margin: 0;
   }
 
   .carmode__btn {
-    height: clamp(66px, 20vh, 110px) !important;
-    background-size: clamp(42px, 10vh, 70px) !important;
+    height: var(--carmode-btn-h) !important;
+    background-size: var(--carmode-btn-ico) !important;
   }
 
   .carmode__btn--wide {
-    height: clamp(62px, 18vh, 100px) !important;
+    height: clamp(50px, 12vh, 88px) !important;
   }
 
   .carmode__footer {
@@ -1481,9 +1590,9 @@ body.is-carmode .app-footer {
 #compactRecordBtn {
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 72px 72px;
-  width: 72px;
-  height: 72px;
+  background-size: 64px 64px;
+  width: 64px;
+  height: 64px;
   padding: 0 !important;
   color: transparent !important;
   font-size: 0 !important;
@@ -1693,7 +1802,7 @@ body.is-carmode .app-footer {
 .adminfab {
   position: fixed;
   right: 16px;
-  bottom: 72px;
+  bottom: 64px;
   padding: 10px 12px;
   border-radius: 999px;
   border: 1px solid var(--border);

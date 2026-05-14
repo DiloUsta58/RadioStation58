@@ -35,7 +35,10 @@
         </nav>
       </div>
       <div class="brand">
-        <div id="brandTitle" class="brand__title">Radio Dinle - 58</div>
+        <div class="brand__stack">
+          <div id="brandTitle" class="brand__title">Radio Dinle - 58</div>
+          <input id="searchInput" class="input brand__search" type="search" placeholder="Ara..." autocomplete="off" />
+        </div>
         <div id="brandSubtitle" class="brand__subtitle">Web radyo • Favoriler • Kanal listesi <code></code></div>
       </div>
       
@@ -48,11 +51,7 @@
           <span class="control-label">Araç modu</span>   
       </div>
     </header>
-    
-          <div class="control-item">
-          <input id="searchInput" class="input" type="search" placeholder="Ara..." autocomplete="off" />       
-      </div>
-            
+
 <!-- =========================
   Araç modu paneli
 ========================== -->
@@ -64,6 +63,7 @@
             <img id="carModeLogo" class="carmode__logo" src="controls/car_mod_green.png" alt="Car Mode" />
             <span class="carmode__backHint" aria-hidden="true">⇦ Geri (Araç modu kapat)</span>
           </button>
+          
           <img id="carStationIcon" class="carmode__stationIcon is-hidden" alt="Kanal" />
         </div>
           <div class="carmode__topRow carmode__topRow--meta" aria-label="Now Playing">
