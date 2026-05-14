@@ -19,7 +19,7 @@ const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.4.19";
+const APP_VERSION = "1.4.20";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -400,7 +400,7 @@ function updateStationListHeight() {
   const footerHeight = footer?.getBoundingClientRect().height ?? 0;
   const isStackedLayout = window.matchMedia("(max-width: 980px)").matches;
   const playerReserve = isStackedLayout ? (els.playerPanel?.getBoundingClientRect().height ?? 0) + 16 : 0;
-  const bottomGap = 12;
+  const bottomGap = 2;
   const available = window.innerHeight - rect.top - footerHeight - playerReserve - bottomGap;
   const height = Math.max(180, Math.floor(available));
   els.stationList.style.setProperty("--station-list-height", `${height}px`);
@@ -2407,11 +2407,13 @@ function updateFavoriteButtons() {
   if (els.favToggleBtn) {
     els.favToggleBtn.disabled = !st;
     els.favToggleBtn.textContent = st ? (isFav ? "★ Favori" : "☆ Favori") : "☆ Favori";
+    els.favToggleBtn.classList.toggle("is-fav", Boolean(st && isFav));
   }
 
   if (els.carFavBtn) {
     els.carFavBtn.textContent = isFav ? "★" : "☆";
     els.carFavBtn.disabled = !st;
+    els.carFavBtn.classList.toggle("is-fav", Boolean(st && isFav));
   }
 }
 
@@ -2742,9 +2744,11 @@ function wireEvents() {
   });
   window.addEventListener("resize", scheduleListHeightUpdate, { passive: true });
   window.addEventListener("resize", queueSyncCarModeIcons, { passive: true });
+  window.addEventListener("resize", updateFooterHeightVar, { passive: true });
   window.addEventListener("orientationchange", () => {
     setTimeout(scheduleListHeightUpdate, 250);
     setTimeout(queueSyncCarModeIcons, 250);
+    setTimeout(updateFooterHeightVar, 250);
   });
   els.tabAll.addEventListener("click", () => setViewMode("all"));
   els.tabFav.addEventListener("click", () => setViewMode("fav"));
@@ -2952,6 +2956,17 @@ function wireEvents() {
   window.addEventListener("pageshow", () => maybeAutoStart(), { passive: true });
 }
 
+function updateFooterHeightVar() {
+  try {
+    const footer = document.querySelector(".app-footer");
+    if (!footer) return;
+    const h = Math.max(0, Math.round(footer.getBoundingClientRect().height || footer.offsetHeight || 0));
+    if (h) document.documentElement.style.setProperty("--footer-h", `${h}px`);
+  } catch {
+    // ignore
+  }
+}
+
 function initMediaSessionControls() {
   try {
     if (!("mediaSession" in navigator)) return;
@@ -2980,6 +2995,7 @@ function initMediaSessionControls() {
 async function init() {
   wireEvents();
   initMediaSessionControls();
+  updateFooterHeightVar();
   await loadCityOptionsDynamic();
   const savedCity = String(localStorage.getItem(LS_CITY_KEY) || "").trim();
   if (els.citySelect && savedCity) {

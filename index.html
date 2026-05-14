@@ -8,7 +8,7 @@
     <meta name="description" content="Çeşitli türlerde Türkiye'nin dört bir yanından radyo kanallarını dinleyebileceğiniz ücretsiz web radyo uygulaması. Favorilerinizi kaydedin, kanalları filtreleyin ve kolayca erişin.">
   
     <!-- ✅ PWA CORE -->
-    <link rel="manifest" href="./manifest.json?v=1.4.19">
+    <link rel="manifest" href="./manifest.json?v=1.4.20">
     <meta name="theme-color" content="#252525" />
 
   <!-- ✅ iOS PWA -->
@@ -158,7 +158,7 @@
 <!-- =========================
   Zaman göstergesi ve durum metni
 ========================== -->
-        <div class="quick-time" id="quickTime" aria-live="polite">00:00:00</div>
+        <div class="quick-time" id="quickTime" aria-live="polite">Standby ... </div>
 <!-- =========================
   Kanal listesi
 ========================== -->
@@ -361,7 +361,7 @@
       </div>
       <div class="app-footer__right">
         <span id="updateStatus" class="update-status is-hidden"></span>
-        <span>© D. Bölükbaşı • WebRadyo v1.4.19</span>
+        <span>© D. Bölükbaşı v1.4.20</span>
       </div>
     </footer>
 <!-- =========================
@@ -373,7 +373,7 @@
 ========================== -->
         <script>
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js?v=1.4.19', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
+            navigator.serviceWorker.register('sw.js?v=1.4.20', { updateViaCache: 'none' }) // Die Datei sw.js muss existieren!
               .then(() => console.log("Service Worker registriert"))
               .catch(err => console.log("Fehler:", err));
           }

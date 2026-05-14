@@ -1,6 +1,6 @@
 {
-  "version": "1.4.19",
-  "releaseDate": "13.05.2026",
+  "version": "1.4.20",
+  "releaseDate": "14.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "Fix: StreamTitle wird nur angezeigt, wenn vorhanden"
+  "changelog": "Android: Stoppt Audio sofort beim App-Schließen; diverse UI-Fixes"
 }

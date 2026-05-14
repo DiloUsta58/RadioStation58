@@ -7,7 +7,7 @@
   --muted: #c9c9c9;
   --border: rgba(255, 255, 255, 0.12);
   --brand: #b08d2b;
-  --accent: #d0a63b;
+  --accent: rgb(4, 146, 241);
   --danger: #ef6b73;
   --shadow: 0 8px 20px rgba(0, 0, 0, 0.32);
   --radius: 14px;
@@ -49,7 +49,7 @@ body {
   margin: 0;
   font-family: var(--font);
   color: var(--text);
-  padding-bottom: 56px;
+  padding-bottom: calc(var(--footer-h, 56px) + 2px);
   background: linear-gradient(180deg, var(--bg), var(--bg-soft));
 }
 
@@ -162,7 +162,17 @@ code {
 }
 
 .main-menu__item:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(4, 146, 241, 0.18);
+}
+
+.main-menu__item:active:not(:disabled) {
+  transform: translateY(1px);
+  background: rgba(4, 146, 241, 0.28);
+}
+
+.main-menu__item:focus-visible {
+  outline: 2px solid rgba(4, 146, 241, 0.575);
+  outline-offset: 2px;
 }
 
 .main-menu__item:disabled {
@@ -184,7 +194,7 @@ code {
 }
 
 .brand__title {
-  font-size: 18px;
+  font-size: clamp(12px, 5vw, 18px);
   font-weight: 700;
   letter-spacing: 0.2px;
 }
@@ -210,6 +220,9 @@ code {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   overflow: hidden;
+  box-shadow: 0 2px 12px rgba(4, 146, 241, 0.575);
+  border: 1px solid rgba(255,255,255,0.08);
+  animation: fadeIn 0.4s ease-in-out;  
 }
 
 .panel--list {
@@ -549,6 +562,17 @@ code {
   min-width: 0;
 }
 
+/* Desktop: dropdown right-aligned like mobile */
+.panel__toolbar .city-select {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.panel__toolbar #button {
+  width: auto;
+  min-width: 180px;
+}
+
 .segmented {
   display: inline-flex;
   background: #242424;
@@ -571,7 +595,7 @@ code {
 }
 
 .segmented__btn.is-active {
-  background: #3a3a3a;
+  background: rgba(4, 146, 241, 0.575);
   color: var(--text);
 }
 
@@ -646,23 +670,48 @@ code {
 }
 
 .starbtn.is-fav {
-  border-color: rgba(208, 166, 59, 0.55);
-  background: rgba(176, 141, 43, 0.18);
-  color: var(--accent);
+  border-color: rgba(4, 146, 241, 0.62);
+  background: rgba(4, 146, 241, 0.129);
+  color: rgba(255, 210, 74, 0.824);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.55);
 }
 
 .starbtn:hover {
-  border-color: rgba(255, 255, 255, 0.22);
+  border-color: rgba(4, 146, 241, 0.28);
+  background: rgba(4, 146, 241, 0.12);
+}
+
+.starbtn.is-fav:hover {
+  border-color: rgba(4, 146, 241, 0.78);
+  background: rgba(4, 146, 241, 0.22);
+}
+
+.starbtn:focus-visible {
+  outline: 2px solid rgba(208, 166, 59, 0.72);
+  outline-offset: 2px;
+  border-color: rgba(208, 166, 59, 0.72);
+}
+
+.starbtn:active {
+  transform: translateY(1px);
+  background: rgba(4, 146, 241, 0.18);
+  border-color: rgba(4, 146, 241, 0.35);
+}
+
+.starbtn.is-fav:active {
+  transform: translateY(1px);
+  background: rgba(4, 146, 241, 0.42);
+  border-color: rgba(4, 146, 241, 0.78);
 }
 
 .item:hover {
-  background: #3a3a3a;
-  border-color: rgba(255, 255, 255, 0.10);
+  background: rgba(4, 146, 241, 0.18);
+  border-color: rgba(4, 146, 241, 0.28);
 }
 
 .item.is-active {
-  background: rgba(176, 141, 43, 0.18);
-  border-color: rgba(208, 166, 59, 0.55);
+  background: rgba(4, 146, 241, 0.27);
+  border-color: rgba(4, 146, 241, 0.62);
 }
 
 .item.is-timeout {
@@ -816,6 +865,15 @@ code {
   font-weight: 650;
 }
 
+.btn:hover:not(:disabled) {
+  background: #3a3a3a;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -824,6 +882,16 @@ code {
 .btn--primary {
   border-color: rgba(208, 166, 59, 0.72);
   background: #3a3424;
+}
+
+.btn--primary:hover:not(:disabled) {
+  border-color: rgba(4, 146, 241, 0.62);
+  background: rgba(4, 146, 241, 0.18);
+}
+
+.btn--primary:active:not(:disabled) {
+  border-color: rgba(4, 146, 241, 0.78);
+  background: rgba(4, 146, 241, 0.28);
 }
 
 .installbtn {
@@ -836,6 +904,28 @@ code {
 
 .btn--ghost {
   background: #313131;
+}
+
+.btn.is-fav {
+  border-color: rgba(4, 146, 241, 0.62);
+  background: rgba(4, 146, 241, 0.575);
+  color: rgba(255, 210, 74, 0.98);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.55);
+}
+
+.btn.is-fav:hover:not(:disabled) {
+  background: rgba(4, 146, 241, 0.52);
+  border-color: rgba(4, 146, 241, 0.78);
+}
+
+.btn.is-fav:active {
+  background: rgba(4, 146, 241, 0.42);
+  border-color: rgba(4, 146, 241, 0.78);
+}
+
+.btn.is-fav:focus-visible {
+  outline: 2px solid rgba(208, 166, 59, 0.72);
+  outline-offset: 2px;
 }
 
 .carmode {
@@ -1235,6 +1325,13 @@ body.is-carmode .app-footer {
     font-size: 11px !important;
     padding: 5px 7px !important;
   }
+
+  .brand__title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
 }
 
 @media (max-width: 420px) and (max-height: 760px) and (orientation: portrait) {
@@ -1792,16 +1889,18 @@ body.is-carmode .app-footer {
   right: 0;
   bottom: 0;
   z-index: 80;
-  min-height: 48px;
+  min-height: clamp(44px, 7vh, 56px);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  padding: 8px 18px;
+  flex-wrap: nowrap;
+  gap: clamp(6px, 2vw, 14px);
+  padding: clamp(6px, 1.4vh, 10px) clamp(8px, 3vw, 18px);
   border-top: 1px solid var(--border);
   background: #252525;
   color: rgba(255, 255, 255, 0.86);
-  font-size: 13px;
+  /* Responsive font sizing with a minimum of 10px and a maximum of 16px */
+  font-size: clamp(10px, 3vw, 16px);
 }
 
 .app-footer__left,
@@ -1814,12 +1913,17 @@ body.is-carmode .app-footer {
 .app-footer__left {
   gap: 8px;
   flex: 1;
+  min-width: 0;
 }
 
 .app-footer__right {
   justify-content: flex-end;
   color: var(--muted);
   white-space: nowrap;
+  min-width: 0;
+  max-width: 45vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .update-status {
@@ -1943,33 +2047,11 @@ body.is-carmode .app-footer {
 }
 
 @media (max-width: 760px) {
-  body {
-    padding-bottom: 76px;
-  }
-
-  .app-footer {
-    min-height: 68px;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 4px;
-    padding: 7px 12px;
-  }
-
-  .app-footer__left {
-    width: 100%;
-  }
-
-  .app-footer__right {
-    width: 100%;
-    justify-content: flex-start;
-    font-size: 12px;
-  }
-
   .adminfab {
-    bottom: 90px;
+    bottom: calc(var(--footer-h, 56px) + 18px);
   }
 
   .adminpanel {
-    bottom: 138px;
+    bottom: calc(var(--footer-h, 56px) + 66px);
   }
 }
