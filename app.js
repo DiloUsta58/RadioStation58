@@ -90,9 +90,14 @@ const els = {
   carMode: document.getElementById("carMode"),
   carModeLogo: document.getElementById("carModeLogo"),
   carNowTitle: document.getElementById("carNowTitle"),
-  carFooterStatus: document.getElementById("carFooterStatus"),
-  carFooterCheck: document.getElementById("carFooterCheck"),
-  carFooterError: document.getElementById("carFooterError"),
+  carFooterState: document.getElementById("carFooterState"),
+  carFooterNow: document.getElementById("carFooterNow"),
+  carFooterRow: document.getElementById("carFooterRow"),
+  carFooterSepNow: document.getElementById("carFooterSepNow"),
+  carFooterSepStream: document.getElementById("carFooterSepStream"),
+  carFooterStreamTitle: document.getElementById("carFooterStreamTitle"),
+  carFooterSepGenre: document.getElementById("carFooterSepGenre"),
+  carFooterGenre: document.getElementById("carFooterGenre"),
   streamTitle: document.getElementById("streamTitle"),
   carStreamTitle: document.getElementById("carStreamTitle"),
   carStationIcon: document.getElementById("carStationIcon"),
@@ -1000,6 +1005,10 @@ function setStatus(text, isError = false) {
     els.footerState.textContent = text || "—";
     els.footerState.style.color = isError ? "rgba(255, 107, 107, 0.95)" : "";
   }
+  if (els.carFooterState) {
+    els.carFooterState.textContent = text || "—";
+    els.carFooterState.style.color = isError ? "rgba(255, 107, 107, 0.95)" : "";
+  }
   if (!isError) ensureStatusShowsNowPlaying();
 }
 
@@ -1017,11 +1026,32 @@ function updateTabLabels() {
 
 function setPlayerState(text) {
   els.playerState.textContent = text;
-  if (els.carFooterStatus) {
+  if (els.carFooterNow) {
     const raw = String(text || "—");
-    const isPlaying = raw === "Çalıyor";
-    els.carFooterStatus.textContent = isPlaying ? "Çalıyor ..." : raw;
-    els.carFooterStatus.classList.toggle("is-ok", isPlaying);
+    let label = raw;
+    let color = "";
+    if (raw === "Çalıyor") {
+      label = "Çalıyor ...";
+      color = "rgba(87, 227, 163, 0.95)";
+    } else if (/Bağlanıyor/i.test(raw)) {
+      label = "Bağlantı kuruluyor ...";
+      color = "rgba(236, 220, 5, 0.79)";
+    } else if (/Bağlanıyor|Veri bekleniyor/i.test(raw)) {
+      label = raw;
+      color = "rgba(208, 166, 59, 0.95)";
+    } else if (/Hata/i.test(raw)) {
+      label = "Bağlantı sorunu oluştu!";
+      color = "rgba(186, 6, 6, 0.95)";
+    } else if (/Duraklatıldı/i.test(raw)) {
+      label = raw;
+      color = "rgba(255, 255, 255, 0.75)";
+    } else if (/Durduruldu|Bitti/i.test(raw)) {
+      label = "—";
+      color = "";
+    }
+
+    els.carFooterNow.textContent = label;
+    els.carFooterNow.style.color = color;
   }
   if (els.footerNow) {
     const raw = String(text || "—");
@@ -1077,9 +1107,6 @@ function ensureStatusShowsNowPlaying() {
 
 function setPlayerError(text) {
   els.playerError.textContent = text;
-  const raw = String(text || "").trim();
-  const carMsg = raw && raw !== "—" ? "Bağlantı sorunu oluştu!" : "—";
-  if (els.carFooterError) els.carFooterError.textContent = carMsg;
 }
 
 function popupMessage(text) {
@@ -1527,7 +1554,6 @@ function setStreamCheck(text, kind = "neutral") {
   if (kind === "ok") els.streamCheck.style.color = "rgba(87, 227, 163, 0.95)";
   else if (kind === "bad") els.streamCheck.style.color = "rgba(255, 107, 107, 0.95)";
   else els.streamCheck.style.color = "";
-  if (els.carFooterCheck) els.carFooterCheck.textContent = String(text || "—");
 }
 
 function abbreviateUrl(url) {
@@ -1572,9 +1598,11 @@ function setStreamTitle(value) {
 
   if (els.streamTitle) els.streamTitle.textContent = has ? text : "";
   if (els.carStreamTitle) els.carStreamTitle.textContent = has ? text : "";
+  if (els.carFooterStreamTitle) els.carFooterStreamTitle.textContent = has ? text : "";
   els.streamTitle?.classList.toggle("is-hidden", !visible);
   els.carStreamTitle?.classList.toggle("is-hidden", !visible);
   updateFooterOptionalSeps();
+  updateCarFooterOptionalSeps();
   updateMediaSessionMetadata();
 }
 
@@ -1586,6 +1614,22 @@ function setIcyGenre(value) {
   els.icyGenre.textContent = has ? normalized : "";
   els.icyGenreRow?.classList.toggle("is-hidden", !has);
   updateFooterOptionalSeps();
+  if (els.carFooterGenre) els.carFooterGenre.textContent = has ? normalized : "";
+  updateCarFooterOptionalSeps();
+}
+
+function updateCarFooterOptionalSeps() {
+  const streamHas = Boolean(els.carFooterStreamTitle && String(els.carFooterStreamTitle.textContent || "").trim());
+  const genreHas = Boolean(els.carFooterGenre && String(els.carFooterGenre.textContent || "").trim());
+  const nowHas = Boolean(els.carFooterNow && String(els.carFooterNow.textContent || "").trim() && String(els.carFooterNow.textContent || "").trim() !== "—");
+
+  if (els.carFooterRow) {
+    els.carFooterRow.classList.toggle("is-simple", !streamHas && !genreHas);
+  }
+
+  if (els.carFooterSepNow) els.carFooterSepNow.classList.toggle("is-hidden", !nowHas);
+  if (els.carFooterSepStream) els.carFooterSepStream.classList.toggle("is-hidden", !(streamHas || genreHas));
+  if (els.carFooterSepGenre) els.carFooterSepGenre.classList.toggle("is-hidden", !(streamHas && genreHas));
 }
 
 let androidIcySeq = 0;
@@ -2564,12 +2608,12 @@ function setCarMode(enabled) {
   }
   updateCarModeNowPlaying();
   if (enabled) {
-    if (els.carFooterStatus) els.carFooterStatus.textContent = els.playerState?.textContent || "—";
-    if (els.carFooterCheck) els.carFooterCheck.textContent = els.streamCheck?.textContent || "—";
-    if (els.carFooterError) {
-      const raw = String(els.playerError?.textContent || "").trim();
-      els.carFooterError.textContent = raw && raw !== "—" ? "Bağlantı sorunu oluştu!" : "—";
-    }
+    if (els.carFooterState) els.carFooterState.textContent = String(els.footerState?.textContent || els.statusText?.textContent || "—");
+    // Re-apply current state to refresh car footer mapping.
+    setPlayerState(String(els.playerState?.textContent || "—"));
+    if (els.carFooterStreamTitle) els.carFooterStreamTitle.textContent = String(els.streamTitle?.textContent || "").trim();
+    if (els.carFooterGenre) els.carFooterGenre.textContent = String(els.icyGenre?.textContent || "").trim();
+    updateCarFooterOptionalSeps();
   }
   queueSyncCarModeIcons();
   if (!enabled) {
@@ -2992,9 +3036,43 @@ function initMediaSessionControls() {
   }
 }
 
+function disableRightClickAndDevTools() {
+  // Note: This only deters casual access; it cannot fully prevent viewing source in browsers.
+  document.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const key = String(event.key || "").toLowerCase();
+    const ctrlOrCmd = event.ctrlKey || event.metaKey;
+
+    // F12 / DevTools shortcuts
+    if (key === "f12") {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    // Ctrl/Cmd+U (view source)
+    if (ctrlOrCmd && key === "u") {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    // Ctrl/Cmd+Shift+I/J/C (DevTools)
+    if (ctrlOrCmd && event.shiftKey && (key === "i" || key === "j" || key === "c")) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+  }, true);
+}
+
 async function init() {
   wireEvents();
   initMediaSessionControls();
+  disableRightClickAndDevTools();
   updateFooterHeightVar();
   await loadCityOptionsDynamic();
   const savedCity = String(localStorage.getItem(LS_CITY_KEY) || "").trim();
