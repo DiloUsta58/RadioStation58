@@ -1,7 +1,7 @@
 {
   "app": "WebRadio",
   "schema": 1,
-  "exportedAt": "2026-05-16T02:11:55.147Z",
+  "exportedAt": "2026-05-16T03:03:05.843Z",
   "favorites": [
     "https://anadolu.liderhost.com.tr:10949/;",
     "https://anadolu.liderhost.com.tr:10952/;",
@@ -23,6 +23,7 @@
     "https://radyo.yayin.com.tr:4302/stream?/;",
     "https://radyo.yayin.com.tr:4302/stream?/;stream.mp3",
     "https://radyo.yayin.com.tr:4444/stream",
+    "https://radyo.yayin.com.tr:5858/stream",
     "https://radyo.yayin.com.tr:8280/stream/1/?icy=http/;",
     "https://radyo.yayin.com.tr:8280/stream/1/?icy=http/;stream.mp3",
     "https://radyo.yayindakiler.com:3040/stream?/;stream.mp3",
@@ -31,6 +32,7 @@
     "https://radyo.yayindakiler.com:4084/stream?;",
     "https://radyo.yayindakiler.com:4084/stream?/;stream.mp3",
     "https://radyo1.radyo-dinle.tc/8156/stream",
+    "https://radyodinle1.turkhosted.com/yayin?uri=yayin1.canliyayin.org:8180/&tkn=-YDQn6YpC1FDDOsEmxEfnw&tms=1778037913",
     "https://radyofrekans.ozelip.com.tr:8334/stream?",
     "https://radyoses.ozelip.com/9300/stream?",
     "https://ssldyg2.radyotvonline.com/dyg/kralpop64.stream/playlist.m3u8",
@@ -46,8 +48,11 @@
     "https://sunsl.streamabc.net/sunsl-90er-mp3-192-9697679",
     "https://sunsl.streamabc.net/sunsl-techhouse-mp3-192-9113798",
     "https://trkvz-radyolar.ercdn.net/turkuvazefsane/playlist.m3u8",
+    "https://yayin.nevsehirmegaradyo.com/stream",
     "https://yayin.radyoakdeniz.com/9470/stream?",
     "https://yayin.radyomadyo.com:8006/stream",
+    "https://yayin2.canliyayin.org:10960/;",
+    "https://yayin2.canliyayin.org:8180/;stream.nsv",
     "https://yayin2.canliyayin.org:9350/stream?/;stream.mp3"
   ]
 }
