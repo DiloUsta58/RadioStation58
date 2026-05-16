@@ -19,7 +19,7 @@ const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
-const APP_VERSION = "1.4.20";
+const APP_VERSION = "1.4.21";
 const VERSION_JSON_URL = "https://dilousta58.github.io/RadioStation58/version.json";
 const APK_DOWNLOAD_URL = "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk";
 let streamDiagnosticsEnabled = false;
@@ -3051,6 +3051,28 @@ function downloadTextFile(fileName, text) {
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
+async function saveTextFilePicker(defaultFileName, text) {
+  // Desktop (Chrome/Edge): let user choose location ("Save as...").
+  if (typeof window.showSaveFilePicker !== "function") return false;
+  try {
+    const handle = await window.showSaveFilePicker({
+      suggestedName: defaultFileName,
+      types: [
+        {
+          description: "JSON",
+          accept: { "application/json": [".json"] },
+        },
+      ],
+    });
+    const writable = await handle.createWritable();
+    await writable.write(new Blob([text], { type: "application/json;charset=utf-8" }));
+    await writable.close();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function exportFavoritesJson() {
   try {
     const payload = favoritesExportPayload();
@@ -3065,13 +3087,43 @@ function exportFavoritesJson() {
     }
 
     const fileName = `WebRadio_Favoriler_${new Date().toISOString().slice(0, 10)}.json`;
-    downloadTextFile(fileName, json);
-    popupMessage(`Favoriler kaydedildi.\n${payload.favorites.length} öğe`);
-    setMenuOpen(false);
+
+    // Android APK: use native "Save as..." dialog via JS bridge.
+    if (isAndroidApp() && typeof window.AndroidAudio?.saveFavoritesJson === "function") {
+      try {
+        window.AndroidAudio.saveFavoritesJson(fileName, json);
+        popupMessage("Dosya seçiliyor...");
+        setMenuOpen(false);
+        return;
+      } catch {
+        // fall back below
+      }
+    }
+
+    // Prefer "Save as..." picker on desktop when available.
+    saveTextFilePicker(fileName, json).then((picked) => {
+      if (!picked) downloadTextFile(fileName, json);
+      popupMessage(`Favoriler kaydedildi.\n${payload.favorites.length} öğe`);
+      setMenuOpen(false);
+    });
   } catch (err) {
     popupMessage(`Favoriler kaydedilemedi.\n${String(err?.message || err)}`);
   }
 }
+
+window.onAndroidFavoriteJsonSaved = function onAndroidFavoriteJsonSaved(payload) {
+  try {
+    const ok = Boolean(payload && payload.ok);
+    if (!ok) {
+      popupMessage(`Favoriler kaydedilemedi.\n${String(payload?.error || "Bilinmeyen hata")}`);
+      return;
+    }
+    const name = String(payload?.name || "Favoriler.json");
+    popupMessage(`Favoriler kaydedildi.\n${name}`);
+  } catch (err) {
+    popupMessage(`Favoriler kaydedilemedi.\n${String(err?.message || err)}`);
+  }
+};
 
 async function copyFavJsonToClipboard() {
   const text = String(els.favJsonText?.value || "").trim();

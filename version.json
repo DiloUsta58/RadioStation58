@@ -1,6 +1,6 @@
 {
-  "version": "1.4.20",
-  "releaseDate": "14.05.2026",
+  "version": "1.4.21",
+  "releaseDate": "16.05.2026",
   "apkUrl": "https://dilousta58.github.io/RadioStation58/WebRadio-release.apk",
-  "changelog": "Android: Stoppt Audio sofort beim App-Schließen; diverse UI-Fixes"
+  "changelog": "Android APK: Favorileri 'Farklı Kaydet' (dosya seçimi) + çeşitli UI düzeltmeleri"
 }
