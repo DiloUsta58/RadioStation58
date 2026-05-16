@@ -29,6 +29,9 @@
         <nav id="mainMenu" class="main-menu is-hidden" aria-label="Ana menü">
           <a class="main-menu__item" href="https://dilousta58.github.io/RadioStation58/WebRadio-release.apk" download>Telefona (Android) Yükle</a>
           <button id="settingsMenuBtn" class="main-menu__item" type="button">Ayarlar</button>
+          <button id="favExportBtn" class="main-menu__item" type="button">Favori farklı kayıt et</button>
+          <button id="favImportBtn" class="main-menu__item" type="button">Favori Yükle (json)</button>
+          <input id="favImportInput" type="file" accept="application/json,.json" class="is-hidden" />
         <button id="installBtn" class="btn btn--primary installbtn is-hidden" type="button">
           Yükle (PWA)..
         </button>          
@@ -37,11 +40,13 @@
       <div class="brand">
         <div class="brand__stack">
           <div id="brandTitle" class="brand__title">Radio Dinle - 58</div>
-          <input id="searchInput" class="input brand__search" type="search" placeholder="Ara..." autocomplete="off" />
+          <input id="searchInput" class="input brand__search" type="search" placeholder="Radio ara .." autocomplete="off" />
         </div>
         <div id="brandSubtitle" class="brand__subtitle">Web radyo • Favoriler • Kanal listesi <code></code></div>
       </div>
-      
+<!-- =========================
+  Hızlı kontrol butonları 
+========================== -->
         <div class="control-item">
           <button id="reloadBtn" class="iconbtn iconbtn--refresh" type="button" title="Kanal listesini yenile" aria-label="Yenile"></button>
           <span class="control-label">Yenile</span>
@@ -90,15 +95,14 @@
   Durum göstergesi
 ========================== -->
       <footer class="carmode__footer" aria-label="Durum">
-        <div class="carmode__footerRow">
-          <span class="carmode__footerKey">Durum:</span>
-          <span id="carFooterStatus" class="carmode__footerVal">—</span>
-          <span class="carmode__footerSep">|</span>
-          <span class="carmode__footerKey">Kontrol:</span>
-          <span id="carFooterCheck" class="carmode__footerVal">—</span>
-          <span class="carmode__footerSep">|</span>
-          <span class="carmode__footerKey">Hata:</span>
-          <span id="carFooterError" class="carmode__footerVal">—</span>
+        <div id="carFooterRow" class="carmode__footerRow carmode__footerRow--main">
+          <span class="carmode__footerItem" id="carFooterState">Hazır</span>
+          <span class="carmode__footerSep" id="carFooterSepNow">|</span>
+          <span class="carmode__footerItem" id="carFooterNow">—</span>
+          <span class="carmode__footerSep" id="carFooterSepStream">|</span>
+          <span class="carmode__footerItem" id="carFooterStreamTitle"></span>
+          <span class="carmode__footerSep" id="carFooterSepGenre">|</span>
+          <span class="carmode__footerItem" id="carFooterGenre"></span>
         </div>
       </footer>
     </section>

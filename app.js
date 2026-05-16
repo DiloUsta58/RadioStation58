@@ -28,6 +28,9 @@ const els = {
   menuBtn: document.getElementById("menuBtn"),
   mainMenu: document.getElementById("mainMenu"),
   settingsMenuBtn: document.getElementById("settingsMenuBtn"),
+  favExportBtn: document.getElementById("favExportBtn"),
+  favImportBtn: document.getElementById("favImportBtn"),
+  favImportInput: document.getElementById("favImportInput"),
   carmodBtn: document.getElementById("carmodBtn"),
   brandTitle: document.getElementById("brandTitle"),
   brandSubtitle: document.getElementById("brandSubtitle"),
@@ -2729,6 +2732,15 @@ function wireEvents() {
     if (event.target === els.youtubePopup) closeYoutubePopup();
   });
   els.settingsMenuBtn?.addEventListener("click", () => setSettingsOpen(true));
+  els.favExportBtn?.addEventListener("click", () => exportFavoritesJson());
+  els.favImportBtn?.addEventListener("click", () => {
+    try {
+      els.favImportInput?.click();
+    } catch {
+      // ignore
+    }
+  });
+  els.favImportInput?.addEventListener("change", () => void importFavoritesJsonFromFile());
   els.carmodBtn?.addEventListener("click", () => {
     const enabled = !document.body.classList.contains("is-carmode");
     setCarMode(enabled);
@@ -2998,6 +3010,83 @@ function wireEvents() {
     if (document.visibilityState === "visible") maybeAutoStart();
   });
   window.addEventListener("pageshow", () => maybeAutoStart(), { passive: true });
+}
+
+function favoritesExportPayload() {
+  const favorites = [...getFavoriteUrlsSet()].sort((a, b) => a.localeCompare(b));
+  return {
+    app: "WebRadio",
+    schema: 1,
+    exportedAt: new Date().toISOString(),
+    favorites,
+  };
+}
+
+function downloadTextFile(fileName, text) {
+  const blob = new Blob([text], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function exportFavoritesJson() {
+  try {
+    const payload = favoritesExportPayload();
+    const fileName = `WebRadio_Favoriler_${new Date().toISOString().slice(0, 10)}.json`;
+    downloadTextFile(fileName, JSON.stringify(payload, null, 2));
+    popupMessage(`Favoriler kaydedildi.\n${payload.favorites.length} öğe`);
+    setMenuOpen(false);
+  } catch (err) {
+    popupMessage(`Favoriler kaydedilemedi.\n${String(err?.message || err)}`);
+  }
+}
+
+async function importFavoritesJsonFromFile() {
+  const input = els.favImportInput;
+  if (!input || !input.files || !input.files[0]) return;
+  const file = input.files[0];
+  // allow selecting same file twice
+  input.value = "";
+
+  try {
+    const text = await file.text();
+    const data = safeJsonParse(text, null);
+
+    let urls = [];
+    if (data && typeof data === "object" && Array.isArray(data.favorites)) {
+      urls = data.favorites;
+    } else if (Array.isArray(data)) {
+      urls = data;
+    } else {
+      throw new Error("Geçersiz JSON formatı");
+    }
+
+    const incoming = new Set(urls.filter((x) => typeof x === "string").map((x) => x.trim()).filter(Boolean));
+    if (!incoming.size) throw new Error("Favori listesi boş");
+
+    const before = getFavoriteUrlsSet();
+    let added = 0;
+    for (const u of incoming) {
+      if (!before.has(u)) added++;
+      before.add(u);
+    }
+    setFavoriteUrlsSet(before);
+
+    updateFavoriteButtons();
+    renderList();
+    updateTabLabels();
+    updateCarModeNowPlaying();
+
+    popupMessage(`Favoriler yüklendi.\n+${added} yeni, toplam ${before.size}`);
+    setMenuOpen(false);
+  } catch (err) {
+    popupMessage(`Favoriler yüklenemedi.\n${String(err?.message || err)}`);
+  }
 }
 
 function updateFooterHeightVar() {

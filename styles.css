@@ -1119,10 +1119,39 @@ code {
   color: rgba(255, 255, 255, 0.9);
 }
 
+.carmode__footerRow--main {
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
 
-.carmode__footerKey {
-  color: rgba(255, 255, 255, 0.65);
-  font-weight: 800;
+.carmode__footerRow--main.is-simple {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  justify-content: normal;
+  gap: 8px;
+}
+
+.carmode__footerRow--main.is-simple #carFooterState {
+  justify-self: end;
+  text-align: right;
+}
+
+.carmode__footerRow--main.is-simple #carFooterSepNow {
+  justify-self: center;
+  text-align: center;
+}
+
+.carmode__footerRow--main.is-simple #carFooterNow {
+  justify-self: start;
+  text-align: left;
+}
+
+.carmode__footerItem {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .carmode__footerVal {
