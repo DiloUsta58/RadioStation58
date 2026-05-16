@@ -27,11 +27,26 @@
           Menü
         </button>
         <nav id="mainMenu" class="main-menu is-hidden" aria-label="Ana menü">
-          <a class="main-menu__item" href="https://dilousta58.github.io/RadioStation58/WebRadio-release.apk" download>Telefona (Android) Yükle</a>
-          <button id="settingsMenuBtn" class="main-menu__item" type="button">Ayarlar</button>
-          <button id="favExportBtn" class="main-menu__item" type="button">Favori farklı kayıt et</button>
-          <button id="favImportBtn" class="main-menu__item" type="button">Favori Yükle (json)</button>
+          <button id="settingsMenuBtn" class="main-menu__item" type="button">
+            <img class="main-menu__icon" src="appIcon/Setting.256.png" alt="" aria-hidden="true" />
+            <span>Ayarlar</span>
+          </button>
+          <div id="menuSepAfterSettings" class="main-menu__sep" aria-hidden="true"></div>
+          <a class="main-menu__item" href="https://dilousta58.github.io/RadioStation58/WebRadio-release.apk" download>
+            <img class="main-menu__icon" src="appIcon/Android.256.png" alt="" aria-hidden="true" />
+            <span>Telefona (Android) indir</span>
+          </a>
+          <div id="menuSepAfterAndroid" class="main-menu__sep" aria-hidden="true"></div>
+          <button id="favExportBtn" class="main-menu__item" type="button">
+            <img class="main-menu__icon" src="appIcon/SaveAs.256.png" alt="" aria-hidden="true" />
+            <span>Favori farklı kayıt et</span>
+          </button>
+          <button id="favImportBtn" class="main-menu__item" type="button">
+            <img class="main-menu__icon" src="appIcon/Load_List.256.png" alt="" aria-hidden="true" />
+            <span>Favori Yükle (json)</span>
+          </button>
           <input id="favImportInput" type="file" accept="application/json,.json" class="is-hidden" />
+          <div id="menuSepBeforeInstall" class="main-menu__sep is-hidden" aria-hidden="true"></div>
         <button id="installBtn" class="btn btn--primary installbtn is-hidden" type="button">
           Yükle (PWA)..
         </button>          
@@ -406,6 +421,7 @@
       // PWA-Installation handhaben
           let deferredPrompt;
           const installBtn = document.getElementById('installBtn');
+          const menuSepBeforeInstall = document.getElementById('menuSepBeforeInstall');
 
           window.addEventListener('beforeinstallprompt', (e) => {
             // 1. Verhindern, dass Chrome den Standard-Mini-Banner sofort zeigt
@@ -414,6 +430,7 @@
             deferredPrompt = e;
             // 3. Deinen eigenen Installations-Button jetzt anzeigen
             installBtn.classList.remove('is-hidden');
+            if (menuSepBeforeInstall) menuSepBeforeInstall.classList.remove('is-hidden');
             installBtn.addEventListener('click', () => {
               // 4. Den gespeicherten Installations-Dialog anzeigen
               deferredPrompt.prompt();
@@ -424,6 +441,7 @@
                 }
                 // Button nach der Entscheidung wieder verstecken
                 installBtn.classList.add('is-hidden');
+                if (menuSepBeforeInstall) menuSepBeforeInstall.classList.add('is-hidden');
                 deferredPrompt = null;
               });
             });
@@ -433,6 +451,7 @@
           window.addEventListener('appinstalled', () => {
             console.log('PWA wurde erfolgreich installiert');
             installBtn.classList.add('is-hidden');
+            if (menuSepBeforeInstall) menuSepBeforeInstall.classList.add('is-hidden');
           });
 
     // iOS-spezifischer Hinweis für die Installation als PWA

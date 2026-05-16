@@ -175,6 +175,22 @@ code {
   font-weight: 700;
   text-align: left;
   text-decoration: none;
+  gap: 10px;
+}
+
+.main-menu__icon {
+  width: clamp(18px, 3.2vw, 26px);
+  height: clamp(18px, 3.2vw, 26px);
+  flex: 0 0 auto;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+
+.main-menu__sep {
+  height: 1px;
+  margin: 6px 2px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
 }
 
 .main-menu__item:hover:not(:disabled) {
