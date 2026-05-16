@@ -31,6 +31,10 @@ const els = {
   favExportBtn: document.getElementById("favExportBtn"),
   favImportBtn: document.getElementById("favImportBtn"),
   favImportInput: document.getElementById("favImportInput"),
+  favJsonPanel: document.getElementById("favJsonPanel"),
+  favJsonText: document.getElementById("favJsonText"),
+  favJsonCloseBtn: document.getElementById("favJsonCloseBtn"),
+  favJsonCopyBtn: document.getElementById("favJsonCopyBtn"),
   carmodBtn: document.getElementById("carmodBtn"),
   brandTitle: document.getElementById("brandTitle"),
   brandSubtitle: document.getElementById("brandSubtitle"),
@@ -2596,6 +2600,14 @@ function setSettingsOpen(open) {
   if (open) setMenuOpen(false);
 }
 
+function setFavJsonOpen(open) {
+  els.favJsonPanel?.classList.toggle("is-hidden", !open);
+  if (open) {
+    setMenuOpen(false);
+    setSettingsOpen(false);
+  }
+}
+
 function setMenuOpen(open) {
   els.mainMenu?.classList.toggle("is-hidden", !open);
   els.menuBtn?.setAttribute("aria-expanded", String(Boolean(open)));
@@ -2741,6 +2753,11 @@ function wireEvents() {
     }
   });
   els.favImportInput?.addEventListener("change", () => void importFavoritesJsonFromFile());
+  els.favJsonCloseBtn?.addEventListener("click", () => setFavJsonOpen(false));
+  els.favJsonPanel?.addEventListener("click", (event) => {
+    if (event.target === els.favJsonPanel) setFavJsonOpen(false);
+  });
+  els.favJsonCopyBtn?.addEventListener("click", () => void copyFavJsonToClipboard());
   els.carmodBtn?.addEventListener("click", () => {
     const enabled = !document.body.classList.contains("is-carmode");
     setCarMode(enabled);
@@ -3037,12 +3054,41 @@ function downloadTextFile(fileName, text) {
 function exportFavoritesJson() {
   try {
     const payload = favoritesExportPayload();
+    const json = JSON.stringify(payload, null, 2);
+
+    // iOS Safari/PWA often blocks downloads; show JSON + copy instead.
+    const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent || "");
+    if (isiOS) {
+      if (els.favJsonText) els.favJsonText.value = json;
+      setFavJsonOpen(true);
+      return;
+    }
+
     const fileName = `WebRadio_Favoriler_${new Date().toISOString().slice(0, 10)}.json`;
-    downloadTextFile(fileName, JSON.stringify(payload, null, 2));
+    downloadTextFile(fileName, json);
     popupMessage(`Favoriler kaydedildi.\n${payload.favorites.length} öğe`);
     setMenuOpen(false);
   } catch (err) {
     popupMessage(`Favoriler kaydedilemedi.\n${String(err?.message || err)}`);
+  }
+}
+
+async function copyFavJsonToClipboard() {
+  const text = String(els.favJsonText?.value || "").trim();
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    popupMessage("Kopyalandı.");
+  } catch {
+    // Fallback for iOS
+    try {
+      els.favJsonText?.focus();
+      els.favJsonText?.select();
+      document.execCommand("copy");
+      popupMessage("Kopyalandı.");
+    } catch (err) {
+      popupMessage(`Kopyalanamadı.\n${String(err?.message || err)}`);
+    }
   }
 }
 

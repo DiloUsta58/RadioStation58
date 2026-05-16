@@ -1958,6 +1958,22 @@ body.is-carmode .app-footer {
   padding: 16px;
 }
 
+.favjson__text {
+  width: 100%;
+  min-height: 180px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #1f1f1f;
+  color: var(--text);
+  padding: 10px 12px;
+  font: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.35;
+  outline: none;
+}
+
 .setting-row {
   display: flex;
   align-items: center;

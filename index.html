@@ -345,6 +345,27 @@
     </section>
 
 <!-- =========================
+  Favori JSON (iOS: kopyala/yapıştır)
+========================== -->
+    <section id="favJsonPanel" class="settingspanel is-hidden" role="dialog" aria-modal="true" aria-label="Favoriler JSON">
+      <div class="settingspanel__box">
+        <div class="settingspanel__head">
+          <div>
+            <div class="settingspanel__title">Favoriler (JSON)</div>
+            <div class="settingspanel__sub">iOS için: kopyala ve sakla</div>
+          </div>
+          <button id="favJsonCloseBtn" class="settingspanel__close" type="button" aria-label="Kapat">×</button>
+        </div>
+        <div class="settingspanel__body">
+          <textarea id="favJsonText" class="favjson__text" rows="10" spellcheck="false" aria-label="Favoriler JSON"></textarea>
+          <div class="setting-actions">
+            <button id="favJsonCopyBtn" type="button">Kopyala</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<!-- =========================
   Alt bilgi
 ========================== -->
         <div class="meta">
