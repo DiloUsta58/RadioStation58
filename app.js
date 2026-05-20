@@ -2,6 +2,7 @@
 
 const RADIO_LIST_URL = "rlist/radio.lst";
 const CITY_LIST_DIR = "ŞehirlerRadio";
+const PLAYLIST_DIR = "playlist";
 const LS_FAV_KEY = "webRadioStation:favorites:v1";
 const LS_FAV_URL_KEY = "webRadioStation:favoritesByUrl:v1";
 const LS_STREAM_PREF_KEY = "webRadioStation:streamIndexByStation:v1";
@@ -16,6 +17,7 @@ const LS_STATION_FONT_SIZE_KEY = "webRadioStation:stationFontSize:v1";
 const LS_TIME_FONT_SIZE_KEY = "webRadioStation:timeFontSize:v1";
 const LS_AUTOSTART_KEY = "webRadioStation:autoStartOnLaunch:v1";
 const LS_UPDATE_INTERVAL_MIN_KEY = "webRadioStation:updateIntervalMin:v1";
+const LS_PLAYLIST_FAV_IMPORT_STATE_KEY = "webRadioStation:playlistFavAutoImportState:v1";
 const ADMIN_SAVE_URL = "admin/save-radio.php";
 const ICY_META_URL = "api/icy-metadata.php";
 const STREAM_CHECK_ENABLED = true;
@@ -1481,6 +1483,8 @@ function scheduleAutoSkip(reason, { token } = {}) {
   autoSkipTimer = window.setTimeout(() => {
     autoSkipTimer = 0;
     if (typeof guardToken === "number" && selectionToken !== guardToken) return;
+    // First try alternative stream URLs of the same station (if any).
+    if (tryNextStreamInStation()) return;
     nextStation({ initiatedByUser: false });
     void play({ initiatedByUser: false });
   }, 350);
@@ -1774,6 +1778,42 @@ function findNextUnblockedIndex(station, startIdx) {
     if (!blocked.has(station.streams[idx])) return idx;
   }
   return startIdx;
+}
+
+function findNextUnblockedIndexForward(station, startIdx) {
+  if (!station || !Array.isArray(station.streams) || station.streams.length === 0) return -1;
+  const start = Math.max(0, Number.parseInt(String(startIdx ?? 0), 10) || 0);
+  if (start >= station.streams.length) return -1;
+  if (!streamDiagnosticsEnabled) return start;
+
+  const blocked = getBlockedUrlsSet();
+  for (let idx = start; idx < station.streams.length; idx++) {
+    const url = station.streams[idx];
+    if (!blocked.has(url)) return idx;
+  }
+  return -1;
+}
+
+function tryNextStreamInStation() {
+  const st = getActiveStation();
+  if (!st || !Array.isArray(st.streams) || st.streams.length < 2) return false;
+  if (!els.streamSelect) return false;
+
+  const currentIdx = Math.max(0, Number.parseInt(String(els.streamSelect.value || "0"), 10) || 0);
+  const nextIdx = findNextUnblockedIndexForward(st, currentIdx + 1);
+  if (nextIdx < 0) return false;
+
+  try {
+    if (recording) stopRecording();
+  } catch {
+    // ignore
+  }
+  stopPlaybackTimer();
+  stopConnectionTimeout({ preserveAttempts: false });
+  selectionToken++;
+  els.streamSelect.value = String(nextIdx);
+  void play({ initiatedByUser: false });
+  return true;
 }
 
 async function probeStreamUrl(url, timeoutMs = 5000) {
@@ -3155,35 +3195,202 @@ async function importFavoritesJsonFromFile() {
     const text = await file.text();
     const data = safeJsonParse(text, null);
 
-    let urls = [];
-    if (data && typeof data === "object" && Array.isArray(data.favorites)) {
-      urls = data.favorites;
-    } else if (Array.isArray(data)) {
-      urls = data;
-    } else {
-      throw new Error("Geçersiz JSON formatı");
-    }
-
-    const incoming = new Set(urls.filter((x) => typeof x === "string").map((x) => x.trim()).filter(Boolean));
-    if (!incoming.size) throw new Error("Favori listesi boş");
-
-    const before = getFavoriteUrlsSet();
-    let added = 0;
-    for (const u of incoming) {
-      if (!before.has(u)) added++;
-      before.add(u);
-    }
-    setFavoriteUrlsSet(before);
-
-    updateFavoriteButtons();
-    renderList();
-    updateTabLabels();
-    updateCarModeNowPlaying();
-
-    popupMessage(`Favoriler yüklendi.\n+${added} yeni, toplam ${before.size}`);
+    const result = importFavoritesFromJsonData(data);
+    popupMessage(`Favoriler yüklendi.\n+${result.added} yeni, toplam ${result.total}`);
     setMenuOpen(false);
   } catch (err) {
     popupMessage(`Favoriler yüklenemedi.\n${String(err?.message || err)}`);
+  }
+}
+
+function importFavoritesFromJsonData(data) {
+  let urls = [];
+  if (data && typeof data === "object" && Array.isArray(data.favorites)) {
+    urls = data.favorites;
+  } else if (Array.isArray(data)) {
+    urls = data;
+  } else {
+    throw new Error("Geçersiz JSON formatı");
+  }
+
+  const incoming = new Set(urls.filter((x) => typeof x === "string").map((x) => x.trim()).filter(Boolean));
+  if (!incoming.size) throw new Error("Favori listesi boş");
+
+  const before = getFavoriteUrlsSet();
+  let added = 0;
+  for (const u of incoming) {
+    if (!before.has(u)) added++;
+    before.add(u);
+  }
+  setFavoriteUrlsSet(before);
+
+  updateFavoriteButtons();
+  renderList();
+  updateTabLabels();
+  updateCarModeNowPlaying();
+
+  return { added, total: before.size };
+}
+
+function getPlaylistFavAutoImportState() {
+  const raw = localStorage.getItem(LS_PLAYLIST_FAV_IMPORT_STATE_KEY);
+  const obj = safeJsonParse(raw, {});
+  return obj && typeof obj === "object" ? obj : {};
+}
+
+function setPlaylistFavAutoImportState(state) {
+  try {
+    localStorage.setItem(LS_PLAYLIST_FAV_IMPORT_STATE_KEY, JSON.stringify(state || {}));
+  } catch {
+    // ignore
+  }
+}
+
+async function loadPlaylistJsonFilesDynamic() {
+  /** @type {{file: string, label?: string}[]} */
+  let items = [];
+  const isLocalAsset = location.protocol === "file:" || isAndroidApp();
+
+  // Prefer PHP directory listing when served via XAMPP/HTTP.
+  if (!isLocalAsset) {
+    try {
+      const res = await fetch("api/list-playlist-json.php", { cache: "no-store" });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data && data.ok && Array.isArray(data.items)) items = data.items;
+    } catch {
+      // ignore
+    }
+  }
+
+  // Fallback for APK/file:// runs: use a generated playlist/index.json shipped with assets.
+  if (!items.length) {
+    try {
+      const indexUrl = `${PLAYLIST_DIR}/index.json`;
+      if (isLocalAsset) {
+        const raw = await loadTextAsset(indexUrl);
+        const data = safeJsonParse(raw, null);
+        if (Array.isArray(data)) items = data;
+      } else {
+        const res = await fetch(indexUrl, { cache: "no-store" });
+        const data = await res.json().catch(() => null);
+        if (res.ok && Array.isArray(data)) items = data;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const collator = (() => {
+    try {
+      return new Intl.Collator("tr", { sensitivity: "base", numeric: true });
+    } catch {
+      return null;
+    }
+  })();
+
+  return items
+    .map((entry) => {
+      const file = String(entry?.file || entry?.value || "").trim();
+      const label = String(entry?.label || file).trim() || file;
+      return { file, label };
+    })
+    .filter((x) => x.file.toLowerCase().endsWith(".json") && x.file.toLowerCase() !== "index.json")
+    .sort((a, b) => {
+      if (collator) return collator.compare(a.label, b.label);
+      return a.label.localeCompare(b.label);
+    });
+}
+
+function showPlaylistFavImportPrompt({ fileLabel }) {
+  return new Promise((resolve) => {
+    document.querySelector(".confirm-notice")?.remove();
+    const box = document.createElement("div");
+    box.className = "confirm-notice";
+    box.innerHTML = `
+      <div class="update-box" role="dialog" aria-modal="true" aria-label="Favori dosyası">
+        <h3>Favori dosya mevcut</h3>
+        <p>${escapeHtml(fileLabel)}<br/>Eklensin mi?</p>
+        <div class="update-actions">
+          <button id="favAutoImportYesBtn" type="button">Evet</button>
+          <button id="favAutoImportNoBtn" class="secondary" type="button">Hayır</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(box);
+
+    const done = (value) => {
+      try {
+        box.remove();
+      } catch {
+        // ignore
+      }
+      resolve(Boolean(value));
+    };
+
+    box.addEventListener("click", (e) => {
+      if (e.target === box) done(false);
+    });
+
+    document.getElementById("favAutoImportNoBtn")?.addEventListener("click", () => done(false));
+    document.getElementById("favAutoImportYesBtn")?.addEventListener("click", () => done(true));
+  });
+}
+
+let playlistFavAutoImportChecked = false;
+async function maybeAutoImportFavoritesFromPlaylist() {
+  if (playlistFavAutoImportChecked) return;
+  playlistFavAutoImportChecked = true;
+
+  let files = [];
+  try {
+    files = await loadPlaylistJsonFilesDynamic();
+  } catch {
+    files = [];
+  }
+  if (!files.length) return;
+
+  const state = getPlaylistFavAutoImportState();
+  const isLocalAsset = location.protocol === "file:" || isAndroidApp();
+
+  for (const entry of files) {
+    const file = entry.file;
+    const label = entry.label || file;
+    const url = `${PLAYLIST_DIR}/${encodeURIComponent(file)}`;
+
+    let text = "";
+    try {
+      if (isLocalAsset) text = await loadTextAsset(url);
+      else {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        text = await res.text();
+      }
+    } catch {
+      continue;
+    }
+
+    const data = safeJsonParse(text, null);
+    if (!data || typeof data !== "object" || !Array.isArray(data.favorites)) continue;
+
+    const exportedAt = String(data.exportedAt || "").trim();
+    if (!exportedAt) continue;
+
+    const prev = state[file];
+    if (prev && typeof prev === "object" && String(prev.exportedAt || "") === exportedAt) {
+      continue; // already decided for this exact file version
+    }
+
+    const yes = await showPlaylistFavImportPrompt({ fileLabel: label });
+    state[file] = { exportedAt, decision: yes ? "yes" : "no", decidedAt: Date.now() };
+    setPlaylistFavAutoImportState(state);
+
+    if (!yes) continue;
+    try {
+      const result = importFavoritesFromJsonData(data);
+      popupMessage(`Favoriler eklendi.\n${label}\n+${result.added} yeni, toplam ${result.total}`);
+    } catch (err) {
+      popupMessage(`Favoriler eklenemedi.\n${label}\n${String(err?.message || err)}`);
+    }
   }
 }
 
@@ -3304,6 +3511,7 @@ async function init() {
   void checkCurrentStream({ fastOnly: true });
   setAdminVisible(false);
   setAdminOpen(false);
+  await maybeAutoImportFavoritesFromPlaylist();
   checkAndroidUpdateVersionOnStart();
   rescheduleUpdatePoll();
   scheduleUiSave();

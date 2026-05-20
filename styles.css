@@ -2120,6 +2120,16 @@ body.is-carmode .app-footer {
   background: rgba(0, 0, 0, 0.55);
 }
 
+.confirm-notice {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+}
+
 .update-box {
   width: min(360px, 100%);
   padding: 22px;
